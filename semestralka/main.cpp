@@ -16,7 +16,7 @@ int main(int argc, char* argv[]){
     std::string filename = "";
 
     if (argc >= 2){
-        filename = args.at(1);
+        filename = args.at(0); // 0 because in args is one item less (no executable path)
     }
 
     setup_cmds(manager);
@@ -37,7 +37,7 @@ void terminal(jkfs::CommandManager& a_manager, std::string& a_filename){
     bool exit = false;
     std::string line;
 
-    std::cout << "Vitejte ve filesystemu. Zadavejte prikazy. U kazdeho muzete napsat -h a dostanete napovedu." << std::endl;
+    std::cout << "Welcome in the filesystem. Enter commands. When entering -h along with the command, you'll get help." << std::endl;
     a_manager.set_filename(a_filename);
 
     while (!exit) {
@@ -47,5 +47,5 @@ void terminal(jkfs::CommandManager& a_manager, std::string& a_filename){
         exit = a_manager.exit();
     }
 
-    std::cout << "Dekujeme, ze jste pouzivali filesystem. Tesime se na priste..." << std::endl;
+    std::cout << "Thanks for using the filesystem, see you later..." << std::endl;
 }
