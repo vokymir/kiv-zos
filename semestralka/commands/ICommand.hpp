@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -26,19 +27,27 @@ public:
     std::string id() { return m_id; }
     // Get concrete help for using the command.
     std::string help() {
-        std::string res =
-        "Command: " + m_name + "\n" +
-        m_desc + "\n" +
-        "Usage: " + m_id + "\n" +
-        m_how + "\n" +
-        "\n";
+        std::string res = "";
+        res += "┌─\n";
+        res += "| << " + m_name + " >>\n";
+        res += "| " + m_desc + "\n";
+        res += "├─\n";
+        res += "| Usage: " + m_id + "\n";
+        res += "| " + m_how + "\n";
+        res += "├─\n";
 
-        for (auto example : m_exmp){
-            res += example + "\n";
+        if (!m_exmp.empty()){
+            res += "| Examples:\n";
+
+            for (auto example : m_exmp){
+                res += "| " + example + "\n";
+            }
         }
 
+        res += "└─\n";
         return res;
     }
+    void print_help() { std::cout << help() << std::flush; }
 };
 
 }

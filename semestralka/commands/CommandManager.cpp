@@ -7,10 +7,11 @@ namespace jkfs {
 
 // Add to available commands, if the name is not already registered.
 void CommandManager::registerCommand(std::unique_ptr<ICommand> a_command){
-    if (m_commands.count(a_command->id()) > 0) {
+    auto result = m_commands.insert({a_command->id(), std::move(a_command)});
+    if (!result.second) {
         std::cout << "Command " << a_command->id() << " already registered!\n";
     } else {
-        m_commands[a_command->name()] = std::move(a_command);
+        std::cout << "Registered " << result.first->second->name() << " command!\n";
     }
 }
 
@@ -32,10 +33,10 @@ void CommandManager::runCommand(std::string& a_line){
 
     auto it = m_commands.find(cmdName);
     if (it != m_commands.end()) {
-        if (help) { it->second->help(); }
+        if (help) { it->second->print_help(); }
         else { it->second->execute(args); }
     } else {
-        std::cout << "Unknown command: " << cmdName << "\n";
+        std::cout << "Unknown command: " << cmdName << std::endl;
     }
 }
 

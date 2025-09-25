@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 #include "commands.hpp"
 
@@ -13,7 +14,9 @@ CpCommand::CpCommand() {
 }
 
 void CpCommand::execute(std::vector<std::string>& a_args){
-    std::cout << a_args[0] << std::endl;
+    std::string args = "";
+    for (auto arg : a_args){args += arg + " ";}
+    std::cout << "Running " + m_name + " command, with arguments: " << args << std::endl;
 }
 
 
