@@ -6,7 +6,6 @@
 
 namespace jkfs {
 
-
 class CpCommand : public ICommand { // 1
 public:
     CpCommand();
