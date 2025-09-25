@@ -11,6 +11,7 @@ CMakeFiles/
 cmake_install.cmake
 CTestTestfile.cmake
 Makefile
+.cache/
 
 # Executables and libraries
 *.a

@@ -27,7 +27,9 @@ int main(int argc, char* argv[]){
 }
 
 // Register all commands to the Command Manager.
+// Set managers vocal level.
 void setup_cmds(jkfs::CommandManager& a_manager){
+    a_manager.set_vocal(false);
     a_manager.registerCommand(std::make_unique<jkfs::CpCommand>());
     a_manager.registerCommand(std::make_unique<jkfs::ExitCommand>());
 }

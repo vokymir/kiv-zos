@@ -8,6 +8,8 @@ namespace jkfs {
 // Add to available commands, if the name is not already registered.
 void CommandManager::registerCommand(std::unique_ptr<ICommand> a_command){
     auto result = m_commands.insert({a_command->id(), std::move(a_command)});
+    if (!m_vocal) { return; }
+
     if (!result.second) {
         std::cout << "Command " << a_command->id() << " already registered!\n";
     } else {
