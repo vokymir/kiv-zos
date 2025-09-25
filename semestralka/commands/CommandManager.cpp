@@ -17,7 +17,7 @@ void CommandManager::registerCommand(std::unique_ptr<ICommand> a_command){
 
 // Parse the line from the 'terminal' and run the corresponding command.
 // If the commands doesn't exist, warns the user.
-void CommandManager::runCommand(std::string& a_line){
+void CommandManager::runCommand(const std::string& a_line){
     std::istringstream iss(a_line);
     std::string cmdName;
     std::vector<std::string> args;
@@ -34,7 +34,10 @@ void CommandManager::runCommand(std::string& a_line){
     auto it = m_commands.find(cmdName);
     if (it != m_commands.end()) {
         if (help) { it->second->print_help(); }
-        else { it->second->execute(args); }
+        else {
+            it->second->execute(args);
+            if (it->second->id() == "exit") { m_exit_flag = true; }
+        }
     } else {
         std::cout << "Unknown command: " << cmdName << std::endl;
     }

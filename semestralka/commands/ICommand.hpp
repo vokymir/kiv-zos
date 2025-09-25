@@ -17,7 +17,7 @@ protected:
     // How to use this command.
     std::string m_how = "This command cannot be invoked from the command line.";
     // Examples.
-    std::vector<std::string> m_exmp{""};
+    std::vector<std::string> m_exmp{};
 public:
     virtual ~ICommand() = default;
     // Given vector of arguments, execute the command.
@@ -34,9 +34,9 @@ public:
         res += "├─\n";
         res += "| Usage: " + m_id + "\n";
         res += "| " + m_how + "\n";
-        res += "├─\n";
 
         if (!m_exmp.empty()){
+            res += "├─\n";
             res += "| Examples:\n";
 
             for (auto example : m_exmp){

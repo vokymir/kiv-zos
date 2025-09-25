@@ -13,6 +13,12 @@
 },
 {
   "directory": "/home/javok/Desktop/School/kiv-zos/semestralka/build",
+  "command": "/usr/bin/c++  -I/home/javok/Desktop/School/kiv-zos/semestralka/commands -g -std=c++23 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wformat=2 -Wimplicit-fallthrough -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference -Wuseless-cast -Wdouble-promotion -o CMakeFiles/semestralka.dir/commands/ExitCommand.cpp.o -c /home/javok/Desktop/School/kiv-zos/semestralka/commands/ExitCommand.cpp",
+  "file": "/home/javok/Desktop/School/kiv-zos/semestralka/commands/ExitCommand.cpp",
+  "output": "CMakeFiles/semestralka.dir/commands/ExitCommand.cpp.o"
+},
+{
+  "directory": "/home/javok/Desktop/School/kiv-zos/semestralka/build",
   "command": "/usr/bin/c++  -I/home/javok/Desktop/School/kiv-zos/semestralka/commands -g -std=c++23 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wpedantic -Wconversion -Wsign-conversion -Wformat=2 -Wimplicit-fallthrough -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wnull-dereference -Wuseless-cast -Wdouble-promotion -o CMakeFiles/semestralka.dir/main.cpp.o -c /home/javok/Desktop/School/kiv-zos/semestralka/main.cpp",
   "file": "/home/javok/Desktop/School/kiv-zos/semestralka/main.cpp",
   "output": "CMakeFiles/semestralka.dir/main.cpp.o"
