@@ -8,7 +8,8 @@ namespace jkfs {
 MvCommand::MvCommand() {
     m_id = "mv";
     m_name = "Move";
-    m_desc = "Move one file to another location. Can be also used for renaming.";
+    m_desc = "Move one file to another location.\n\
+| Can be also used for renaming.";
     m_how = "mv s1 s2 // where s1 is source and s2 target location";
 }
 

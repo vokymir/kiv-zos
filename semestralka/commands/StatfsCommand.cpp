@@ -8,7 +8,8 @@ namespace jkfs {
 StatfsCommand::StatfsCommand() {
     m_id = "statfs";
     m_name = "Statistics of filesystem";
-    m_desc = "Print parametrics of the filesystem, such as size, number of i-nodes, number of directories, ...";
+    m_desc = "Print parametrics of the filesystem, such as size,\n\
+| number of i-nodes, number of directories, ...";
     m_how = "statfs";
 }
 
