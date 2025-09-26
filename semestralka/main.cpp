@@ -31,7 +31,23 @@ int main(int argc, char* argv[]){
 void setup_cmds(jkfs::CommandManager& a_manager){
     a_manager.set_vocal(false);
     a_manager.registerCommand(std::make_unique<jkfs::CpCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::MvCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::RmCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::MkdirCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::RmdirCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::LsCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::CatCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::CdCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::PwdCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::InfoCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::IncpCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::OutcpCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::LoadCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::FormatCommand>());
     a_manager.registerCommand(std::make_unique<jkfs::ExitCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::StatfsCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::XcpCommand>());
+    a_manager.registerCommand(std::make_unique<jkfs::AddCommand>());
 }
 
 // Start and run the terminal.
