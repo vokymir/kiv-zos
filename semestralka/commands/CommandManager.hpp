@@ -18,9 +18,10 @@ public:
     void registerCommand(std::unique_ptr<ICommand> a_command);
     void runCommand(const std::string& a_line);
     bool exit() { return m_exit_flag; }
-    void set_vocal(const bool a_is_vocal) { m_vocal = a_is_vocal; }
-    void set_filename(const std::string a_filename) { m_filename = a_filename; }
-    std::string get_filename() { return m_filename; }
+    void setVocal(const bool a_is_vocal) { m_vocal = a_is_vocal; }
+    void setFilename(const std::string a_filename) { m_filename = a_filename; }
+    std::string getFilename() { return m_filename; }
+    std::string getAllCommands();
 };
 
 }

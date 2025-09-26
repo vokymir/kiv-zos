@@ -45,4 +45,15 @@ void CommandManager::runCommand(const std::string& a_line){
     }
 }
 
+// Return all available (= registered) commands separated by whitespace.
+std::string CommandManager::getAllCommands(){
+    std::string res = "";
+
+    for (auto& cmd : m_commands){
+        res += cmd.first + " ";
+    }
+
+    return res;
+}
+
 }

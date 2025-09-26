@@ -29,7 +29,7 @@ int main(int argc, char* argv[]){
 // Register all commands to the Command Manager.
 // Set managers vocal level.
 void setup_cmds(jkfs::CommandManager& a_manager){
-    a_manager.set_vocal(false);
+    a_manager.setVocal(false);
     a_manager.registerCommand(std::make_unique<jkfs::CpCommand>());
     a_manager.registerCommand(std::make_unique<jkfs::MvCommand>());
     a_manager.registerCommand(std::make_unique<jkfs::RmCommand>());
@@ -55,8 +55,11 @@ void terminal(jkfs::CommandManager& a_manager, std::string& a_filename){
     bool exit = false;
     std::string line;
 
-    std::cout << "Welcome in the filesystem. Enter commands. When entering -h along with the command, you'll get help." << std::endl;
-    a_manager.set_filename(a_filename);
+    std::cout << "Welcome in the filesystem. Enter any command to continue.\n\
+When entered -h after any command, help for the command will be shown.\n\
+All available commands:\n"
+        + a_manager.getAllCommands()<< std::endl;
+    a_manager.setFilename(a_filename);
 
     while (!exit) {
         std::cout << "> ";
