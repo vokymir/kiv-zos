@@ -10,18 +10,18 @@ namespace jkfs {
 
 class CommandManager {
 private:
-  bool m_exit_flag = false;
-  bool m_vocal = false;
-  std::string m_filename = "";
-  std::map<std::string, std::unique_ptr<ICommand>> m_commands;
+  bool exit_flag_ = false;
+  bool vocal_ = false;
+  std::string filename_ = "";
+  std::map<std::string, std::unique_ptr<ICommand>> commands_;
 
 public:
-  void registerCommand(std::unique_ptr<ICommand> a_command);
-  void runCommand(const std::string &a_line);
-  bool exit() { return m_exit_flag; }
-  void setVocal(const bool a_is_vocal) { m_vocal = a_is_vocal; }
-  void setFilename(const std::string a_filename) { m_filename = a_filename; }
-  std::string getFilename() { return m_filename; }
+  void registerCommand(std::unique_ptr<ICommand> command);
+  void runCommand(const std::string &line);
+  bool exit() { return exit_flag_; }
+  void setVocal(const bool is_vocal) { vocal_ = is_vocal; }
+  void setFilename(const std::string filename) { filename_ = filename; }
+  std::string getFilename() { return filename_; }
   std::string getAllCommands();
 };
 

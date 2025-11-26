@@ -6,11 +6,11 @@
 namespace jkfs {
 
 InfoCommand::InfoCommand() {
-  m_id = "info";
-  m_name = "Info";
-  m_desc = "Print info about file/directory.";
-  m_how = "info f1 // f1 is either file or folder";
-  m_exmp = {"info file.txt", "info my_folder"};
+  id_ = "info";
+  name_ = "Info";
+  desc_ = "Print info about file/directory.";
+  how_ = "info f1 // f1 is either file or folder";
+  exmp_ = {"info file.txt", "info my_folder"};
 }
 
 void InfoCommand::execute(std::vector<std::string> &a_args) {
@@ -18,7 +18,7 @@ void InfoCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

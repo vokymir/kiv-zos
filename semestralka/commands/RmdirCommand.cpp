@@ -6,10 +6,10 @@
 namespace jkfs {
 
 RmdirCommand::RmdirCommand() {
-  m_id = "rmdir";
-  m_name = "Remove directory";
-  m_desc = "Remove directory if exists and is empty.";
-  m_how = "rmdir empty_dir";
+  id_ = "rmdir";
+  name_ = "Remove directory";
+  desc_ = "Remove directory if exists and is empty.";
+  how_ = "rmdir empty_dir";
 }
 
 void RmdirCommand::execute(std::vector<std::string> &a_args) {
@@ -17,7 +17,7 @@ void RmdirCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

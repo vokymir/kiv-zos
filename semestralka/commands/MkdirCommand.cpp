@@ -6,10 +6,10 @@
 namespace jkfs {
 
 MkdirCommand::MkdirCommand() {
-  m_id = "mkdir";
-  m_name = "Make directory";
-  m_desc = "Make new direcory if possible.";
-  m_how = "mkdir new-directory";
+  id_ = "mkdir";
+  name_ = "Make directory";
+  desc_ = "Make new direcory if possible.";
+  how_ = "mkdir new-directory";
 }
 
 void MkdirCommand::execute(std::vector<std::string> &a_args) {
@@ -17,7 +17,7 @@ void MkdirCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

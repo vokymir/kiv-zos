@@ -56,13 +56,13 @@ void setup_cmds(jkfs::CommandManager &a_manager) {
 void terminal(jkfs::CommandManager &a_manager, std::string &a_filename) {
   bool exit = false;
   std::string line;
+  a_manager.setFilename(a_filename);
 
-  std::cout << "Welcome in the filesystem. Enter any command to continue.\n\
+  std::cout << "Welcome to the filesystem. Enter any command to continue.\n\
 When entered -h after any command, help for the command will be shown.\n\
-All available commands:\n" +
+All available commands (see 'help' command):\n" +
                    a_manager.getAllCommands()
             << std::endl;
-  a_manager.setFilename(a_filename);
 
   while (!exit) {
     std::cout << "> ";

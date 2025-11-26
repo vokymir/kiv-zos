@@ -6,10 +6,10 @@
 namespace jkfs {
 
 CatCommand::CatCommand() {
-  m_id = "cat";
-  m_name = "Concatenate";
-  m_desc = "Print the contents of one file.";
-  m_how = "cat file.txt";
+  id_ = "cat";
+  name_ = "Concatenate";
+  desc_ = "Print the contents of one file.";
+  how_ = "cat file.txt";
 }
 
 void CatCommand::execute(std::vector<std::string> &a_args) {
@@ -17,7 +17,7 @@ void CatCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

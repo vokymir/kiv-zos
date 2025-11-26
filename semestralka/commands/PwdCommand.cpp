@@ -6,10 +6,10 @@
 namespace jkfs {
 
 PwdCommand::PwdCommand() {
-  m_id = "pwd";
-  m_name = "Print working directory";
-  m_desc = "Display the full name of current directory, from the 'root'.";
-  m_how = "pwd";
+  id_ = "pwd";
+  name_ = "Print working directory";
+  desc_ = "Display the full name of current directory, from the 'root'.";
+  how_ = "pwd";
 }
 
 void PwdCommand::execute(std::vector<std::string> &a_args) {
@@ -17,7 +17,7 @@ void PwdCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

@@ -6,10 +6,10 @@
 namespace jkfs {
 
 LsCommand::LsCommand() {
-  m_id = "ls";
-  m_name = "List directory";
-  m_desc = "List all items in directory.";
-  m_how = "ls . // lists all items in current directory";
+  id_ = "ls";
+  name_ = "List directory";
+  desc_ = "List all items in directory.";
+  how_ = "ls . // lists all items in current directory";
 }
 
 void LsCommand::execute(std::vector<std::string> &a_args) {
@@ -17,7 +17,7 @@ void LsCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

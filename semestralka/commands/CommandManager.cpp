@@ -6,14 +6,14 @@
 namespace jkfs {
 
 // Add to available commands, if the name is not already registered.
-void CommandManager::registerCommand(std::unique_ptr<ICommand> a_command) {
-  auto result = m_commands.insert({a_command->id(), std::move(a_command)});
-  if (!m_vocal) {
+void CommandManager::registerCommand(std::unique_ptr<ICommand> command) {
+  auto result = commands_.insert({command->id(), std::move(command)});
+  if (!vocal_) {
     return;
   }
 
   if (!result.second) {
-    std::cout << "Command " << a_command->id() << " already registered!\n";
+    std::cout << "Command " << command->id() << " already registered!\n";
   } else {
     std::cout << "Registered " << result.first->second->name() << " command!\n";
   }
@@ -21,8 +21,8 @@ void CommandManager::registerCommand(std::unique_ptr<ICommand> a_command) {
 
 // Parse the line from the 'terminal' and run the corresponding command.
 // If the commands doesn't exist, warns the user.
-void CommandManager::runCommand(const std::string &a_line) {
-  std::istringstream iss(a_line);
+void CommandManager::runCommand(const std::string &line) {
+  std::istringstream iss(line);
   std::string cmdName;
   std::vector<std::string> args;
   std::string arg;
@@ -37,18 +37,19 @@ void CommandManager::runCommand(const std::string &a_line) {
     }
   }
 
-  auto it = m_commands.find(cmdName);
-  if (it != m_commands.end()) {
-    if (help) {
-      it->second->print_help();
-    } else {
-      it->second->execute(args);
-      if (it->second->id() == "exit") {
-        m_exit_flag = true;
-      }
-    }
-  } else {
+  auto it = commands_.find(cmdName);
+  if (it == commands_.end()) {
     std::cout << "Unknown command: " << cmdName << std::endl;
+    return;
+  }
+
+  if (help) {
+    it->second->print_help();
+  } else {
+    it->second->execute(args);
+    if (it->second->id() == "exit") {
+      exit_flag_ = true;
+    }
   }
 }
 
@@ -56,7 +57,7 @@ void CommandManager::runCommand(const std::string &a_line) {
 std::string CommandManager::getAllCommands() {
   std::string res = "";
 
-  for (auto &cmd : m_commands) {
+  for (auto &cmd : commands_) {
     res += cmd.first + " ";
   }
 

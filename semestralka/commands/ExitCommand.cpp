@@ -7,10 +7,10 @@
 namespace jkfs {
 
 ExitCommand::ExitCommand() {
-  m_id = "exit";
-  m_name = "Exit";
-  m_desc = "Leave the filesystem terminal.";
-  m_how = "exit // just write this";
+  id_ = "exit";
+  name_ = "Exit";
+  desc_ = "Leave the filesystem terminal.";
+  how_ = "exit // just write this";
 }
 
 void ExitCommand::execute([[maybe_unused]] std::vector<std::string> &a_args) {

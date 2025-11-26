@@ -6,10 +6,10 @@
 namespace jkfs {
 
 IncpCommand::IncpCommand() {
-  m_id = "incp";
-  m_name = "Copy into filesystem";
-  m_desc = "Copy the file from outside to this filesystem.";
-  m_how = "incp outside_path.txt inside_path.txt";
+  id_ = "incp";
+  name_ = "Copy into filesystem";
+  desc_ = "Copy the file from outside to this filesystem.";
+  how_ = "incp outside_path.txt inside_path.txt";
 }
 
 void IncpCommand::execute(std::vector<std::string> &a_args) {
@@ -17,7 +17,7 @@ void IncpCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

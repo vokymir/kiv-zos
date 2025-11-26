@@ -7,10 +7,10 @@
 namespace jkfs {
 
 HelpCommand::HelpCommand(CommandManager &manager) : manager_(manager) {
-  m_id = "help";
-  m_name = "Help";
-  m_desc = "Show all available commands which can be used.";
-  m_how = "help";
+  id_ = "help";
+  name_ = "Help";
+  desc_ = "Show all available commands which can be used.";
+  how_ = "help";
 }
 
 void HelpCommand::execute(std::vector<std::string> &a_args) {

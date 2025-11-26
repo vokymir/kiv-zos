@@ -6,11 +6,11 @@
 namespace jkfs {
 
 StatfsCommand::StatfsCommand() {
-  m_id = "statfs";
-  m_name = "Statistics of filesystem";
-  m_desc = "Print parametrics of the filesystem, such as size,\n\
+  id_ = "statfs";
+  name_ = "Statistics of filesystem";
+  desc_ = "Print parametrics of the filesystem, such as size,\n\
 | number of i-nodes, number of directories, ...";
-  m_how = "statfs";
+  how_ = "statfs";
 }
 
 void StatfsCommand::execute(std::vector<std::string> &a_args) {
@@ -18,7 +18,7 @@ void StatfsCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

@@ -6,10 +6,10 @@
 namespace jkfs {
 
 XcpCommand::XcpCommand() {
-  m_id = "xcp";
-  m_name = "Join and Copy";
-  m_desc = "Join contents of two files and copy them to target location.";
-  m_how = "xcp s1 s2 s3 // where s1, s2 are source and s3 target location";
+  id_ = "xcp";
+  name_ = "Join and Copy";
+  desc_ = "Join contents of two files and copy them to target location.";
+  how_ = "xcp s1 s2 s3 // where s1, s2 are source and s3 target location";
 }
 
 void XcpCommand::execute(std::vector<std::string> &a_args) {
@@ -17,7 +17,7 @@ void XcpCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

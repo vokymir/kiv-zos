@@ -6,10 +6,10 @@
 namespace jkfs {
 
 RmCommand::RmCommand() {
-  m_id = "rm";
-  m_name = "Remove";
-  m_desc = "Remove file if exists.";
-  m_how = "rm file.txt";
+  id_ = "rm";
+  name_ = "Remove";
+  desc_ = "Remove file if exists.";
+  how_ = "rm file.txt";
 }
 
 void RmCommand::execute(std::vector<std::string> &a_args) {
@@ -17,7 +17,7 @@ void RmCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

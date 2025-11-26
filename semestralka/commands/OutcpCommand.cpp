@@ -6,10 +6,10 @@
 namespace jkfs {
 
 OutcpCommand::OutcpCommand() {
-  m_id = "outcp";
-  m_name = "Copy out of the filesystem";
-  m_desc = "Copy the file from inside the filesystem to outside.";
-  m_how = "outcp inside_path.txt outside_path.txt";
+  id_ = "outcp";
+  name_ = "Copy out of the filesystem";
+  desc_ = "Copy the file from inside the filesystem to outside.";
+  how_ = "outcp inside_path.txt outside_path.txt";
 }
 
 void OutcpCommand::execute(std::vector<std::string> &a_args) {
@@ -17,7 +17,7 @@ void OutcpCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 

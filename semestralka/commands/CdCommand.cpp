@@ -6,10 +6,10 @@
 namespace jkfs {
 
 CdCommand::CdCommand() {
-  m_id = "cd";
-  m_name = "Change directory";
-  m_desc = "Go to specified directory.";
-  m_how = "cd .. // go to parent directory";
+  id_ = "cd";
+  name_ = "Change directory";
+  desc_ = "Go to specified directory.";
+  how_ = "cd .. // go to parent directory";
 }
 
 void CdCommand::execute(std::vector<std::string> &a_args) {
@@ -17,7 +17,7 @@ void CdCommand::execute(std::vector<std::string> &a_args) {
   for (auto arg : a_args) {
     args += arg + " ";
   }
-  std::cout << "Running " + m_name + " command, with arguments: " << args
+  std::cout << "Running " + name_ + " command, with arguments: " << args
             << std::endl;
 }
 
