@@ -14,7 +14,7 @@ ExitCommand::ExitCommand() {
 }
 
 void ExitCommand::execute(
-    [[maybe_unused]] std::vector<std::string> &args) noexcept {
+    [[maybe_unused]] std::vector<std::string> &_) noexcept {
   std::cout << "Exiting the filesystem terminal now." << std::endl;
 }
 
