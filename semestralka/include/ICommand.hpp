@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../fs/filesystem.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -7,6 +8,9 @@
 namespace jkfs {
 
 class ICommand {
+protected:
+  using FS_Accessor = Filesystem &(*)();
+
 protected:
   // What user write into the command-line interface.
   std::string id_ = "ic";
@@ -25,11 +29,11 @@ public:
   // After operation, writes the result or error message.
   virtual void execute(std::vector<std::string> &args) noexcept = 0;
 
-  std::string name() { return name_; }
-  std::string id() { return id_; }
+  std::string name() const { return name_; }
+  std::string id() const { return id_; }
 
   // Get concrete help for using the command.
-  std::string help() {
+  std::string help() const {
     std::string res = "";
     res += "┌─\n";
     res += "| << " + name_ + " >>\n";
@@ -50,7 +54,7 @@ public:
     res += "└─\n";
     return res;
   }
-  void print_help() { std::cout << help() << std::flush; }
+  void print_help() const { std::cout << help() << std::flush; }
 };
 
 } // namespace jkfs
