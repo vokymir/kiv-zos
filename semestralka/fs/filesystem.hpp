@@ -1,40 +1,36 @@
 #include <cstdint>
 
-namespace jkfs{
+namespace jkfs {
 
-// for each struct a class?
-
-constexpr char ITEM_FREE = 0;
-constexpr char ITEM_USED = 1;
+constexpr int32_t ITEM_FREE = 0;
 
 struct superblock {
-    char signature[16]; // author login
-    std::int32_t disk_size; // celkova velikost VFS
-    std::int32_t cluster_size;
-    std::int32_t cluster_count;
-    std::int32_t bitmapi_start_addr;
-    std::int32_t bitmapd_start_addr;
-    std::int32_t inode_start_addr;
-    std::int32_t data_start_addr;
+  char signature[16]; // author login
+  int32_t disk_size;  // celkova velikost VFS
+  int32_t cluster_size;
+  int32_t cluster_count;
+  int32_t bitmapi_start_addr;
+  int32_t bitmapd_start_addr;
+  int32_t inode_start_addr;
+  int32_t data_start_addr;
 };
 
 struct inode {
-    std::int32_t node_id;
-    char is_dir;
-    std::int8_t references;
-    std::int32_t file_size;
-    std::int32_t direct1;
-    std::int32_t direct2;
-    std::int32_t direct3;
-    std::int32_t direct4;
-    std::int32_t direct5;
-    std::int32_t indirect1;
-    std::int32_t indirect2;
+  int32_t node_id; // if == ITEM_FREE, inode is not used
+  char is_dir;
+  int32_t file_size;
+  int32_t direct1;
+  int32_t direct2;
+  int32_t direct3;
+  int32_t direct4;
+  int32_t direct5;
+  int32_t indirect1;
+  int32_t indirect2;
 };
 
 struct dir_item {
-    std::int32_t inode;
-    char item_name[12];
+  int32_t inode;
+  char item_name[12]; // 8 + 3 + \0
 };
 
-}
+} // namespace jkfs
