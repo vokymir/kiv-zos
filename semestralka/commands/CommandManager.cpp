@@ -20,6 +20,7 @@ void CommandManager::registerCommand(std::unique_ptr<ICommand> command) {
 }
 
 // Parse the line from the 'terminal' and run the corresponding command.
+// Prepend filename to arguments, so it is arg[0].
 // If the commands doesn't exist, warns the user.
 void CommandManager::runCommand(const std::string &line) {
   std::istringstream iss(line);
@@ -29,6 +30,9 @@ void CommandManager::runCommand(const std::string &line) {
   bool help = false;
 
   iss >> cmdName;
+
+  // pass the filename to the command
+  args.push_back(filename_);
 
   while (iss >> arg) {
     args.push_back(arg);

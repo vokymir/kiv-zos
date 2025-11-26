@@ -1,5 +1,9 @@
 #include <cctype>
 #include <cstddef>
+#include <cstdint>
+#include <exception>
+#include <filesystem>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -33,7 +37,22 @@ FILE_SIZE convert_filesize(std::string &str, size_t pos = 0) {
   case 'g':
     return FILE_SIZE::GB;
   default:
-    throw std::logic_error("The size is not one of known (e.g. KB, MB,...)");
+    throw std::logic_error("The size is not one of known (e.g. KB, MB, ...)");
+  }
+}
+
+int convert_size(enum FILE_SIZE fs) {
+  switch (fs) {
+  case FILE_SIZE::B:
+    return 1;
+  case FILE_SIZE::KB:
+    return 1'000;
+  case FILE_SIZE::MB:
+    return 1'000'000;
+  case FILE_SIZE::GB:
+    return 1'000'000'000;
+  default:
+    throw std::logic_error("The size if not one of known (e.g. KB, MB, ...)");
   }
 }
 
@@ -44,6 +63,15 @@ std::tuple<int, FILE_SIZE> get_size(std::string &arg) {
   FILE_SIZE size = convert_filesize(arg, pos);
 
   return {number, size};
+}
+
+// from arguments of FORMAT command, calculate the new total size of file
+int get_total_size(std::string &arg) {
+  int number;
+  FILE_SIZE size;
+  std::tie(number, size) = get_size(arg);
+
+  return number * convert_size(size);
 }
 
 // ===== GLOBAL =====
@@ -59,9 +87,15 @@ FormatCommand::FormatCommand() {
 }
 
 void FormatCommand::execute(std::vector<std::string> &args) noexcept {
-  int number;
-  FILE_SIZE size;
-  std::tie(number, size) = get_size(args[0]);
+  int size;
+  try {
+    size = get_total_size(args[1]);
+    // get file with right size
+    std::filesystem::resize_file(args[0], static_cast<uintmax_t>(size));
+
+  } catch (std::exception &e) {
+    std::cout << "EXCEPTION HAPPENED: \n" << e.what() << std::endl;
+  }
 }
 
 } // namespace jkfs
