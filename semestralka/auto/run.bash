@@ -1,3 +1,3 @@
-cd build
-./semestralka filename.voky
-cd ..
+#!/bin/bash
+
+./bin/zos filename.voky

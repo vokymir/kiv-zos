@@ -1,5 +1,10 @@
-cd build
-cmake -DCMAKE_BUILD_TYPE=Debug ..
-cmake --build .
-ln -sf "$PWD/compile_commands.json ../compile_commands.json
-cd ..
+#!/bin/bash
+
+# if any argument is given
+if [ "$#" -gt 0 ]; then
+    echo ">>> CMAKE CONFIGURE"
+    ./auto/config.bash
+fi
+
+echo ">>> CMAKE BUILD"
+cmake --build build

@@ -1,34 +1,34 @@
 cmake_minimum_required(VERSION 3.16)
-
-project(semestralka LANGUAGES CXX)
+project(zos LANGUAGES CXX)
 
 # Use C++23
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Enable export of compile_commands.json for IDEs (VS Code, Neovim, CLion, etc.)
+# with neovim using
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# include headers
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Collect sources
 file(GLOB_RECURSE SOURCES
-    ${CMAKE_SOURCE_DIR}/main.cpp
-    ${CMAKE_SOURCE_DIR}/commands/*.cpp
+    "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
 
 # Add the executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Include the commands directory for headers
-target_include_directories(${PROJECT_NAME}
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/commands
+# set binaries folder for output
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin
 )
 
-# Put the executable directly in the build directory
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-)
+# copy compile commands if exists
+if(EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
+    file(COPY "${CMAKE_BINARY_DIR}/compile_commands.json" DESTINATION "${PROJECT_SOURCE_DIR}")
+endif()
 
 # Common warnings
 set(COMMON_WARNINGS
