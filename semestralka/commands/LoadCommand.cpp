@@ -13,7 +13,7 @@ LoadCommand::LoadCommand() {
   how_ = "load ./cmds // where cmds is file with instructions";
 }
 
-void LoadCommand::execute(std::vector<std::string> &a_args) {
+void LoadCommand::execute(std::vector<std::string> &a_args) noexcept {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

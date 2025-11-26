@@ -12,7 +12,7 @@ XcpCommand::XcpCommand() {
   how_ = "xcp s1 s2 s3 // where s1, s2 are source and s3 target location";
 }
 
-void XcpCommand::execute(std::vector<std::string> &a_args) {
+void XcpCommand::execute(std::vector<std::string> &a_args) noexcept {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

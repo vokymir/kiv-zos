@@ -12,7 +12,7 @@ RmdirCommand::RmdirCommand() {
   how_ = "rmdir empty_dir";
 }
 
-void RmdirCommand::execute(std::vector<std::string> &a_args) {
+void RmdirCommand::execute(std::vector<std::string> &a_args) noexcept {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

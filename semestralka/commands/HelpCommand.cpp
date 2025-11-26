@@ -13,7 +13,7 @@ HelpCommand::HelpCommand(CommandManager &manager) : manager_(manager) {
   how_ = "help";
 }
 
-void HelpCommand::execute(std::vector<std::string> &a_args) {
+void HelpCommand::execute(std::vector<std::string> &a_args) noexcept {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

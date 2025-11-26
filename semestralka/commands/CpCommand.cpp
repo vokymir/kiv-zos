@@ -13,7 +13,7 @@ CpCommand::CpCommand() {
   exmp_ = {"cp s1 s2", "cp s2 s2"};
 }
 
-void CpCommand::execute(std::vector<std::string> &a_args) {
+void CpCommand::execute(std::vector<std::string> &a_args) noexcept {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

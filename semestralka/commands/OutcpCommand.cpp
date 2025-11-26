@@ -12,7 +12,7 @@ OutcpCommand::OutcpCommand() {
   how_ = "outcp inside_path.txt outside_path.txt";
 }
 
-void OutcpCommand::execute(std::vector<std::string> &a_args) {
+void OutcpCommand::execute(std::vector<std::string> &a_args) noexcept {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

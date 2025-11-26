@@ -12,7 +12,7 @@ CatCommand::CatCommand() {
   how_ = "cat file.txt";
 }
 
-void CatCommand::execute(std::vector<std::string> &a_args) {
+void CatCommand::execute(std::vector<std::string> &a_args) noexcept {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

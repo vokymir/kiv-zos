@@ -12,7 +12,7 @@ LsCommand::LsCommand() {
   how_ = "ls . // lists all items in current directory";
 }
 
-void LsCommand::execute(std::vector<std::string> &a_args) {
+void LsCommand::execute(std::vector<std::string> &a_args) noexcept {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

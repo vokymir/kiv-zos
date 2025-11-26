@@ -23,7 +23,7 @@ public:
   virtual ~ICommand() = default;
   // Given vector of arguments, execute the command.
   // After operation, writes the result or error message.
-  virtual void execute(std::vector<std::string> &args) = 0;
+  virtual void execute(std::vector<std::string> &args) noexcept = 0;
 
   std::string name() { return name_; }
   std::string id() { return id_; }
