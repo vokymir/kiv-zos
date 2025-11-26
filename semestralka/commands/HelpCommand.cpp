@@ -19,7 +19,8 @@ void HelpCommand::execute(std::vector<std::string> &a_args) {
     args += arg + " ";
   }
 
-  std::cout << manager_.getAllCommands() << std::endl;
+  std::cout << "All available commands:\n"
+            << manager_.getAllCommands() << std::endl;
 }
 
 } // namespace jkfs
