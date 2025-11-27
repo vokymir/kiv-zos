@@ -49,10 +49,11 @@ public:
 
   // config variables
 private:
-  // how big can fs file be
-  size_t min_size_ = sizeof(struct superblock);
-  size_t max_size_ = 1'000'000'000'000;
   int32_t cluser_size_ = 4096;
+  // how big can fs file be
+  size_t min_size_ = sizeof(struct superblock) + sizeof(struct inode) +
+                     static_cast<size_t>(cluser_size_) + 2;
+  size_t max_size_ = 1'000'000'000'000;
   // i-nodes to data ratio
   float id_ratio_ = 0.2f;
 
