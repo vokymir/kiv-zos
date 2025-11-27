@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <ostream>
 
 namespace jkfs {
 
@@ -16,6 +17,9 @@ struct superblock {
   int32_t inode_start_addr;
   int32_t data_start_addr;
 };
+
+// write superblock to stream
+std::ostream &operator<<(std::ostream &os, const superblock &sb);
 
 struct inode {
   int32_t node_id; // if == ITEM_FREE, inode is not used
