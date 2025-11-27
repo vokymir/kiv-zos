@@ -3,6 +3,7 @@
 #include <fstream>
 #include <ios>
 #include <mutex>
+#include <stdexcept>
 #include <string>
 
 namespace jkfs {
@@ -12,17 +13,26 @@ Filesystem *Filesystem::instance_{nullptr};
 std::mutex Filesystem::mutex_;
 
 // ===== singleton behaviour =====
-Filesystem::Filesystem(std::string &filename) {
+Filesystem::Filesystem(const std::string &filename) {
   path_ = filename;
   file_ = std::fstream(path_, std::ios::binary | std::ios::in | std::ios::out);
 }
 
-Filesystem *Filesystem::instance(std::string &filename) {
+Filesystem &Filesystem::instance(const std::string &filename) {
   std::lock_guard<std::mutex> lock(mutex_);
   if (instance_ == nullptr) {
-    instance_ = instance(filename);
+    instance_ = new Filesystem(filename);
   }
-  return instance_;
+  return *instance_;
+}
+
+Filesystem &Filesystem::instance() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  if (instance_ == nullptr) {
+    throw std::runtime_error(
+        "Cannot get singleton instance if it wasn't initialized.");
+  }
+  return *instance_;
 }
 
 // get/set

@@ -9,7 +9,7 @@ namespace jkfs {
 
 class ICommand {
 protected:
-  using FS_Accessor = Filesystem &(*)();
+  Filesystem &fs = Filesystem::instance();
 
 protected:
   // What user write into the command-line interface.

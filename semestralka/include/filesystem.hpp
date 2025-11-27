@@ -10,11 +10,14 @@ class Filesystem {
 private:
   static Filesystem *instance_;
   static std::mutex mutex_;
-  Filesystem(std::string &filename);
+  Filesystem(const std::string &filename);
   ~Filesystem() = default;
 
 public:
-  static Filesystem *instance(std::string &filename);
+  // initialize singleton
+  static Filesystem &instance(const std::string &filename);
+  // get instance
+  static Filesystem &instance();
   Filesystem(Filesystem &other) = delete;
   void operator=(const Filesystem &other) = delete;
 
