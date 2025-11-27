@@ -7,8 +7,10 @@
 #include "CommandManager.hpp"
 #include "commands.hpp"
 
-void setup_cmds(jkfs::CommandManager &a_manager);
-void terminal(jkfs::CommandManager &a_manager, std::string &a_filename);
+using jkfs::Filesystem;
+
+void setup_cmds(jkfs::CommandManager &manager);
+void terminal(jkfs::CommandManager &manager, std::string &filename);
 
 int main(int argc, char *argv[]) {
   std::vector<std::string> args{argv + 1, argv + argc};
@@ -29,46 +31,46 @@ int main(int argc, char *argv[]) {
 
 // Register all commands to the Command Manager.
 // Set managers vocal level.
-void setup_cmds(jkfs::CommandManager &a_manager) {
-  a_manager.setVocal(false);
-  a_manager.registerCommand(std::make_unique<jkfs::CpCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::MvCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::RmCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::MkdirCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::RmdirCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::LsCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::CatCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::CdCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::PwdCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::InfoCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::IncpCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::OutcpCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::LoadCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::FormatCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::ExitCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::StatfsCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::XcpCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::AddCommand>());
-  a_manager.registerCommand(std::make_unique<jkfs::HelpCommand>(a_manager));
+void setup_cmds(jkfs::CommandManager &manager) {
+  manager.setVocal(false);
+  manager.registerCommand(std::make_unique<jkfs::CpCommand>());
+  manager.registerCommand(std::make_unique<jkfs::MvCommand>());
+  manager.registerCommand(std::make_unique<jkfs::RmCommand>());
+  manager.registerCommand(std::make_unique<jkfs::MkdirCommand>());
+  manager.registerCommand(std::make_unique<jkfs::RmdirCommand>());
+  manager.registerCommand(std::make_unique<jkfs::LsCommand>());
+  manager.registerCommand(std::make_unique<jkfs::CatCommand>());
+  manager.registerCommand(std::make_unique<jkfs::CdCommand>());
+  manager.registerCommand(std::make_unique<jkfs::PwdCommand>());
+  manager.registerCommand(std::make_unique<jkfs::InfoCommand>());
+  manager.registerCommand(std::make_unique<jkfs::IncpCommand>());
+  manager.registerCommand(std::make_unique<jkfs::OutcpCommand>());
+  manager.registerCommand(std::make_unique<jkfs::LoadCommand>());
+  manager.registerCommand(std::make_unique<jkfs::FormatCommand>());
+  manager.registerCommand(std::make_unique<jkfs::ExitCommand>());
+  manager.registerCommand(std::make_unique<jkfs::StatfsCommand>());
+  manager.registerCommand(std::make_unique<jkfs::XcpCommand>());
+  manager.registerCommand(std::make_unique<jkfs::AddCommand>());
+  manager.registerCommand(std::make_unique<jkfs::HelpCommand>(manager));
 }
 
 // Start and run the terminal.
-void terminal(jkfs::CommandManager &a_manager, std::string &a_filename) {
+void terminal(jkfs::CommandManager &manager, std::string &filename) {
   bool exit = false;
   std::string line;
-  a_manager.setFilename(a_filename);
+  Filesystem::instance(filename);
 
   std::cout << "Welcome to the filesystem. Enter any command to continue.\n\
 When entered -h after any command, help for the command will be shown.\n\
 All available commands (see 'help' command):\n" +
-                   a_manager.getAllCommands()
+                   manager.getAllCommands()
             << std::endl;
 
   while (!exit) {
     std::cout << "> ";
     std::getline(std::cin, line);
-    a_manager.runCommand(line);
-    exit = a_manager.exit();
+    manager.runCommand(line);
+    exit = manager.exit();
   }
 
   std::cout << "Thanks for using the filesystem, see you later..." << std::endl;
