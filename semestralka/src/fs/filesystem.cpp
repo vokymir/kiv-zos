@@ -1,4 +1,5 @@
 #include "filesystem.hpp"
+#include "structures.hpp"
 #include <filesystem>
 #include <fstream>
 #include <ios>
@@ -44,30 +45,11 @@ void Filesystem::path(const std::string &path) {
 std::fstream &Filesystem::file() { return file_; }
 
 struct superblock Filesystem::superblock() {
-  struct superblock sb{};
-  file_.clear();
-
-  file_.seekg(0, std::ios::beg);
-  file_.read(reinterpret_cast<char *>(&sb), sizeof(sb));
-
-  if (!file_) {
-    throw std::runtime_error("Cannot read superblock.");
-  }
-
-  return sb;
+  return read<struct superblock>(0, std::ios::beg);
 }
 
 void Filesystem::superblock(const struct superblock &sb) {
-  file_.clear();
-
-  file_.seekp(0, std::ios::beg);
-  file_.write(reinterpret_cast<const char *>(&sb), sizeof(sb));
-
-  if (!file_) {
-    throw std::runtime_error("Cannot write superblock.");
-  }
-
-  file_.flush();
+  write<struct superblock>(sb, 0, std::ios::beg);
 }
 
 // ===== methods =====

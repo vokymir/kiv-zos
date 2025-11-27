@@ -3,12 +3,29 @@
 #include <cstddef>
 #include <filesystem>
 #include <fstream>
+#include <ios>
 #include <mutex>
+#include <stdexcept>
 #include <string>
 
 #include "structures.hpp"
 
 namespace jkfs {
+
+// don't have custom copy semantics, internal pointers, dynamic memory, ... &&
+// objects memory is predictable
+template <typename T>
+concept Trivially_Serializable =
+    std::is_trivially_copyable_v<T> && std::is_standard_layout_v<T>;
+
+// is not a pointer nor a reference
+template <typename T>
+concept Not_Pointer_Or_Reference =
+    !std::is_pointer_v<T> && !std::is_reference_v<T>;
+
+// can be serialized trivially and is not a pointer or reference
+template <typename T>
+concept Raw_Writable = Trivially_Serializable<T> && Not_Pointer_Or_Reference<T>;
 
 // how big can fs file be
 constexpr size_t fs_min_size = sizeof(struct superblock);
@@ -53,8 +70,41 @@ public:
   // size <= fs_max_size
   void resize_file(size_t size);
 
+  // private methods
 private:
-  // void write(size_t start, )
+  // write anything into file - beware: if structure is something more complex,
+  // make sure it can be casted into <const char *>
+  template <Raw_Writable T>
+  void write(const T &structure, std::streamoff offset,
+             std::ios_base::seekdir way) {
+    file_.clear();
+
+    file_.seekp(offset, way);
+    file_.write(reinterpret_cast<const char *>(&structure), sizeof(T));
+
+    if (!file_) {
+      throw std::runtime_error("Cannot write into file.");
+    }
+
+    file_.flush();
+  }
+
+  // read anything from file - beware: structure T *MUST* be constructable via
+  // 'T name{};' and be castable to <char *>
+  template <Raw_Writable T>
+  T read(std::streamoff offset, std::ios_base::seekdir way) {
+    T structure{};
+    file_.clear();
+
+    file_.seekg(offset, way);
+    file_.read(reinterpret_cast<char *>(&structure), sizeof(T));
+
+    if (!file_) {
+      throw std::runtime_error("Cannot read from file.");
+    }
+
+    return structure;
+  }
 };
 
 } // namespace jkfs
