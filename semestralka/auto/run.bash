@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./bin/zos filename.voky
+./bin/zos filesystem.voky
