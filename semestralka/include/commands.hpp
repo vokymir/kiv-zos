@@ -88,6 +88,7 @@ public:
 class FormatCommand : public ICommand { // 14
 public:
   FormatCommand();
+  // expects 1 argument, size of filesystem
   void execute(std::vector<std::string> &a_args) noexcept override;
 };
 

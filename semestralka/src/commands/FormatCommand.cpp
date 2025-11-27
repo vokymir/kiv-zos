@@ -1,16 +1,13 @@
 #include <cctype>
 #include <cstddef>
-#include <cstdint>
 #include <cstring>
 #include <exception>
-#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <tuple>
 
 #include "commands.hpp"
-#include "structures.hpp"
 
 namespace jkfs {
 
@@ -87,7 +84,6 @@ void FormatCommand::execute(std::vector<std::string> &args) noexcept {
   int size;
   try {
     size = get_total_size(args[0]);
-
     fs_.resize_file(static_cast<size_t>(size));
 
   } catch (std::exception &e) {

@@ -68,9 +68,11 @@ void Filesystem::ensure_file() {
 
 void Filesystem::resize_file(size_t size) {
   if (size < min_size_) {
-    throw std::runtime_error("The size is too small.");
+    throw std::runtime_error("The size is too small. Min size: " +
+                             std::to_string(min_size_));
   } else if (size > max_size_) {
-    throw std::runtime_error("The size is too big.");
+    throw std::runtime_error("The size is too big. Max size: " +
+                             std::to_string(max_size_));
   }
 
   ensure_file();
