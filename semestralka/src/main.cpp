@@ -48,7 +48,7 @@ void setup_cmds(jkfs::CommandManager &manager) {
   manager.register_command(std::make_unique<jkfs::InfoCommand>());
   manager.register_command(std::make_unique<jkfs::IncpCommand>());
   manager.register_command(std::make_unique<jkfs::OutcpCommand>());
-  manager.register_command(std::make_unique<jkfs::LoadCommand>());
+  manager.register_command(std::make_unique<jkfs::LoadCommand>(manager));
   manager.register_command(std::make_unique<jkfs::FormatCommand>());
   manager.register_command(std::make_unique<jkfs::ExitCommand>());
   manager.register_command(std::make_unique<jkfs::StatfsCommand>());

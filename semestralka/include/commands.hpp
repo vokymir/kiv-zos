@@ -80,8 +80,11 @@ public:
 };
 
 class LoadCommand : public ICommand { // 13
+private:
+  CommandManager &manager_;
+
 public:
-  LoadCommand();
+  LoadCommand(CommandManager &manager);
   void execute(std::vector<std::string> &a_args) noexcept override;
 };
 

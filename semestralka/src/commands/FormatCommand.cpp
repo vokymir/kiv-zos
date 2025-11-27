@@ -88,7 +88,10 @@ void FormatCommand::execute(std::vector<std::string> &args) noexcept {
 
   } catch (std::exception &e) {
     std::cout << "EXCEPTION HAPPENED: \n" << e.what() << std::endl;
+    std::cout << "CANNOT CREATE FILE" << std::endl; // must-be-here
+    return;
   }
+  std::cout << "OK" << std::endl;
 }
 
 } // namespace jkfs
