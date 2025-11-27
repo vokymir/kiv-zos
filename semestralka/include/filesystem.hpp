@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <ios>
@@ -11,6 +12,8 @@
 #include "structures.hpp"
 
 namespace jkfs {
+
+// CONCEPTS are used for read/write into filesystem file
 
 // don't have custom copy semantics, internal pointers, dynamic memory, ... &&
 // objects memory is predictable
@@ -27,10 +30,7 @@ concept Not_Pointer_Or_Reference =
 template <typename T>
 concept Raw_Writable = Trivially_Serializable<T> && Not_Pointer_Or_Reference<T>;
 
-// how big can fs file be
-constexpr size_t fs_min_size = sizeof(struct superblock);
-constexpr size_t fs_max_size = 1'000'000'000'000;
-
+// class representing the filesystem exposing API which is used by commands
 class Filesystem {
   // singleton behaviour
 private:
@@ -46,6 +46,15 @@ public:
   static Filesystem &instance();
   Filesystem(Filesystem &other) = delete;
   void operator=(const Filesystem &other) = delete;
+
+  // config variables
+private:
+  // how big can fs file be
+  size_t min_size_ = sizeof(struct superblock);
+  size_t max_size_ = 1'000'000'000'000;
+  int32_t cluser_size_ = 4096;
+  // i-nodes to data ratio
+  float id_ratio_ = 0.2f;
 
   // member variables
 private:
@@ -105,6 +114,13 @@ private:
 
     return structure;
   }
+
+  // helpers for sb_from_size()
+  int32_t count_inodes(int32_t effective_size) const;
+  int32_t count_clusters(int32_t effective_size) const;
+
+  // create superblock for filesystem of given size with the use of
+  struct superblock sb_from_size(int32_t size) const;
 };
 
 } // namespace jkfs

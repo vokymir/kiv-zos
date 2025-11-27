@@ -21,7 +21,6 @@ enum class FILE_SIZE {
   B,
   KB,
   MB,
-  GB,
 };
 
 // convert from string to enum, optionally can start parsing string on position
@@ -36,8 +35,6 @@ FILE_SIZE convert_filesize(std::string &str, size_t pos = 0) {
     return FILE_SIZE::KB;
   case 'm':
     return FILE_SIZE::MB;
-  case 'g':
-    return FILE_SIZE::GB;
   default:
     throw std::logic_error("The size is not one of known (e.g. KB, MB, ...)");
   }
@@ -51,8 +48,6 @@ int convert_size(enum FILE_SIZE fs) {
     return 1'000;
   case FILE_SIZE::MB:
     return 1'000'000;
-  case FILE_SIZE::GB:
-    return 1'000'000'000;
   default:
     throw std::logic_error("The size if not one of known (e.g. KB, MB, ...)");
   }
@@ -92,14 +87,8 @@ void FormatCommand::execute(std::vector<std::string> &args) noexcept {
   int size;
   try {
     size = get_total_size(args[0]);
-    // get file with right size
-    struct superblock sb{};
-    sb.disk_size = size;
-    std::memcpy(sb.signature, "javok", 5);
 
-    fs_.ensure_file();
     fs_.resize_file(static_cast<size_t>(size));
-    fs_.superblock(sb);
 
   } catch (std::exception &e) {
     std::cout << "EXCEPTION HAPPENED: \n" << e.what() << std::endl;
