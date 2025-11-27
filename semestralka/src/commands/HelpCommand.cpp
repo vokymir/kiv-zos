@@ -20,7 +20,7 @@ void HelpCommand::execute(std::vector<std::string> &a_args) noexcept {
   }
 
   std::cout << "All available commands:\n"
-            << manager_.getAllCommands() << std::endl;
+            << manager_.get_all_commands() << std::endl;
 }
 
 } // namespace jkfs

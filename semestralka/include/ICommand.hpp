@@ -9,7 +9,7 @@ namespace jkfs {
 
 class ICommand {
 protected:
-  Filesystem &fs = Filesystem::instance();
+  Filesystem &fs_ = Filesystem::instance();
 
 protected:
   // What user write into the command-line interface.
@@ -26,7 +26,7 @@ protected:
 public:
   virtual ~ICommand() = default;
   // Given vector of arguments, execute the command.
-  // After operation, writes the result or error message.
+  // After operation, writes the result or error message to stdout/stderr
   virtual void execute(std::vector<std::string> &args) noexcept = 0;
 
   std::string name() const { return name_; }

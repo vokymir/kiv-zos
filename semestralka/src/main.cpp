@@ -32,26 +32,26 @@ int main(int argc, char *argv[]) {
 // Register all commands to the Command Manager.
 // Set managers vocal level.
 void setup_cmds(jkfs::CommandManager &manager) {
-  manager.setVocal(false);
-  manager.registerCommand(std::make_unique<jkfs::CpCommand>());
-  manager.registerCommand(std::make_unique<jkfs::MvCommand>());
-  manager.registerCommand(std::make_unique<jkfs::RmCommand>());
-  manager.registerCommand(std::make_unique<jkfs::MkdirCommand>());
-  manager.registerCommand(std::make_unique<jkfs::RmdirCommand>());
-  manager.registerCommand(std::make_unique<jkfs::LsCommand>());
-  manager.registerCommand(std::make_unique<jkfs::CatCommand>());
-  manager.registerCommand(std::make_unique<jkfs::CdCommand>());
-  manager.registerCommand(std::make_unique<jkfs::PwdCommand>());
-  manager.registerCommand(std::make_unique<jkfs::InfoCommand>());
-  manager.registerCommand(std::make_unique<jkfs::IncpCommand>());
-  manager.registerCommand(std::make_unique<jkfs::OutcpCommand>());
-  manager.registerCommand(std::make_unique<jkfs::LoadCommand>());
-  manager.registerCommand(std::make_unique<jkfs::FormatCommand>());
-  manager.registerCommand(std::make_unique<jkfs::ExitCommand>());
-  manager.registerCommand(std::make_unique<jkfs::StatfsCommand>());
-  manager.registerCommand(std::make_unique<jkfs::XcpCommand>());
-  manager.registerCommand(std::make_unique<jkfs::AddCommand>());
-  manager.registerCommand(std::make_unique<jkfs::HelpCommand>(manager));
+  manager.set_vocal(false);
+  manager.register_command(std::make_unique<jkfs::CpCommand>());
+  manager.register_command(std::make_unique<jkfs::MvCommand>());
+  manager.register_command(std::make_unique<jkfs::RmCommand>());
+  manager.register_command(std::make_unique<jkfs::MkdirCommand>());
+  manager.register_command(std::make_unique<jkfs::RmdirCommand>());
+  manager.register_command(std::make_unique<jkfs::LsCommand>());
+  manager.register_command(std::make_unique<jkfs::CatCommand>());
+  manager.register_command(std::make_unique<jkfs::CdCommand>());
+  manager.register_command(std::make_unique<jkfs::PwdCommand>());
+  manager.register_command(std::make_unique<jkfs::InfoCommand>());
+  manager.register_command(std::make_unique<jkfs::IncpCommand>());
+  manager.register_command(std::make_unique<jkfs::OutcpCommand>());
+  manager.register_command(std::make_unique<jkfs::LoadCommand>());
+  manager.register_command(std::make_unique<jkfs::FormatCommand>());
+  manager.register_command(std::make_unique<jkfs::ExitCommand>());
+  manager.register_command(std::make_unique<jkfs::StatfsCommand>());
+  manager.register_command(std::make_unique<jkfs::XcpCommand>());
+  manager.register_command(std::make_unique<jkfs::AddCommand>());
+  manager.register_command(std::make_unique<jkfs::HelpCommand>(manager));
 }
 
 // Start and run the terminal.
@@ -63,13 +63,13 @@ void terminal(jkfs::CommandManager &manager, std::string &filename) {
   std::cout << "Welcome to the filesystem. Enter any command to continue.\n\
 When entered -h after any command, help for the command will be shown.\n\
 All available commands (see 'help' command):\n" +
-                   manager.getAllCommands()
+                   manager.get_all_commands()
             << std::endl;
 
   while (!exit) {
     std::cout << "> ";
     std::getline(std::cin, line);
-    manager.runCommand(line);
+    manager.run_command(line);
     exit = manager.exit();
   }
 

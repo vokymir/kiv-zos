@@ -6,7 +6,7 @@
 namespace jkfs {
 
 // Add to available commands, if the name is not already registered.
-void CommandManager::registerCommand(std::unique_ptr<ICommand> command) {
+void CommandManager::register_command(std::unique_ptr<ICommand> command) {
   auto result = commands_.insert({command->id(), std::move(command)});
   if (!vocal_) {
     return;
@@ -20,9 +20,8 @@ void CommandManager::registerCommand(std::unique_ptr<ICommand> command) {
 }
 
 // Parse the line from the 'terminal' and run the corresponding command.
-// Prepend filename to arguments, so it is arg[0].
 // If the commands doesn't exist, warns the user.
-void CommandManager::runCommand(const std::string &line) {
+void CommandManager::run_command(const std::string &line) {
   std::istringstream iss(line);
   std::string cmdName;
   std::vector<std::string> args;
@@ -30,9 +29,6 @@ void CommandManager::runCommand(const std::string &line) {
   bool help = false;
 
   iss >> cmdName;
-
-  // pass the filename to the command
-  args.push_back(filename_);
 
   while (iss >> arg) {
     args.push_back(arg);
@@ -58,7 +54,7 @@ void CommandManager::runCommand(const std::string &line) {
 }
 
 // Return all available (= registered) commands separated by whitespace.
-std::string CommandManager::getAllCommands() {
+std::string CommandManager::get_all_commands() {
   std::string res = "";
 
   for (auto &cmd : commands_) {
