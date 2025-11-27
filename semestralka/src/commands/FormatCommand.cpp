@@ -1,6 +1,7 @@
 #include <cctype>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <exception>
 #include <filesystem>
 #include <iostream>
@@ -9,6 +10,7 @@
 #include <tuple>
 
 #include "commands.hpp"
+#include "structures.hpp"
 
 namespace jkfs {
 
@@ -89,9 +91,15 @@ FormatCommand::FormatCommand() {
 void FormatCommand::execute(std::vector<std::string> &args) noexcept {
   int size;
   try {
-    size = get_total_size(args[1]);
+    size = get_total_size(args[0]);
     // get file with right size
-    std::filesystem::resize_file(args[0], static_cast<uintmax_t>(size));
+    struct superblock sb{};
+    sb.disk_size = size;
+    std::memcpy(sb.signature, "javok", 5);
+
+    fs_.ensure_file();
+    fs_.resize_file(static_cast<size_t>(size));
+    fs_.superblock(sb);
 
   } catch (std::exception &e) {
     std::cout << "EXCEPTION HAPPENED: \n" << e.what() << std::endl;
