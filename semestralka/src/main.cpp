@@ -10,7 +10,7 @@
 using jkfs::Filesystem;
 
 void setup_cmds(jkfs::CommandManager &manager);
-void terminal(jkfs::CommandManager &manager, std::string &filename);
+void terminal(jkfs::CommandManager &manager);
 
 int main(int argc, char *argv[]) {
   std::vector<std::string> args{argv + 1, argv + argc};
@@ -22,9 +22,12 @@ int main(int argc, char *argv[]) {
         args.at(0); // 0 because in args is one item less (no executable path)
   }
 
+  // setup fs
+  Filesystem::instance(filename);
+
   setup_cmds(manager);
 
-  terminal(manager, filename);
+  terminal(manager);
 
   return EXIT_SUCCESS;
 }
@@ -55,10 +58,9 @@ void setup_cmds(jkfs::CommandManager &manager) {
 }
 
 // Start and run the terminal.
-void terminal(jkfs::CommandManager &manager, std::string &filename) {
+void terminal(jkfs::CommandManager &manager) {
   bool exit = false;
   std::string line;
-  Filesystem::instance(filename);
 
   std::cout << "Welcome to the filesystem. Enter any command to continue.\n\
 When entered -h after any command, help for the command will be shown.\n\
