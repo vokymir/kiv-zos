@@ -86,13 +86,13 @@ public:
 private:
   // write anything into file - beware: if structure is something more complex,
   // make sure it can be casted into <const char *>
-  template <Raw_Writable T>
-  void write(const T &structure, std::streamoff offset,
+  template <Raw_Writable STRUCTURE>
+  void write(const STRUCTURE &structure, std::streamoff offset,
              std::ios_base::seekdir way) {
     file_.clear();
 
     file_.seekp(offset, way);
-    file_.write(reinterpret_cast<const char *>(&structure), sizeof(T));
+    file_.write(reinterpret_cast<const char *>(&structure), sizeof(STRUCTURE));
 
     if (!file_) {
       throw std::runtime_error("Cannot write into file.");
@@ -103,13 +103,13 @@ private:
 
   // read anything from file - beware: structure T *MUST* be constructable via
   // 'T name{};' and be castable to <char *>
-  template <Raw_Writable T>
-  T read(std::streamoff offset, std::ios_base::seekdir way) {
-    T structure{};
+  template <Raw_Writable STRUCTURE>
+  STRUCTURE read(std::streamoff offset, std::ios_base::seekdir way) {
+    STRUCTURE structure{};
     file_.clear();
 
     file_.seekg(offset, way);
-    file_.read(reinterpret_cast<char *>(&structure), sizeof(T));
+    file_.read(reinterpret_cast<char *>(&structure), sizeof(STRUCTURE));
 
     if (!file_) {
       throw std::runtime_error("Cannot read from file.");
