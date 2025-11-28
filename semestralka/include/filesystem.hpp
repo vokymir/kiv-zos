@@ -8,6 +8,7 @@
 #include <mutex>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "structures.hpp"
 
@@ -88,6 +89,7 @@ public:
   // ID = index in 'array of inodes', but 1-indexed (0 equals free inode)
   struct inode inode_get(int32_t id);
   // find ID of first empty inode place
+  // return 0 if none found
   int32_t inode_get_empty();
   // check if any inode is empty
   bool inode_is_empty(int32_t id);
@@ -103,6 +105,7 @@ public:
   // usefull for this::read(offset, way)
   std::streamoff cluster_get(int32_t idx);
   // find idx of first empty cluster
+  // return 0 if none found
   int32_t cluster_get_empty();
   // check if cluster at index is empty
   bool cluster_is_empty(int32_t idx);
@@ -121,11 +124,11 @@ private:
   // complex, make sure it can be casted into <const char *>
   template <Raw_Writable STRUCTURE>
   void write(const STRUCTURE &structure, std::streamoff offset,
-             std::ios_base::seekdir way) {
+             std::ios_base::seekdir way = std::ios::beg) {
     file_.clear();
 
     file_.seekp(offset, way);
-    file_.write(reinterpret_cast<const char *>(&structure), sizeof(STRUCTURE));
+    file_.write(reinterpret_cast<const char *>(&structure), sizeof(structure));
 
     if (!file_) {
       throw std::runtime_error("Cannot write into file.");
@@ -137,19 +140,29 @@ private:
   // read anything from file - beware: structure T *MUST* be constructable via
   // 'T name{};' and be castable to <char *>
   template <Raw_Writable STRUCTURE>
-  STRUCTURE read(std::streamoff offset, std::ios_base::seekdir way) {
-    STRUCTURE structure{};
+  STRUCTURE read(std::streamoff offset,
+                 std::ios_base::seekdir way = std::ios::beg) {
+    STRUCTURE s{};
     file_.clear();
 
     file_.seekg(offset, way);
-    file_.read(reinterpret_cast<char *>(&structure), sizeof(STRUCTURE));
+    file_.read(reinterpret_cast<char *>(&s), sizeof(s));
 
     if (!file_) {
       throw std::runtime_error("Cannot read from file.");
     }
 
-    return structure;
+    return s;
   }
+
+  // read raw bytes from FS, useful for bitmaps
+  std::vector<uint8_t> read_bytes(size_t count, std::streamoff offset,
+                                  std::ios_base::seekdir way = std::ios::beg);
+
+  // get first bit in vector which is 0 or 1 based on value
+  // return index of bit, classic 0-indexed
+  // return -1 if value not found in vec
+  int32_t get_first_bit(std::vector<uint8_t> &vec, bool value);
 
   // == FORMAT ==
 
