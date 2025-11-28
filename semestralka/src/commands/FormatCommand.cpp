@@ -61,9 +61,7 @@ std::tuple<int, FILE_SIZE> get_size(std::string &arg) {
 
 // from arguments of FORMAT command, calculate the new total size of file
 int get_total_size(std::string &arg) {
-  int number;
-  FILE_SIZE size;
-  std::tie(number, size) = get_size(arg);
+  auto [number, size] = get_size(arg);
 
   return number * convert_size(size);
 }
@@ -83,6 +81,10 @@ FormatCommand::FormatCommand() {
 void FormatCommand::execute(std::vector<std::string> &args) noexcept {
   int size;
   try {
+    if (args.empty()) {
+      throw std::runtime_error("The FORMAT command require one argument. See "
+                               "help (format -h) for more info.");
+    }
     size = get_total_size(args[0]);
     fs_.resize_file(static_cast<size_t>(size));
 

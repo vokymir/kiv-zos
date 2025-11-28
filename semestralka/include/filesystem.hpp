@@ -53,9 +53,9 @@ private:
   // how big can fs file be
   size_t min_size_ = sizeof(struct superblock) + sizeof(struct inode) +
                      static_cast<size_t>(cluster_size_) + 2;
-  size_t max_size_ = 1'000'000'000'000;
+  size_t max_size_ = INT32_MAX; // limit of 32bit addressing
   // i-nodes to data ratio
-  float id_ratio_ = 0.2f;
+  double id_ratio_ = 0.2;
 
   // member variables
 private:

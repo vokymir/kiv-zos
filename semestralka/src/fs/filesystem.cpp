@@ -87,20 +87,41 @@ void Filesystem::resize_file(size_t size) {
 
 // ===== private methods =====
 
+// return max count of items if each item must have record in bitmap
+int32_t iterative_count_max(int32_t available_space, int32_t item_size) {
+  // optimistic approach: as many items fit inside available space
+  int item_count = static_cast<int>(std::floor(available_space / item_size));
+
+  while (true) {
+    int size_items = item_count * item_size;
+    // 1/8 = 0.125 for 1 bit in 1 byte. ceiling because even though fewer bits
+    // aren't whole byte, it must be saved in one
+    int size_bitmap = static_cast<int>(std::ceil(item_count * 0.125));
+
+    // try until it fits inside available_space
+    if (size_items + size_bitmap <= available_space) {
+      break;
+    }
+
+    // try with less items
+    item_count--;
+  }
+
+  return item_count;
+}
+
 int32_t Filesystem::count_clusters(int32_t effective_size) const {
-  return std::max(1,
-                  static_cast<int32_t>(std::floor(
-                      (static_cast<float>(effective_size) * (1.f - id_ratio_)) /
-                      (static_cast<float>(cluster_size_) + 1.f / 8.f))));
+  int size = static_cast<int>(std::floor(effective_size * (1 - id_ratio_)));
+
+  return std::max(1, iterative_count_max(size, cluster_size_));
 }
 
 int32_t Filesystem::count_inodes(int32_t effective_size,
                                  int32_t cluster_count) const {
-  return std::max(
-      1,
-      static_cast<int32_t>(std::floor(
-          (static_cast<float>(effective_size - cluster_count * cluster_size_)) /
-          (sizeof(struct inode) + 1.f / 8.f))));
+  int size = effective_size - cluster_size_ * cluster_count -
+             static_cast<int>(std::ceil(0.125 * cluster_count));
+
+  return iterative_count_max(size, sizeof(struct inode));
 }
 
 struct superblock Filesystem::sb_from_size(int32_t total_size) const {
@@ -111,7 +132,7 @@ struct superblock Filesystem::sb_from_size(int32_t total_size) const {
   memcpy(sb.signature, "javok", 5);
   sb.disk_size = total_size;
   sb.cluster_size = cluster_size_;
-  sb.inode_size = sizeof(struct inode);
+  sb.inode_size = static_cast<int32_t>(sizeof(struct inode));
   sb.cluster_count = count_clusters(size);
   sb.inode_count = count_inodes(size, sb.cluster_count);
 
@@ -132,6 +153,26 @@ struct superblock Filesystem::sb_from_size(int32_t total_size) const {
   position += sb.cluster_count * sb.cluster_size;
 
   std::cout << sb << std::endl; // TODO: move 1 line down in prod
+  double total_s = total_size;
+  std::cout << "Used space of file: \n"
+            << "Total: " << std::to_string(position / total_s * 100.) << "%\n"
+            << "Superblock: "
+            << std::to_string(sizeof(struct superblock) / total_s * 100.)
+            << "%\n"
+            << "Bitmap - inodes: "
+            << std::to_string(sb.inode_count / 8. / total_s * 100.) << "%\n"
+            << "Bitmap - clusters: "
+            << std::to_string(sb.cluster_count / 8. / total_s * 100.) << "%\n"
+            << "Inodes: "
+            << std::to_string(sb.inode_count * sb.inode_size / total_s * 100.)
+            << "%\n"
+            << "Clusters: "
+            << std::to_string(sb.cluster_count * sb.cluster_size / total_s *
+                              100.)
+            << "%\n"
+            << "Inode / Cluster ratio: " << std::to_string(id_ratio_) << "%"
+            << std::endl;
+
   if (position > total_size) {
 
     throw std::runtime_error(

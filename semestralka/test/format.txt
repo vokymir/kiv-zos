@@ -1,5 +1,14 @@
+<=====_invalid_=====>
 format 1
-format 1b
-format 1kb
-format 1mb
 format 1gb
+<=====_too_small_=====>
+format 1b
+<=====_smallest_possible_=====>
+format 4190b
+<=====_middle_value_=====>
+format 600mb
+<=====_biggest_possible_=====>
+format 2147483647b
+<=====_too_big_=====>
+format 2147483648b
+format 4000mb
