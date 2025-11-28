@@ -74,6 +74,8 @@ public:
 
   // methods
 public:
+  // == FORMAT ==
+
   void ensure_file();
   // resize filesystem to new size, does not gurantee data coherance except for
   // superblock - its existence is guaranteed. size must fulfil: fs_min_size <=
@@ -116,10 +118,17 @@ private:
     return structure;
   }
 
-  // helpers for sb_from_size()
-  int32_t count_clusters(int32_t effective_size) const;
-  int32_t count_inodes(int32_t effective_size, int32_t cluster_count) const;
+  // == FORMAT ==
 
+  // return max count of items if each item must have record in bitmap
+  int32_t iterative_count_max(int32_t available_space, int32_t item_size) const;
+  // max count of clusters - uses id_ratio_
+  int32_t count_clusters(int32_t available_space) const;
+  // max count of inodes - uses cluster_size_
+  int32_t count_inodes(int32_t available_space, int32_t cluster_count) const;
+  // print info about superblock & usage based on sb and position after counting
+  // all really used bytes in fs
+  void print_sb_usage_info(struct superblock &sb, int32_t position) const;
   // create superblock for filesystem of given size with the use of
   struct superblock sb_from_size(int32_t size) const;
 };
