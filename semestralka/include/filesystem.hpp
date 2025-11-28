@@ -82,10 +82,43 @@ public:
   // size <= fs_max_size
   void resize_file(size_t size);
 
+  // == inodes ==
+
+  // find & return inode by its ID
+  // ID = index in 'array of inodes', but 1-indexed (0 equals free inode)
+  struct inode inode_get(int32_t id);
+  // find ID of first empty inode place
+  int32_t inode_get_empty();
+  // check if any inode is empty
+  bool inode_is_empty(int32_t id);
+  // write inode to the address defined by its ID & to bitmap
+  // WARN: will shamelessly overwrite existing data
+  void inode_write(int32_t id, const struct inode &i);
+  // clear the inode from bitmap/data
+  void inode_free(int32_t id);
+
+  // == clusters ==
+
+  // get absolute position (from the start of file) of clusters first byte
+  // usefull for this::read(offset, way)
+  std::streamoff cluster_get(int32_t idx);
+  // find idx of first empty cluster
+  int32_t cluster_get_empty();
+  // check if cluster at index is empty
+  bool cluster_is_empty(int32_t idx);
+  // write raw data to a cluster on index
+  // if size > cluster_size, throw error
+  // size is in bytes
+  // WARN: will shamelessly overwrite existing data
+  void cluster_write(int32_t idx, const char *data, int32_t size);
+  // set cluster bitmap as unused
+  // MAY or may NOT clear the memory
+  void cluster_free(int32_t idx);
+
   // private methods
 private:
-  // write anything into file - beware: if structure is something more complex,
-  // make sure it can be casted into <const char *>
+  // write anything into file - beware: if structure is something more
+  // complex, make sure it can be casted into <const char *>
   template <Raw_Writable STRUCTURE>
   void write(const STRUCTURE &structure, std::streamoff offset,
              std::ios_base::seekdir way) {
