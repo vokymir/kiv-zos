@@ -20,6 +20,9 @@ file(GLOB_RECURSE SOURCES
 # Add the executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+# include libraries
+target_link_libraries(${PROJECT_NAME} PRIVATE readline)
+
 # set binaries folder for output
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin

@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <readline/history.h>
+#include <readline/readline.h>
 #include <string>
 #include <vector>
 
@@ -68,11 +70,27 @@ All available commands (see 'help' command):\n" +
                    manager.get_all_commands()
             << std::endl;
 
+  // while (!exit) {
+  //   std::cout << "> ";
+  //   std::getline(std::cin, line);
+  //   manager.run_command(line);
+  //   exit = manager.exit();
+  // }
+
   while (!exit) {
-    std::cout << "> ";
-    std::getline(std::cin, line);
-    manager.run_command(line);
+    char *input = readline("> ");
+
+    if (!input) {
+      break;
+    }
+
+    if (*input) {
+      add_history(input);
+      manager.run_command(input);
+    }
+
     exit = manager.exit();
+    free(input);
   }
 
   std::cout << "Thanks for using the filesystem, see you later..." << std::endl;
