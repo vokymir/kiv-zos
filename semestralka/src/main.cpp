@@ -61,22 +61,13 @@ void setup_cmds(jkfs::CommandManager &manager) {
 
 // Start and run the terminal.
 void terminal(jkfs::CommandManager &manager) {
-  bool exit = false;
-  std::string line;
-
   std::cout << "Welcome to the filesystem. Enter any command to continue.\n\
 When entered -h after any command, help for the command will be shown.\n\
 All available commands (see 'help' command):\n" +
                    manager.get_all_commands()
             << std::endl;
 
-  // while (!exit) {
-  //   std::cout << "> ";
-  //   std::getline(std::cin, line);
-  //   manager.run_command(line);
-  //   exit = manager.exit();
-  // }
-
+  bool exit = false;
   while (!exit) {
     char *input = readline("> ");
 
