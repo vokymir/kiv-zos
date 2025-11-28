@@ -49,10 +49,10 @@ public:
 
   // config variables
 private:
-  int32_t cluser_size_ = 4096;
+  int32_t cluster_size_ = 4096;
   // how big can fs file be
   size_t min_size_ = sizeof(struct superblock) + sizeof(struct inode) +
-                     static_cast<size_t>(cluser_size_) + 2;
+                     static_cast<size_t>(cluster_size_) + 2;
   size_t max_size_ = 1'000'000'000'000;
   // i-nodes to data ratio
   float id_ratio_ = 0.2f;
@@ -117,8 +117,8 @@ private:
   }
 
   // helpers for sb_from_size()
-  int32_t count_inodes(int32_t effective_size) const;
   int32_t count_clusters(int32_t effective_size) const;
+  int32_t count_inodes(int32_t effective_size, int32_t cluster_count) const;
 
   // create superblock for filesystem of given size with the use of
   struct superblock sb_from_size(int32_t size) const;

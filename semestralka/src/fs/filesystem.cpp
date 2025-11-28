@@ -1,5 +1,6 @@
 #include "filesystem.hpp"
 #include "structures.hpp"
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -86,16 +87,20 @@ void Filesystem::resize_file(size_t size) {
 
 // ===== private methods =====
 
-int32_t Filesystem::count_inodes(int32_t effective_size) const {
-  return static_cast<int32_t>(
-      std::floor((static_cast<float>(effective_size) * id_ratio_) /
-                 (sizeof(struct inode) + 1.f / 8.f)));
+int32_t Filesystem::count_clusters(int32_t effective_size) const {
+  return std::max(1,
+                  static_cast<int32_t>(std::floor(
+                      (static_cast<float>(effective_size) * (1.f - id_ratio_)) /
+                      (static_cast<float>(cluster_size_) + 1.f / 8.f))));
 }
 
-int32_t Filesystem::count_clusters(int32_t effective_size) const {
-  return static_cast<int32_t>(
-      std::floor((static_cast<float>(effective_size) * (1.f - id_ratio_)) /
-                 (static_cast<float>(cluser_size_) + 1.f / 8.f)));
+int32_t Filesystem::count_inodes(int32_t effective_size,
+                                 int32_t cluster_count) const {
+  return std::max(
+      1,
+      static_cast<int32_t>(std::floor(
+          (static_cast<float>(effective_size - cluster_count * cluster_size_)) /
+          (sizeof(struct inode) + 1.f / 8.f))));
 }
 
 struct superblock Filesystem::sb_from_size(int32_t total_size) const {
@@ -105,26 +110,28 @@ struct superblock Filesystem::sb_from_size(int32_t total_size) const {
 
   memcpy(sb.signature, "javok", 5);
   sb.disk_size = total_size;
-  sb.cluster_size = cluser_size_;
+  sb.cluster_size = cluster_size_;
+  sb.inode_size = sizeof(struct inode);
   sb.cluster_count = count_clusters(size);
+  sb.inode_count = count_inodes(size, sb.cluster_count);
 
   int32_t position = sizeof(struct superblock);
 
   sb.bitmapi_start_addr = position;
-  position += static_cast<int32_t>(
-      std::ceil(static_cast<float>(count_inodes(size)) / 8.f));
+  position +=
+      static_cast<int32_t>(std::ceil(static_cast<float>(sb.inode_count) / 8.f));
 
   sb.bitmapd_start_addr = position;
   position += static_cast<int32_t>(
-      std::ceil(static_cast<float>(count_clusters(size)) / 8.f));
+      std::ceil(static_cast<float>(sb.cluster_count) / 8.f));
 
   sb.inode_start_addr = position;
-  position += count_inodes(size) * static_cast<int32_t>(sizeof(struct inode));
+  position += sb.inode_count * sb.inode_size;
 
   sb.data_start_addr = position;
-  position += count_clusters(size) * cluser_size_;
+  position += sb.cluster_count * sb.cluster_size;
 
-  std::cout << sb << std::endl;
+  std::cout << sb << std::endl; // TODO: move 1 line down in prod
   if (position > total_size) {
 
     throw std::runtime_error(

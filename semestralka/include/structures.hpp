@@ -12,6 +12,8 @@ struct superblock {
   int32_t disk_size;  // celkova velikost VFS
   int32_t cluster_size;
   int32_t cluster_count;
+  int32_t inode_size;
+  int32_t inode_count;
   int32_t bitmapi_start_addr;
   int32_t bitmapd_start_addr;
   int32_t inode_start_addr;
