@@ -16,7 +16,10 @@ LoadCommand::LoadCommand(CommandManager &manager) : manager_(manager) {
 
 void LoadCommand::execute(std::vector<std::string> &args) noexcept {
   if (args.empty()) {
-    std::cout << "NEEDS ARGUMENT" << std::endl;
+    if (fs_.vocal()) {
+      std::cout << "NEEDS ARGUMENT" << std::endl;
+    }
+    std::cout << "FILE NOT FOUND" << std::endl;
     return;
   }
 
@@ -31,6 +34,8 @@ void LoadCommand::execute(std::vector<std::string> &args) noexcept {
     std::cout << ">> " << line << std::endl;
     manager_.run_command(line);
   }
+
+  std::cout << "OK" << std::endl;
 }
 
 } // namespace jkfs

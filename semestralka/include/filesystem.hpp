@@ -50,6 +50,7 @@ public:
 
   // config variables
 private:
+  bool vocal_ = true;
   int32_t cluster_size_ = 4096;
   // how big can fs file be
   size_t min_size_ = sizeof(struct superblock) + sizeof(struct inode) +
@@ -65,6 +66,8 @@ private:
 
   // get/set
 public:
+  bool vocal();
+  void vocal(bool vocal);
   std::string path() const;
   void path(const std::string &path);
   // stream cannot be changed to another file, but inside file whatever
@@ -176,7 +179,7 @@ private:
   int32_t count_clusters(int32_t available_space) const;
   // max count of inodes - uses cluster_size_
   int32_t count_inodes(int32_t available_space, int32_t cluster_count) const;
-  // print info about superblock & usage based on sb and position after counting
+  // print info about superblock usage based on sb and position after counting
   // all really used bytes in fs
   void print_sb_usage_info(struct superblock &sb, int32_t position) const;
   // create superblock for filesystem of given size with the use of

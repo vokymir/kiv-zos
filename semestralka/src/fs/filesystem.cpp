@@ -38,6 +38,10 @@ Filesystem &Filesystem::instance() {
 }
 
 // ===== get/set =====
+
+bool Filesystem::vocal() { return vocal_; }
+void Filesystem::vocal(bool vocal) { vocal_ = vocal; }
+
 std::string Filesystem::path() const { return path_; }
 void Filesystem::path(const std::string &path) {
   path_ = path;
@@ -135,7 +139,8 @@ void Filesystem::inode_free(int32_t id) {
   int bit_idx = id % 8;
 
   uint8_t byte = read<uint8_t>(sb.bitmapi_start_addr + byte_idx);
-  byte &= ~(1u << bit_idx); // mark as unused
+  uint8_t mask = static_cast<uint8_t>(1u << bit_idx);
+  byte &= ~mask; // mark as unused
   write(byte, sb.bitmapi_start_addr + byte_idx);
 }
 
@@ -213,7 +218,8 @@ void Filesystem::cluster_free(int32_t idx) {
   int bit_idx = idx % 8;
 
   auto byte = read<uint8_t>(sb.bitmapd_start_addr + byte_idx);
-  byte &= ~(1u << bit_idx); // mark as unused
+  uint8_t mask = static_cast<uint8_t>(1u << bit_idx);
+  byte &= ~mask; // mark as unused
   write(byte, sb.bitmapd_start_addr + byte_idx);
 }
 
@@ -250,7 +256,7 @@ std::vector<uint8_t> Filesystem::read_bytes(size_t count, std::streamoff offset,
   return buf;
 }
 
-int32_t get_first_bit(std::vector<uint8_t> &vec, bool value) {
+int32_t Filesystem::get_first_bit(std::vector<uint8_t> &vec, bool value) {
   // walk all bytes
   for (size_t byte_idx = 0; byte_idx < vec.size(); byte_idx++) {
     uint8_t byte = vec[byte_idx];

@@ -89,7 +89,9 @@ void FormatCommand::execute(std::vector<std::string> &args) noexcept {
     fs_.resize_file(static_cast<size_t>(size));
 
   } catch (std::exception &e) {
-    std::cout << "EXCEPTION HAPPENED: \n" << e.what() << std::endl;
+    if (fs_.vocal()) {
+      std::cout << "EXCEPTION HAPPENED: \n" << e.what() << std::endl;
+    }
     std::cout << "CANNOT CREATE FILE" << std::endl; // must-be-here
     return;
   }

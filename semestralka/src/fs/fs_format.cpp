@@ -78,16 +78,15 @@ int32_t Filesystem::count_inodes(int32_t effective_size,
 
 void Filesystem::print_sb_usage_info(struct superblock &sb,
                                      int32_t position) const {
-  std::cout << sb << std::endl;
   double ts = sb.disk_size;
   std::cout << "Used space of file: \n"
             << "Total: " << std::to_string(position / ts * 100.) << "%\n"
             << "Superblock: "
             << std::to_string(sizeof(struct superblock) / ts * 100.) << "%\n"
             << "Bitmap - inodes: "
-            << std::to_string(sb.inode_count / 8. / ts * 100.) << "%\n"
+            << std::to_string(sb.bitmapi_size / ts * 100.) << "%\n"
             << "Bitmap - clusters: "
-            << std::to_string(sb.cluster_count / 8. / ts * 100.) << "%\n"
+            << std::to_string(sb.bitmapd_size / ts * 100.) << "%\n"
             << "Inodes: "
             << std::to_string(sb.inode_count * sb.inode_size / ts * 100.)
             << "%\n"
@@ -129,7 +128,10 @@ struct superblock Filesystem::sb_from_size(int32_t total_size) const {
   sb.bitmapi_size = sb.bitmapd_start_addr - sb.bitmapi_start_addr;
   sb.bitmapd_size = sb.inode_start_addr - sb.bitmapd_start_addr;
 
-  print_sb_usage_info(sb, position);
+  if (vocal_) {
+    std::cout << sb << std::endl;
+    print_sb_usage_info(sb, position);
+  }
 
   if (position > total_size) {
     throw std::runtime_error(

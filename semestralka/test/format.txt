@@ -4,7 +4,7 @@ format 1gb
 <=====_too_small_=====>
 format 1b
 <=====_smallest_possible_=====>
-format 4190b
+format 4198b
 <=====_middle_value_=====>
 format 600mb
 <=====_biggest_possible_=====>

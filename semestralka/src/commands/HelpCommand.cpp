@@ -13,12 +13,8 @@ HelpCommand::HelpCommand(CommandManager &manager) : manager_(manager) {
   how_ = "help";
 }
 
-void HelpCommand::execute(std::vector<std::string> &a_args) noexcept {
-  std::string args = "";
-  for (auto arg : a_args) {
-    args += arg + " ";
-  }
-
+void HelpCommand::execute(
+    [[maybe_unused]] std::vector<std::string> &_) noexcept {
   std::cout << "All available commands:\n"
             << manager_.get_all_commands() << std::endl;
 }

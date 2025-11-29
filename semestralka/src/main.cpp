@@ -11,6 +11,7 @@
 
 using jkfs::Filesystem;
 
+bool get_vocal(std::vector<std::string> args);
 void setup_cmds(jkfs::CommandManager &manager);
 void terminal(jkfs::CommandManager &manager);
 
@@ -24,14 +25,23 @@ int main(int argc, char *argv[]) {
         args.at(0); // 0 because in args is one item less (no executable path)
   }
 
-  // setup fs
-  Filesystem::instance(filename);
+  // setup fs filename & vocality
+  Filesystem::instance(filename).vocal(get_vocal(args));
 
   setup_cmds(manager);
 
   terminal(manager);
 
   return EXIT_SUCCESS;
+}
+
+bool get_vocal(std::vector<std::string> args) {
+  for (auto &arg : args) {
+    if (arg == "-v" || arg == "--vocal") {
+      return true;
+    }
+  }
+  return false;
 }
 
 // Register all commands to the Command Manager.
