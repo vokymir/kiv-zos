@@ -91,56 +91,56 @@ public:
 
   // find & return inode by its ID
   // ID = index in 'array of inodes'
-  struct inode inode_read(int32_t id);
+  struct inode inode_read(int32_t inode_id);
   // find ID of first empty inode place
   // mark as used
   // return -1 if none found
   int32_t inode_alloc();
   // check if any inode is empty
-  bool inode_is_empty(int32_t id);
+  bool inode_is_empty(int32_t inode_id);
   // write inode to the address defined by its ID & to bitmap
   // WARN: will shamelessly overwrite existing data
-  void inode_write(int32_t id, const struct inode &i);
+  void inode_write(int32_t inode_id, const struct inode &new_inode);
   // clear the inode from bitmap/data
-  void inode_free(int32_t id);
+  void inode_free(int32_t inode_id);
 
   // == clusters ==
 
   // get vector of all bytes in cluster
   // doesn't matter if cluster is used or not
-  std::vector<uint8_t> cluster_read(int32_t idx);
+  std::vector<uint8_t> cluster_read(int32_t cluster_index);
   // find idx of first empty cluster
   // set cluster in bitmap as used
   // return -1 if none found
   int32_t cluster_alloc();
   // check if cluster at index is empty
-  bool cluster_is_empty(int32_t idx);
+  bool cluster_is_empty(int32_t cluster_index);
   // write raw data to a cluster on index
   // if size > cluster_size, throw error
   // if data == nullptr || size <= 0 only zero out the space
   // size is in bytes
   // WARN: will shamelessly overwrite existing data
-  void cluster_write(int32_t idx, const char *data, int32_t size);
+  void cluster_write(int32_t cluster_index, const char *data,
+                     int32_t data_size);
   // set cluster bitmap as unused
   // MAY or may NOT clear the memory
-  void cluster_free(int32_t idx);
+  void cluster_free(int32_t cluster_index);
 
   // == file ==
   // allocate inode & cluster, insert dir_item into parent dir & increase its
   // size
-  void file_create(int32_t parent_inode, std::string name);
+  void file_create(int32_t parent_inode_id, std::string file_name);
   // compute how many clusters needed, allocate or free them, update inode
   // (in)directs, update filesize
-  void file_resize(int32_t inode, int32_t new_size);
+  void file_resize(int32_t inode_id, int32_t new_size);
   // writes accross multiple clusters
-  // TODO: what is offset for exactly?
-  void file_write(int32_t inode, int32_t offset, const char *data,
-                  int32_t size);
+  void file_write(int32_t inode_id, int32_t offset, const char *data,
+                  int32_t data_size);
   // handle read accross multiple clusters
-  std::vector<uint8_t> file_read(int32_t inode);
+  std::vector<uint8_t> file_read(int32_t inode_id);
   // remove file & remove from parent directory
   // works on both files/directories
-  void file_delete(int32_t parent_inode, std::string name);
+  void file_delete(int32_t parent_inode_id, std::string file_name);
 
   // == dir ==
   // allocate inode & cluster, insert dir_item into parent dir & increase its
@@ -148,15 +148,17 @@ public:
   // first call with parent_inode == 0 will setup root, all subsequent are
   // creating top-level files/dirs
   // IS ATOMIC
-  void dir_create(int32_t parent_inode, std::string name);
+  void dir_create(int32_t parent_inode_id, std::string directory_name);
   // append one dir_item into any directory
-  void dir_item_add(int32_t inode, int32_t item_inode, std::string item_name);
+  // IS ATOMIC
+  void dir_item_add(int32_t inode_id, int32_t item_inode_id,
+                    std::string item_name);
   // remove one dir_item from directory
-  void dir_item_remove(int32_t inode, std::string item_name);
+  void dir_item_remove(int32_t inode_id, std::string item_name);
   // get ID (or -1) of any item inside directory stored in inode
-  int32_t dir_lookup(int32_t inode, std::string lookup_name);
+  int32_t dir_lookup(int32_t inode_id, std::string lookup_name);
   // list all dir_items in one directory
-  std::vector<dir_item> dir_list(int32_t inode);
+  std::vector<dir_item> dir_list(int32_t inode_id);
 
   // == path ==
   // find any path and return its inode or -1
