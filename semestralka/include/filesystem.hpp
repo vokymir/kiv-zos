@@ -78,7 +78,7 @@ public:
 
   // methods
 public:
-  // == FORMAT ==
+  // == format ==
 
   // create file if it doesn't exist
   void ensure_file();

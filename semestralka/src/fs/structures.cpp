@@ -1,4 +1,5 @@
 #include "structures.hpp"
+#include <cstring>
 #include <ostream>
 
 namespace jkfs {
