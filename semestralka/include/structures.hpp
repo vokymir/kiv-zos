@@ -39,9 +39,15 @@ struct inode {
   int32_t indirect2;
 };
 
+// write inode to stream
+std::ostream &operator<<(std::ostream &os, const inode &i);
+
 struct dir_item {
   int32_t inode;
   char item_name[12]; // 8 + 3 + \0
 };
+
+// write directory item to stream
+std::ostream &operator<<(std::ostream &os, const dir_item &dit);
 
 } // namespace jkfs
