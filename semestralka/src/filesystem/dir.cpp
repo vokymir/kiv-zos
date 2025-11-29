@@ -1,9 +1,11 @@
 #include "errors.hpp"
 #include "filesystem.hpp"
 #include "structures.hpp"
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iterator>
 #include <span>
 #include <string>
 #include <vector>
@@ -73,43 +75,54 @@ void Filesystem::dir_item_add(int32_t id, int32_t item_id,
   file_write(id, offset, reinterpret_cast<const char *>(&item), sizeof(item));
 }
 
-void Filesystem::dir_item_remove(int32_t parent_id, std::string item_name) {
-  auto id = dir_lookup(parent_id, item_name);
-  if (id < 0) {
-    return; // TODO: my work here is done, but shouldn't I rather throw smth to
-            // let others know also?
-  }
-
-  struct dir_item empty_item{0, ""};
-
+void Filesystem::dir_item_remove(int32_t id, std::string item_name) {
   auto raw_file = file_read(id);
   // look on raw_file as on array of dir_items
   auto items =
       std::span<dir_item>(reinterpret_cast<dir_item *>(raw_file.data()),
                           raw_file.size() / sizeof(dir_item));
 
-  // remove from the array
-  size_t count = items.size();
-  bool removed = false;
-
-  for (size_t i = 0; i < count; i++) {
-    // remember dir_item is removed
-    if (!removed && items[i].name_matches(item_name)) {
-      removed = true;
-    }
-
-    // shift items to fill the gap
-    if (removed && i < count - 1) {
-      items[i] = items[i + 1];
-    }
+  // find the item to remove
+  auto it = std::ranges::find_if(items, [&](const dir_item &item) {
+    return item.name_matches(item_name);
+  });
+  if (it == items.end()) {
+    return; // TODO: or throw smth???
   }
 
-  // forget last item - now empty
-  count--;
+  auto index = std::distance(items.begin(), it);
+
+  // shift all items after found one to the left & set last item to nothing
+  std::ranges::copy_backward(
+      items.subspan(static_cast<size_t>(index + 1)),
+      items
+          .subspan(static_cast<size_t>(index + 1),
+                   items.size() - (static_cast<size_t>(index + 1)) + 1)
+          .end());
+  items.back() = dir_item{};
+
+  // forget last item - now empty (therefore -1)
   // write back to file - this handles all inode.filesize changes, removing
   // clusters, ...
   file_write(id, 0, reinterpret_cast<const char *>(items.data()),
-             static_cast<int>(count * sizeof(dir_item)));
+             static_cast<int>((items.size() - 1) * sizeof(dir_item)));
+}
+
+int32_t Filesystem::dir_lookup(int32_t id, std::string lookup_name) {
+  auto raw_file = file_read(id);
+  // view the file as array of dir_items
+  auto items =
+      std::span<dir_item>(reinterpret_cast<dir_item *>(raw_file.data()),
+                          raw_file.size() / sizeof(dir_item));
+  // find the matching name
+  auto it = std::ranges::find_if(items, [&](const dir_item &item) {
+    return item.name_matches(lookup_name);
+  });
+
+  if (it == items.end()) {
+    return -1;
+  }
+  return it->inode;
 }
 
 } // namespace jkfs
