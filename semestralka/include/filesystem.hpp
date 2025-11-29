@@ -80,6 +80,7 @@ public:
 public:
   // == FORMAT ==
 
+  // create file if it doesn't exist
   void ensure_file();
   // resize filesystem to new size, does not gurantee data coherance except for
   // superblock - its existence is guaranteed. size must fulfil: fs_min_size <=
@@ -144,6 +145,8 @@ public:
   // == dir ==
   // allocate inode & cluster, insert dir_item into parent dir & increase its
   // size, insert . and .. into self
+  // first call with parent_inode == 0 will setup root, all subsequent are
+  // creating top-level files/dirs
   void dir_create(int32_t parent_inode, std::string name);
   // append one dir_item into any directory
   void dir_item_add(int32_t inode, int32_t item_inode, std::string item_name);

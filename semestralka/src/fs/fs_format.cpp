@@ -2,8 +2,10 @@
 #include "structures.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <ios>
 #include <iostream>
 
 namespace jkfs {
@@ -35,6 +37,9 @@ void Filesystem::resize_file(size_t size) {
   path(path_);
 
   superblock(sb_from_size(static_cast<int32_t>(size)));
+
+  // root is its own parent
+  dir_create(0, "/");
 }
 
 // === PRIVATE METHODS ===
