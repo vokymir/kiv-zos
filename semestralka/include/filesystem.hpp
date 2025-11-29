@@ -148,17 +148,18 @@ public:
   // first call with parent_inode == 0 will setup root, all subsequent are
   // creating top-level files/dirs
   // IS ATOMIC
-  void dir_create(int32_t parent_inode_id, std::string directory_name);
+  void dir_create(int32_t parent_directory_inode_id,
+                  std::string directory_name);
   // append one dir_item into any directory
   // IS ATOMIC
-  void dir_item_add(int32_t inode_id, int32_t item_inode_id,
+  void dir_item_add(int32_t directory_inode_id, int32_t item_inode_id,
                     std::string item_name);
   // remove one dir_item from directory
-  void dir_item_remove(int32_t inode_id, std::string item_name);
+  void dir_item_remove(int32_t directory_inode_id, std::string item_name);
   // get ID (or -1) of any item inside directory stored in inode
-  int32_t dir_lookup(int32_t inode_id, std::string lookup_name);
+  int32_t dir_lookup(int32_t directory_inode_id, std::string lookup_name);
   // list all dir_items in one directory
-  std::vector<dir_item> dir_list(int32_t inode_id);
+  std::vector<dir_item> dir_list(int32_t directory_inode_id);
 
   // == path ==
   // find any path and return its inode or -1
