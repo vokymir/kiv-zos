@@ -2,9 +2,7 @@
 #include "filesystem.hpp"
 #include "structures.hpp"
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
-#include <cstring>
 #include <iterator>
 #include <ranges>
 #include <span>
