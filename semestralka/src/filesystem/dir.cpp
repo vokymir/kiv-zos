@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iterator>
+#include <ranges>
 #include <span>
 #include <string>
 #include <vector>
@@ -123,6 +124,23 @@ int32_t Filesystem::dir_lookup(int32_t id, std::string lookup_name) {
     return -1;
   }
   return it->inode;
+}
+
+std::vector<dir_item> Filesystem::dir_list(int32_t id) {
+  auto raw_file = file_read(id);
+  // view the file as array of dir_items
+  auto items =
+      std::span<dir_item>(reinterpret_cast<dir_item *>(raw_file.data()),
+                          raw_file.size() / sizeof(dir_item));
+
+  // filter-out empty entries
+  auto view = items | std::ranges::views::filter(
+                          [](const dir_item &item) { return !item.empty(); });
+
+  // collect to vector
+  std::vector<dir_item> result;
+  std::ranges::copy(view, std::back_inserter(result));
+  return result;
 }
 
 } // namespace jkfs
