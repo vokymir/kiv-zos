@@ -2,6 +2,7 @@
 #include "structures.hpp"
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <ios>
@@ -202,7 +203,12 @@ void Filesystem::cluster_write(int32_t idx, const char *data, int32_t size) {
   write(byte, sb.bitmapd_start_addr + byte_idx);
 
   // cluster
-  write_bytes(data, static_cast<size_t>(size),
+  // zero-initialized
+  std::vector<char> buf(static_cast<size_t>(sb.cluster_size), 0);
+  // copy actual data
+  memcpy(buf.data(), data, static_cast<size_t>(size));
+  // write into FS
+  write_bytes(buf.data(), static_cast<size_t>(sb.cluster_size),
               sb.data_start_addr + sb.cluster_size * idx);
 }
 
