@@ -46,4 +46,16 @@ std::ostream &operator<<(std::ostream &os, const dir_item &dit) {
   return os;
 }
 
+bool dir_item::name_matches(const std::string &other_name) const {
+  // both strings are equal up-to MAX_NAME_LEN characters
+  // => if other.len < MAX_NAME_LEN only other.len are compared
+  bool string_equals =
+      std::strncmp(item_name, other_name.c_str(), MAX_NAME_LEN) == 0;
+
+  // item name is not longer than other_name
+  bool item_name_not_longer = item_name[other_name.size()] == '\0';
+
+  return string_equals && item_name_not_longer;
+}
+
 } // namespace jkfs
