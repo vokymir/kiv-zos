@@ -147,6 +147,7 @@ public:
   // size, insert . and .. into self
   // first call with parent_inode == 0 will setup root, all subsequent are
   // creating top-level files/dirs
+  // IS ATOMIC
   void dir_create(int32_t parent_inode, std::string name);
   // append one dir_item into any directory
   void dir_item_add(int32_t inode, int32_t item_inode, std::string item_name);
