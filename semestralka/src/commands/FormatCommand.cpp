@@ -1,7 +1,6 @@
 #include <cctype>
 #include <cstddef>
 #include <cstring>
-#include <stdexcept>
 #include <string>
 #include <tuple>
 
