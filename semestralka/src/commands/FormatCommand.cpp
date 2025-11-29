@@ -77,25 +77,29 @@ FormatCommand::FormatCommand() {
 | If file already existed (no matter if was filesystem or not) it will be overwritten,\n\
 | if didn't exist it will be created.";
   how_ = "format 600MB // format the file to be filesystem of 600 Mebibyte";
+
+  success_message_ = "OK";
+  failure_message_ = "CANNOT CREATE FILE";
 }
 
 void FormatCommand::execute(std::vector<std::string> &args) noexcept {
-  int size;
   try {
     if (args.empty()) {
       throw command_error("The FORMAT command require one argument. See "
                           "help (format -h) for more info.");
     }
-    size = get_total_size(args[0]);
+
+    int size = get_total_size(args[0]);
     fs_.resize_file(static_cast<size_t>(size));
-    std::cout << "OK" << std::endl;
+
+    print_message(SUCCESS);
 
   } catch (std::exception &e) {
     if (fs_.vocal()) {
       std::cout << "EXCEPTION HAPPENED: \n" << e.what() << std::endl;
     }
-    std::cout << "CANNOT CREATE FILE" << std::endl; // must-be-here
-    return;
+
+    print_message(FAILURE);
   }
 }
 

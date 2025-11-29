@@ -23,17 +23,27 @@ protected:
   // Examples.
   std::vector<std::string> exmp_{};
 
+  // standard success/fail messages
+  std::string success_message_ = "OK";
+  std::string failure_message_ = "FAILURE";
+  static constexpr bool SUCCESS = true;
+  static constexpr bool FAILURE = false;
+  // print standard success/failure message
+  void inline print_message(bool success) const noexcept {
+    std::cout << (success ? success_message_ : failure_message_) << std::endl;
+  }
+
 public:
   virtual ~ICommand() = default;
   // Given vector of arguments, execute the command.
   // After operation, writes the result or error message to stdout/stderr
   virtual void execute(std::vector<std::string> &args) noexcept = 0;
 
-  std::string name() const { return name_; }
-  std::string id() const { return id_; }
+  std::string name() const noexcept { return name_; }
+  std::string id() const noexcept { return id_; }
 
   // Get concrete help for using the command.
-  std::string help() const {
+  std::string help() const noexcept {
     std::string res = "";
     res += "┌─\n";
     res += "| << " + name_ + " >>\n";
@@ -54,7 +64,7 @@ public:
     res += "└─\n";
     return res;
   }
-  void print_help() const { std::cout << help() << std::flush; }
+  void print_help() const noexcept { std::cout << help() << std::flush; }
 };
 
 } // namespace jkfs
