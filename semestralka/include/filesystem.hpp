@@ -90,10 +90,11 @@ public:
 
   // find & return inode by its ID
   // ID = index in 'array of inodes'
-  struct inode inode_get(int32_t id);
+  struct inode inode_read(int32_t id);
   // find ID of first empty inode place
+  // mark as used
   // return -1 if none found
-  int32_t inode_get_empty();
+  int32_t inode_alloc();
   // check if any inode is empty
   bool inode_is_empty(int32_t id);
   // write inode to the address defined by its ID & to bitmap
@@ -106,20 +107,56 @@ public:
 
   // get vector of all bytes in cluster
   // doesn't matter if cluster is used or not
-  std::vector<uint8_t> cluster_get(int32_t idx);
+  std::vector<uint8_t> cluster_read(int32_t idx);
   // find idx of first empty cluster
+  // set cluster in bitmap as used
   // return -1 if none found
-  int32_t cluster_get_empty();
+  int32_t cluster_alloc();
   // check if cluster at index is empty
   bool cluster_is_empty(int32_t idx);
   // write raw data to a cluster on index
   // if size > cluster_size, throw error
+  // if data == nullptr || size <= 0 only zero out the space
   // size is in bytes
   // WARN: will shamelessly overwrite existing data
   void cluster_write(int32_t idx, const char *data, int32_t size);
   // set cluster bitmap as unused
   // MAY or may NOT clear the memory
   void cluster_free(int32_t idx);
+
+  // == file ==
+  // allocate inode & cluster, insert dir_item into parent dir & increase its
+  // size
+  void file_create(int32_t parent_inode, std::string name);
+  // compute how many clusters needed, allocate or free them, update inode
+  // (in)directs, update filesize
+  void file_resize(int32_t inode, int32_t new_size);
+  // writes accross multiple clusters
+  // TODO: what is offset to exactly?
+  void file_write(int32_t inode, int32_t offset, const char *data,
+                  int32_t size);
+  // handle read accross multiple clusters
+  std::vector<uint8_t> file_read(int32_t inode);
+  // remove file & remove from parent directory
+  // works on both files/directories
+  void file_delete(int32_t parent_inode, std::string name);
+
+  // == dir ==
+  // allocate inode & cluster, insert dir_item into parent dir & increase its
+  // size, insert . and .. into self
+  void dir_create(int32_t parent_inode, std::string name);
+  // append one dir_item into any directory
+  void dir_item_add(int32_t inode, int32_t item_inode, std::string item_name);
+  // remove one dir_item from directory
+  void dir_item_remove(int32_t inode, std::string item_name);
+  // get ID (or -1) of any item inside directory stored in inode
+  int32_t dir_lookup(int32_t inode, std::string lookup_name);
+  // list all dir_items in one directory
+  std::vector<dir_item> dir_list(int32_t inode);
+
+  // == path ==
+  // find any path and return its inode or -1
+  int32_t path_lookup(std::string path);
 
   // private methods
 private:

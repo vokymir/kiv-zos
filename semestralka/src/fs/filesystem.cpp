@@ -64,7 +64,7 @@ void Filesystem::superblock(const struct superblock &sb) {
 
 // == inodes ==
 
-struct inode Filesystem::inode_get(int32_t id) {
+struct inode Filesystem::inode_read(int32_t id) {
   if (id < 0) {
     throw std::logic_error(
         "Inodes have IDs from range <0,inf), but you tried " +
@@ -81,12 +81,20 @@ struct inode Filesystem::inode_get(int32_t id) {
   return read<struct inode>(position);
 }
 
-int32_t Filesystem::inode_get_empty() {
+int32_t Filesystem::inode_alloc() {
   auto sb = superblock();
   auto buf =
       read_bytes(static_cast<size_t>(sb.bitmapi_size), sb.bitmapi_start_addr);
 
+  // find empty
   auto idx = get_first_bit(buf, 0);
+  if (idx < 0) {
+    return -1;
+  }
+
+  // mark as used & clear
+  inode_write(idx, inode{});
+
   return idx;
 }
 
@@ -147,7 +155,7 @@ void Filesystem::inode_free(int32_t id) {
 
 // == clusters ==
 
-std::vector<uint8_t> Filesystem::cluster_get(int32_t idx) {
+std::vector<uint8_t> Filesystem::cluster_read(int32_t idx) {
   if (idx < 0) {
     throw std::logic_error(
         "Clusters are indexed from 0 upwards, but you tried " +
@@ -160,12 +168,20 @@ std::vector<uint8_t> Filesystem::cluster_get(int32_t idx) {
   return read_bytes(static_cast<size_t>(sb.cluster_size), offset);
 }
 
-int32_t Filesystem::cluster_get_empty() {
+int32_t Filesystem::cluster_alloc() {
   auto sb = superblock();
   auto buf =
       read_bytes(static_cast<size_t>(sb.bitmapd_size), sb.bitmapd_start_addr);
 
+  // find
   auto idx = get_first_bit(buf, 0);
+  if (idx < 0) {
+    return -1;
+  }
+
+  // clear & mark as used
+  cluster_write(idx, nullptr, 0);
+
   return idx;
 }
 
@@ -205,8 +221,10 @@ void Filesystem::cluster_write(int32_t idx, const char *data, int32_t size) {
   // cluster
   // zero-initialized
   std::vector<char> buf(static_cast<size_t>(sb.cluster_size), 0);
-  // copy actual data
-  memcpy(buf.data(), data, static_cast<size_t>(size));
+  if (!(data == nullptr || size <= 0)) {
+    // copy actual data
+    memcpy(buf.data(), data, static_cast<size_t>(size));
+  }
   // write into FS
   write_bytes(buf.data(), static_cast<size_t>(sb.cluster_size),
               sb.data_start_addr + sb.cluster_size * idx);
