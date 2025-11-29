@@ -1,5 +1,8 @@
+#pragma once
+
 #include <exception>
 #include <string>
+
 namespace jkfs {
 
 class jkfilesystem_error : public std::exception {
