@@ -40,7 +40,7 @@ Filesystem &Filesystem::instance() {
 
 // ===== get/set =====
 
-bool Filesystem::vocal() { return vocal_; }
+bool Filesystem::vocal() const { return vocal_; }
 void Filesystem::vocal(bool vocal) { vocal_ = vocal; }
 
 std::string Filesystem::path() const { return path_; }

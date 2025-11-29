@@ -66,7 +66,7 @@ private:
 
   // get/set
 public:
-  bool vocal();
+  bool vocal() const;
   void vocal(bool vocal);
   std::string path() const;
   void path(const std::string &path);
@@ -133,7 +133,7 @@ public:
   // (in)directs, update filesize
   void file_resize(int32_t inode, int32_t new_size);
   // writes accross multiple clusters
-  // TODO: what is offset to exactly?
+  // TODO: what is offset for exactly?
   void file_write(int32_t inode, int32_t offset, const char *data,
                   int32_t size);
   // handle read accross multiple clusters
