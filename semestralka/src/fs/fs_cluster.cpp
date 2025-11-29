@@ -1,3 +1,4 @@
+#include "errors.hpp"
 #include "filesystem.hpp"
 #include <cstring>
 
@@ -5,7 +6,7 @@ namespace jkfs {
 
 std::vector<uint8_t> Filesystem::cluster_read(int32_t idx) {
   if (idx < 0) {
-    throw std::logic_error(
+    throw jkfilesystem_error(
         "Clusters are indexed from 0 upwards, but you tried " +
         std::to_string(idx));
   }
@@ -35,7 +36,7 @@ int32_t Filesystem::cluster_alloc() {
 
 bool Filesystem::cluster_is_empty(int32_t idx) {
   if (idx < 0) {
-    throw std::logic_error(
+    throw jkfilesystem_error(
         "Clusters are indexed from 0 upwards, but you tried " +
         std::to_string(idx));
   }
@@ -51,7 +52,7 @@ bool Filesystem::cluster_is_empty(int32_t idx) {
 }
 void Filesystem::cluster_write(int32_t idx, const char *data, int32_t size) {
   if (idx < 0) {
-    throw std::logic_error(
+    throw jkfilesystem_error(
         "Clusters are indexed from 0 upwards, but you tried " +
         std::to_string(idx));
   }
@@ -80,7 +81,7 @@ void Filesystem::cluster_write(int32_t idx, const char *data, int32_t size) {
 
 void Filesystem::cluster_free(int32_t idx) {
   if (idx < 0) {
-    throw std::logic_error(
+    throw jkfilesystem_error(
         "Clusters are indexed from 0 upwards, but you tried " +
         std::to_string(idx));
   }

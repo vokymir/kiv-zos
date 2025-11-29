@@ -1,16 +1,17 @@
+#include "errors.hpp"
 #include "filesystem.hpp"
 
 namespace jkfs {
 
 struct inode Filesystem::inode_read(int32_t id) {
   if (id < 0) {
-    throw std::logic_error(
+    throw jkfilesystem_error(
         "Inodes have IDs from range <0,inf), but you tried " +
         std::to_string(id));
   }
   if (!inode_is_empty(id)) {
-    throw std::logic_error("Inode with id=" + std::to_string(id) +
-                           " is not used.");
+    throw jkfilesystem_error("Inode with id=" + std::to_string(id) +
+                             " is not used.");
   }
 
   auto sb = superblock();
@@ -38,7 +39,7 @@ int32_t Filesystem::inode_alloc() {
 
 bool Filesystem::inode_is_empty(int32_t id) {
   if (id < 0) {
-    throw std::logic_error(
+    throw jkfilesystem_error(
         "Inodes have IDs from range <0,inf), but you tried " +
         std::to_string(id));
   }
@@ -55,7 +56,7 @@ bool Filesystem::inode_is_empty(int32_t id) {
 
 void Filesystem::inode_write(int32_t id, const struct inode &i) {
   if (id < 0) {
-    throw std::logic_error(
+    throw jkfilesystem_error(
         "Inodes have IDs from range <0,inf), but you tried " +
         std::to_string(id));
   }
@@ -76,7 +77,7 @@ void Filesystem::inode_write(int32_t id, const struct inode &i) {
 
 void Filesystem::inode_free(int32_t id) {
   if (id < 0) {
-    throw std::logic_error(
+    throw jkfilesystem_error(
         "Inodes have IDs from range <0,inf), but you tried " +
         std::to_string(id));
   }

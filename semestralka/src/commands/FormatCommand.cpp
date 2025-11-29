@@ -8,6 +8,7 @@
 #include <tuple>
 
 #include "commands.hpp"
+#include "errors.hpp"
 
 namespace jkfs {
 
@@ -82,11 +83,12 @@ void FormatCommand::execute(std::vector<std::string> &args) noexcept {
   int size;
   try {
     if (args.empty()) {
-      throw std::runtime_error("The FORMAT command require one argument. See "
-                               "help (format -h) for more info.");
+      throw command_error("The FORMAT command require one argument. See "
+                          "help (format -h) for more info.");
     }
     size = get_total_size(args[0]);
     fs_.resize_file(static_cast<size_t>(size));
+    std::cout << "OK" << std::endl;
 
   } catch (std::exception &e) {
     if (fs_.vocal()) {
@@ -95,7 +97,6 @@ void FormatCommand::execute(std::vector<std::string> &args) noexcept {
     std::cout << "CANNOT CREATE FILE" << std::endl; // must-be-here
     return;
   }
-  std::cout << "OK" << std::endl;
 }
 
 } // namespace jkfs

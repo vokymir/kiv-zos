@@ -1,4 +1,5 @@
 #include "filesystem.hpp"
+#include "errors.hpp"
 #include "structures.hpp"
 #include <cstddef>
 #include <cstdint>
@@ -8,7 +9,6 @@
 #include <ios>
 #include <iostream>
 #include <mutex>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -32,7 +32,7 @@ Filesystem &Filesystem::instance(const std::string &filename) {
 Filesystem &Filesystem::instance() {
   std::lock_guard<std::mutex> lock(mutex_);
   if (instance_ == nullptr) {
-    throw std::runtime_error(
+    throw jkfilesystem_error(
         "Cannot get singleton instance if it wasn't initialized.");
   }
   return *instance_;
@@ -73,7 +73,7 @@ void Filesystem::write_bytes(const char *data, size_t count,
   file_.write(data, static_cast<std::streamsize>(count));
 
   if (!file_) {
-    throw std::runtime_error("Cannot write bytes into file.");
+    throw jkfilesystem_error("Cannot write bytes into file.");
   }
 
   file_.flush();
@@ -89,7 +89,7 @@ std::vector<uint8_t> Filesystem::read_bytes(size_t count, std::streamoff offset,
              static_cast<std::streamsize>(count));
 
   if (!file_) {
-    throw std::runtime_error("Cannot read bytes from file.");
+    throw jkfilesystem_error("Cannot read bytes from file.");
   }
 
   return buf;

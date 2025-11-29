@@ -1,3 +1,4 @@
+#include "errors.hpp"
 #include "filesystem.hpp"
 #include "structures.hpp"
 #include <algorithm>
@@ -22,10 +23,10 @@ void Filesystem::ensure_file() {
 
 void Filesystem::resize_file(size_t size) {
   if (size < min_size_) {
-    throw std::runtime_error("The size is too small. Min size: " +
+    throw jkfilesystem_error("The size is too small. Min size: " +
                              std::to_string(min_size_));
   } else if (size > max_size_) {
-    throw std::runtime_error("The size is too big. Max size: " +
+    throw jkfilesystem_error("The size is too big. Max size: " +
                              std::to_string(max_size_));
   }
 
@@ -138,7 +139,7 @@ struct superblock Filesystem::sb_from_size(int32_t total_size) const {
   }
 
   if (position > total_size) {
-    throw std::runtime_error(
+    throw jkfilesystem_error(
         "MATH ERROR: Superblock did math wrong and require more space than is "
         "available in the file... off by: " +
         std::to_string(position - total_size));
