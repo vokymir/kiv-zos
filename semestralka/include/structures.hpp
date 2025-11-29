@@ -59,6 +59,8 @@ struct dir_item {
 
   // if any given name match the dir_item.item_name
   bool name_matches(const std::string &name) const;
+  // return if dir_item is empty
+  bool empty() const;
 };
 
 // write directory item to stream

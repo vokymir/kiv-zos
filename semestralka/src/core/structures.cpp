@@ -35,9 +35,7 @@ std::ostream &operator<<(std::ostream &os, const inode &i) {
 }
 
 std::ostream &operator<<(std::ostream &os, const dir_item &dit) {
-  // item_name may not be null-terminated, so ensure safe printing
-  std::string name(dit.item_name,
-                   strnlen(dit.item_name, sizeof(dit.item_name)));
+  std::string name(dit.item_name);
 
   os << "dir_item{\n"
      << " inode=" << dit.inode << ",\n name=\"" << name << "\""
@@ -57,5 +55,7 @@ bool dir_item::name_matches(const std::string &other_name) const {
 
   return string_equals && item_name_not_longer;
 }
+
+bool dir_item::empty() const { return item_name[0] == '\0'; }
 
 } // namespace jkfs
