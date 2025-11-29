@@ -32,7 +32,7 @@ FILE_SIZE convert_filesize(std::string &str, size_t pos = 0) {
   case 'm':
     return FILE_SIZE::MB;
   default:
-    throw std::logic_error("The size is not one of known (e.g. KB, MB, ...)");
+    throw command_error("The size is not one of known (e.g. KB, MB, ...)");
   }
 }
 
@@ -45,7 +45,7 @@ int convert_size(enum FILE_SIZE fs) {
   case FILE_SIZE::MB:
     return 1'000'000;
   default:
-    throw std::logic_error("The size if not one of known (e.g. KB, MB, ...)");
+    throw command_error("The size if not one of known (e.g. KB, MB, ...)");
   }
 }
 

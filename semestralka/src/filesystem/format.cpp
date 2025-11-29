@@ -30,13 +30,16 @@ void Filesystem::resize_file(size_t size) {
                              std::to_string(max_size_));
   }
 
+  // if this fails, rather fail before resizing
+  auto sb = sb_from_size(static_cast<int32_t>(size));
+
   ensure_file();
 
   file_.close();
   std::filesystem::resize_file(path_, static_cast<uintmax_t>(size));
   path(path_);
 
-  superblock(sb_from_size(static_cast<int32_t>(size)));
+  superblock(sb);
 
   // root is its own parent
   dir_create(0, "/");
