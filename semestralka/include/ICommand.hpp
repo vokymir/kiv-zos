@@ -1,6 +1,7 @@
 #pragma once
 
 #include "filesystem.hpp"
+#include <exception>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -33,11 +34,26 @@ protected:
     std::cout << (success ? success_message_ : failure_message_) << std::endl;
   }
 
+  // given a vector of arguments, execute the command
+  // may throw as many exception as like
+  virtual void execute_inner(std::vector<std::string> &args) = 0;
+
 public:
   virtual ~ICommand() = default;
-  // Given vector of arguments, execute the command.
-  // After operation, writes the result or error message to stdout/stderr
-  virtual void execute(std::vector<std::string> &args) noexcept = 0;
+  // safe wrapper around execute_inner() which does the core logic of command
+  // After operation, writes the success or error message to stdout
+  void execute(std::vector<std::string> &args) noexcept {
+    try {
+      execute_inner(args);
+      print_message(SUCCESS);
+
+    } catch (std::exception &e) {
+      if (fs_.vocal()) {
+        std::cout << "EXCEPTION HAPPENED:\n" << e.what() << std::endl;
+      }
+      print_message(FAILURE);
+    }
+  }
 
   std::string name() const noexcept { return name_; }
   std::string id() const noexcept { return id_; }

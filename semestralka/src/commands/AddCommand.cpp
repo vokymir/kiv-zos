@@ -12,7 +12,7 @@ AddCommand::AddCommand() {
   how_ = "add s1 s2 // append s2 to the end of file s1";
 }
 
-void AddCommand::execute(std::vector<std::string> &a_args) noexcept {
+void AddCommand::execute_inner(std::vector<std::string> &a_args) {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

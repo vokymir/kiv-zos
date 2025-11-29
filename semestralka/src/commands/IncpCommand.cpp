@@ -12,7 +12,7 @@ IncpCommand::IncpCommand() {
   how_ = "incp outside_path.txt inside_path.txt";
 }
 
-void IncpCommand::execute(std::vector<std::string> &a_args) noexcept {
+void IncpCommand::execute_inner(std::vector<std::string> &a_args) {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

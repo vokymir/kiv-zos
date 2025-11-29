@@ -12,7 +12,7 @@ PwdCommand::PwdCommand() {
   how_ = "pwd";
 }
 
-void PwdCommand::execute(std::vector<std::string> &a_args) noexcept {
+void PwdCommand::execute_inner(std::vector<std::string> &a_args) {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

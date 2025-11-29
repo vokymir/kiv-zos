@@ -1,8 +1,6 @@
 #include <cctype>
 #include <cstddef>
 #include <cstring>
-#include <exception>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -82,25 +80,14 @@ FormatCommand::FormatCommand() {
   failure_message_ = "CANNOT CREATE FILE";
 }
 
-void FormatCommand::execute(std::vector<std::string> &args) noexcept {
-  try {
-    if (args.empty()) {
-      throw command_error("The FORMAT command require one argument. See "
-                          "help (format -h) for more info.");
-    }
-
-    int size = get_total_size(args[0]);
-    fs_.resize_file(static_cast<size_t>(size));
-
-    print_message(SUCCESS);
-
-  } catch (std::exception &e) {
-    if (fs_.vocal()) {
-      std::cout << "EXCEPTION HAPPENED: \n" << e.what() << std::endl;
-    }
-
-    print_message(FAILURE);
+void FormatCommand::execute_inner(std::vector<std::string> &args) {
+  if (args.empty()) {
+    throw command_error("The FORMAT command require one argument. See "
+                        "help (format -h) for more info.");
   }
+
+  int size = get_total_size(args[0]);
+  fs_.resize_file(static_cast<size_t>(size));
 }
 
 } // namespace jkfs

@@ -8,123 +8,162 @@
 namespace jkfs {
 
 class CpCommand : public ICommand { // 1
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   CpCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class MvCommand : public ICommand { // 2
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   MvCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class RmCommand : public ICommand { // 3
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   RmCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class MkdirCommand : public ICommand { // 4
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   MkdirCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class RmdirCommand : public ICommand { // 5
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   RmdirCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class LsCommand : public ICommand { // 6
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   LsCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class CatCommand : public ICommand { // 7
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   CatCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class CdCommand : public ICommand { // 8
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   CdCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class PwdCommand : public ICommand { // 9
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   PwdCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class InfoCommand : public ICommand { // 10
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   InfoCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class IncpCommand : public ICommand { // 11
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   IncpCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class OutcpCommand : public ICommand { // 12
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   OutcpCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class LoadCommand : public ICommand { // 13
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 private:
   CommandManager &manager_;
 
 public:
   LoadCommand(CommandManager &manager);
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class FormatCommand : public ICommand { // 14
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   FormatCommand();
   // expects 1 argument, size of filesystem
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class ExitCommand : public ICommand { // 15
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   ExitCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class StatfsCommand : public ICommand { // 16
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   StatfsCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class XcpCommand : public ICommand { // BONUS
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   XcpCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class AddCommand : public ICommand { // BONUS
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 public:
   AddCommand();
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
 
 class HelpCommand : public ICommand { // USEFUL ADDITION
+protected:
+  void execute_inner(std::vector<std::string> &args) override;
+
 private:
   CommandManager &manager_;
 
 public:
   HelpCommand(CommandManager &manager);
-  void execute(std::vector<std::string> &a_args) noexcept override;
 };
+
 } // namespace jkfs

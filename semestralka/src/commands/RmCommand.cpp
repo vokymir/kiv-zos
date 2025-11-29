@@ -12,7 +12,7 @@ RmCommand::RmCommand() {
   how_ = "rm file.txt";
 }
 
-void RmCommand::execute(std::vector<std::string> &a_args) noexcept {
+void RmCommand::execute_inner(std::vector<std::string> &a_args) {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

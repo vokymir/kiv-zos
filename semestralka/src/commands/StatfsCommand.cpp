@@ -13,7 +13,7 @@ StatfsCommand::StatfsCommand() {
   how_ = "statfs";
 }
 
-void StatfsCommand::execute(std::vector<std::string> &a_args) noexcept {
+void StatfsCommand::execute_inner(std::vector<std::string> &a_args) {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

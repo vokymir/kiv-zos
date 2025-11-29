@@ -12,7 +12,7 @@ MkdirCommand::MkdirCommand() {
   how_ = "mkdir new-directory";
 }
 
-void MkdirCommand::execute(std::vector<std::string> &a_args) noexcept {
+void MkdirCommand::execute_inner(std::vector<std::string> &a_args) {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";
