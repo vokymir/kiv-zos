@@ -1,13 +1,16 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 #include <ostream>
+#include <string>
 
 namespace jkfs {
 
 struct superblock {
-  char signature[16]; // author login
-  int32_t disk_size;  // celkova velikost VFS
+  static constexpr int MAX_SIGN_LEN = 16;
+  char signature[MAX_SIGN_LEN]; // author login
+  int32_t disk_size;            // celkova velikost VFS
 
   int32_t bitmapi_start_addr; // bitmap i-node
   int32_t bitmapi_size;
@@ -43,8 +46,15 @@ struct inode {
 std::ostream &operator<<(std::ostream &os, const inode &i);
 
 struct dir_item {
+  static constexpr int MAX_NAME_LEN = 11; // 8 + 3 (+ \0 )
   int32_t inode;
-  char item_name[12]; // 8 + 3 + \0
+  char item_name[MAX_NAME_LEN + 1];
+
+  // only uses first MAX_NAME_LEN characters as item_name
+  dir_item(int32_t inode_id, std::string name) : inode(inode_id) {
+    memset(item_name, 0, sizeof(item_name));
+    strncpy(item_name, name.c_str(), sizeof(item_name) - 1);
+  }
 };
 
 // write directory item to stream
