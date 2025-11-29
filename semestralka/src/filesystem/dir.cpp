@@ -1,8 +1,12 @@
 #include "errors.hpp"
 #include "filesystem.hpp"
 #include "structures.hpp"
+#include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <span>
 #include <string>
+#include <vector>
 
 namespace jkfs {
 
@@ -67,6 +71,45 @@ void Filesystem::dir_item_add(int32_t id, int32_t item_id,
 
   auto offset = inode_read(id).file_size;
   file_write(id, offset, reinterpret_cast<const char *>(&item), sizeof(item));
+}
+
+void Filesystem::dir_item_remove(int32_t parent_id, std::string item_name) {
+  auto id = dir_lookup(parent_id, item_name);
+  if (id < 0) {
+    return; // TODO: my work here is done, but shouldn't I rather throw smth to
+            // let others know also?
+  }
+
+  struct dir_item empty_item{0, ""};
+
+  auto raw_file = file_read(id);
+  // look on raw_file as on array of dir_items
+  auto items =
+      std::span<dir_item>(reinterpret_cast<dir_item *>(raw_file.data()),
+                          raw_file.size() / sizeof(dir_item));
+
+  // remove from the array
+  size_t count = items.size();
+  bool removed = false;
+
+  for (size_t i = 0; i < count; i++) {
+    // remember dir_item is removed
+    if (!removed && items[i].name_matches(item_name)) {
+      removed = true;
+    }
+
+    // shift items to fill the gap
+    if (removed && i < count - 1) {
+      items[i] = items[i + 1];
+    }
+  }
+
+  // forget last item - now empty
+  count--;
+  // write back to file - this handles all inode.filesize changes, removing
+  // clusters, ...
+  file_write(id, 0, reinterpret_cast<const char *>(items.data()),
+             static_cast<int>(count * sizeof(dir_item)));
 }
 
 } // namespace jkfs
