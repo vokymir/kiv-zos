@@ -83,20 +83,19 @@ void Filesystem::dir_item_remove(int32_t id, std::string item_name) {
   });
   if (it == items.end()) {
     return; // TODO: or throw smth???
+            // because the work is done, but not by me, but by mistake
   }
 
+  // index of item to remove
   auto index = std::distance(items.begin(), it);
-
   // shift all items after index to the left
   std::move(items.begin() + index + 1, items.end(), items.begin() + index);
-
-  // set last item to nothing
-  items.back() = dir_item{};
-  // forget last item - now empty (therefore     - 1)
-  int data_size = static_cast<int>((items.size() - 1) * sizeof(dir_item));
+  // delete last item
+  items.pop_back();
 
   // write back to file - this handles all inode.filesize changes, removing
   // clusters, ...
+  int data_size = static_cast<int>(items.size() * sizeof(dir_item));
   file_write(id, 0, reinterpret_cast<const char *>(items.data()), data_size);
 }
 
