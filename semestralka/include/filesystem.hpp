@@ -86,10 +86,10 @@ public:
   // == inodes ==
 
   // find & return inode by its ID
-  // ID = index in 'array of inodes', but 1-indexed (0 equals free inode)
+  // ID = index in 'array of inodes'
   struct inode inode_get(int32_t id);
   // find ID of first empty inode place
-  // return 0 if none found
+  // return -1 if none found
   int32_t inode_get_empty();
   // check if any inode is empty
   bool inode_is_empty(int32_t id);
@@ -101,11 +101,11 @@ public:
 
   // == clusters ==
 
-  // get absolute position (from the start of file) of clusters first byte
-  // usefull for this::read(offset, way)
-  std::streamoff cluster_get(int32_t idx);
+  // get vector of all bytes in cluster
+  // doesn't matter if cluster is used or not
+  std::vector<uint8_t> cluster_get(int32_t idx);
   // find idx of first empty cluster
-  // return 0 if none found
+  // return -1 if none found
   int32_t cluster_get_empty();
   // check if cluster at index is empty
   bool cluster_is_empty(int32_t idx);
@@ -154,6 +154,10 @@ private:
 
     return s;
   }
+
+  // write raw bytes (but as char * because of stream) into anywhere
+  void write_bytes(const char *data, size_t count, std::streamoff offset,
+                   std::ios_base::seekdir way = std::ios::beg);
 
   // read raw bytes from FS, useful for bitmaps
   std::vector<uint8_t> read_bytes(size_t count, std::streamoff offset,

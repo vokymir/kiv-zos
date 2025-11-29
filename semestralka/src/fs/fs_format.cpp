@@ -126,6 +126,9 @@ struct superblock Filesystem::sb_from_size(int32_t total_size) const {
   sb.data_start_addr = position;
   position += sb.cluster_count * sb.cluster_size;
 
+  sb.bitmapi_size = sb.bitmapd_start_addr - sb.bitmapi_start_addr;
+  sb.bitmapd_size = sb.inode_start_addr - sb.bitmapd_start_addr;
+
   print_sb_usage_info(sb, position);
 
   if (position > total_size) {

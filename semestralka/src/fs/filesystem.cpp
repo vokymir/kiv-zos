@@ -60,10 +60,9 @@ void Filesystem::superblock(const struct superblock &sb) {
 // == inodes ==
 
 struct inode Filesystem::inode_get(int32_t id) {
-  int idx = id - 1;
-  if (idx < 0) {
+  if (id < 0) {
     throw std::logic_error(
-        "Inodes have IDs from range <1,inf), but you tried " +
+        "Inodes have IDs from range <0,inf), but you tried " +
         std::to_string(id));
   }
   if (!inode_is_empty(id)) {
@@ -71,30 +70,31 @@ struct inode Filesystem::inode_get(int32_t id) {
                            " is not used.");
   }
 
-  auto sb = read<struct superblock>(0);
-  int32_t position = sb.inode_start_addr + idx * sb.inode_size;
+  auto sb = superblock();
+  int32_t position = sb.inode_start_addr + id * sb.inode_size;
 
   return read<struct inode>(position);
 }
 
 int32_t Filesystem::inode_get_empty() {
-  auto sb = read<struct superblock>(0);
-  auto buf = read_bytes(
-      static_cast<size_t>(sb.bitmapd_start_addr - sb.bitmapi_start_addr),
-      sb.bitmapi_start_addr);
+  auto sb = superblock();
+  auto buf =
+      read_bytes(static_cast<size_t>(sb.bitmapi_size), sb.bitmapi_start_addr);
 
   auto idx = get_first_bit(buf, 0);
-  return idx + 1; // because IDs are 1-indexed
-
-  // and if none bit was found, than return -1 + 1 = 0 which is declared error
+  return idx;
 }
 
 bool Filesystem::inode_is_empty(int32_t id) {
-  auto sb = read<struct superblock>(0);
+  if (id < 0) {
+    throw std::logic_error(
+        "Inodes have IDs from range <0,inf), but you tried " +
+        std::to_string(id));
+  }
 
-  int idx = id - 1;
-  int byte_idx = idx / 8;
-  int bit_idx = idx % 8;
+  auto sb = superblock();
+  int byte_idx = id / 8;
+  int bit_idx = id % 8;
 
   auto byte = read<uint8_t>(sb.bitmapi_start_addr + byte_idx);
 
@@ -103,33 +103,136 @@ bool Filesystem::inode_is_empty(int32_t id) {
 }
 
 void Filesystem::inode_write(int32_t id, const struct inode &i) {
-  auto sb = read<struct superblock>(0);
-  int idx = id - 1;
+  if (id < 0) {
+    throw std::logic_error(
+        "Inodes have IDs from range <0,inf), but you tried " +
+        std::to_string(id));
+  }
+
+  auto sb = superblock();
 
   // bitmap
-  int byte_idx = idx / 8;
-  int bit_idx = idx % 8;
+  int byte_idx = id / 8;
+  int bit_idx = id % 8;
 
   uint8_t byte = read<uint8_t>(sb.bitmapi_start_addr + byte_idx);
   byte |= (1u << bit_idx); // mark as used
   write(byte, sb.bitmapi_start_addr + byte_idx);
 
   // inode
-  write(i, sb.inode_start_addr + sb.inode_size * idx);
+  write(i, sb.inode_start_addr + sb.inode_size * id);
 }
 
 void Filesystem::inode_free(int32_t id) {
-  auto sb = read<struct superblock>(0);
-  int idx = id - 1;
-  int byte_idx = idx / 8;
-  int bit_idx = idx % 8;
+  if (id < 0) {
+    throw std::logic_error(
+        "Inodes have IDs from range <0,inf), but you tried " +
+        std::to_string(id));
+  }
+
+  auto sb = superblock();
+  int byte_idx = id / 8;
+  int bit_idx = id % 8;
 
   uint8_t byte = read<uint8_t>(sb.bitmapi_start_addr + byte_idx);
   byte &= ~(1u << bit_idx); // mark as unused
   write(byte, sb.bitmapi_start_addr + byte_idx);
 }
 
+// == clusters ==
+
+std::vector<uint8_t> Filesystem::cluster_get(int32_t idx) {
+  if (idx < 0) {
+    throw std::logic_error(
+        "Clusters are indexed from 0 upwards, but you tried " +
+        std::to_string(idx));
+  }
+
+  auto sb = superblock();
+  auto offset = sb.data_start_addr + idx * sb.cluster_size;
+
+  return read_bytes(static_cast<size_t>(sb.cluster_size), offset);
+}
+
+int32_t Filesystem::cluster_get_empty() {
+  auto sb = superblock();
+  auto buf =
+      read_bytes(static_cast<size_t>(sb.bitmapd_size), sb.bitmapd_start_addr);
+
+  auto idx = get_first_bit(buf, 0);
+  return idx;
+}
+
+bool Filesystem::cluster_is_empty(int32_t idx) {
+  if (idx < 0) {
+    throw std::logic_error(
+        "Clusters are indexed from 0 upwards, but you tried " +
+        std::to_string(idx));
+  }
+
+  auto sb = superblock();
+  int byte_idx = idx / 8;
+  int bit_idx = idx % 8;
+
+  auto byte = read<uint8_t>(sb.bitmapd_start_addr + byte_idx);
+
+  auto used = (byte >> bit_idx) & 1u;
+  return !used;
+}
+void Filesystem::cluster_write(int32_t idx, const char *data, int32_t size) {
+  if (idx < 0) {
+    throw std::logic_error(
+        "Clusters are indexed from 0 upwards, but you tried " +
+        std::to_string(idx));
+  }
+
+  auto sb = superblock();
+
+  // bitmap
+  int byte_idx = idx / 8;
+  int bit_idx = idx % 8;
+
+  uint8_t byte = read<uint8_t>(sb.bitmapd_start_addr + byte_idx);
+  byte |= (1u << bit_idx); // mark as used
+  write(byte, sb.bitmapd_start_addr + byte_idx);
+
+  // cluster
+  write_bytes(data, static_cast<size_t>(size),
+              sb.data_start_addr + sb.cluster_size * idx);
+}
+
+void Filesystem::cluster_free(int32_t idx) {
+  if (idx < 0) {
+    throw std::logic_error(
+        "Clusters are indexed from 0 upwards, but you tried " +
+        std::to_string(idx));
+  }
+
+  auto sb = superblock();
+  int byte_idx = idx / 8;
+  int bit_idx = idx % 8;
+
+  auto byte = read<uint8_t>(sb.bitmapd_start_addr + byte_idx);
+  byte &= ~(1u << bit_idx); // mark as unused
+  write(byte, sb.bitmapd_start_addr + byte_idx);
+}
+
 // ===== private methods =====
+
+void Filesystem::write_bytes(const char *data, size_t count,
+                             std::streamoff offset,
+                             std::ios_base::seekdir way) {
+  file_.clear();
+
+  file_.seekg(offset, way);
+  file_.write(data, static_cast<std::streamsize>(count));
+
+  if (!file_) {
+    throw std::runtime_error("Cannot write bytes into file.");
+  }
+
+  file_.flush();
+}
 
 std::vector<uint8_t> Filesystem::read_bytes(size_t count, std::streamoff offset,
                                             std::ios_base::seekdir way) {
@@ -141,7 +244,7 @@ std::vector<uint8_t> Filesystem::read_bytes(size_t count, std::streamoff offset,
              static_cast<std::streamsize>(count));
 
   if (!file_) {
-    throw std::runtime_error("Cannot read from file.");
+    throw std::runtime_error("Cannot read bytes from file.");
   }
 
   return buf;

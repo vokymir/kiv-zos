@@ -5,18 +5,21 @@
 
 namespace jkfs {
 
-constexpr int32_t ITEM_FREE = 0;
-
 struct superblock {
   char signature[16]; // author login
   int32_t disk_size;  // celkova velikost VFS
-  int32_t cluster_size;
-  int32_t cluster_count;
-  int32_t inode_size;
+
+  int32_t bitmapi_start_addr; // bitmap i-node
+  int32_t bitmapi_size;
+  int32_t bitmapd_start_addr; // bitmap cluster
+  int32_t bitmapd_size;
+
+  int32_t inode_size; // i-node
   int32_t inode_count;
-  int32_t bitmapi_start_addr;
-  int32_t bitmapd_start_addr;
   int32_t inode_start_addr;
+
+  int32_t cluster_size; // cluster
+  int32_t cluster_count;
   int32_t data_start_addr;
 };
 
@@ -24,7 +27,7 @@ struct superblock {
 std::ostream &operator<<(std::ostream &os, const superblock &sb);
 
 struct inode {
-  int32_t node_id; // if == ITEM_FREE, inode is not used
+  int32_t node_id;
   char is_dir;
   int32_t file_size;
   int32_t direct1;
