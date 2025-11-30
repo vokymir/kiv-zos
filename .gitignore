@@ -1,3 +1,6 @@
+# my tmp directory
+tmp/
+
 # Build directories
 /build/
 /build-*/
