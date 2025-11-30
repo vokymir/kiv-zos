@@ -61,8 +61,11 @@ private:
 
   // member variables
 private:
+  // file in which FS is saved
   std::filesystem::path path_;
   std::fstream file_;
+
+  int32_t current_inode_ = 0; // always start at root
 
   // get/set
 public:
@@ -75,6 +78,11 @@ public:
 
   struct superblock superblock();
   void superblock(const struct superblock &sb);
+
+  // return root directory inode
+  struct inode root_inode();
+  // return root directory inode id
+  int32_t root_id();
 
   // methods
 public:
@@ -228,6 +236,15 @@ private:
   void print_sb_usage_info(struct superblock &sb, int32_t position) const;
   // create superblock for filesystem of given size with the use of
   struct superblock sb_from_size(int32_t size) const;
+
+  // == path ==
+
+  // split path from root, directory by dir, ending by dir or file
+  // if path begins with '/' (root), will save it also, otherwise split by '/'
+  std::vector<std::string> path_split(std::string path);
+  // join path from parts
+  // if path begins with "/" (root), will work with it
+  std::string path_join(std::vector<std::string> parts);
 };
 
 } // namespace jkfs
