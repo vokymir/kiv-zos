@@ -137,6 +137,7 @@ public:
   // == file ==
   // allocate inode & cluster, insert dir_item into parent dir & increase its
   // size
+  // IS ATOMIC
   void file_create(int32_t parent_inode_id, std::string file_name);
   // compute how many clusters needed, allocate or free them, update inode
   // (in)directs, update filesize
