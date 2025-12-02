@@ -1,8 +1,10 @@
 #include "errors.hpp"
 #include "filesystem.hpp"
 #include "structures.hpp"
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 
 namespace jkfs {
 
@@ -52,7 +54,49 @@ void Filesystem::file_create(int32_t parent_id, std::string file_name) {
 }
 
 // TODO:
-void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {}
+void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
+  auto inode = inode_read(inode_id);
+  if (new_size < inode.file_size) {
+    throw jkfilesystem_error("file_resize() cannot make the file smaller");
+  } else if (new_size == inode.file_size) {
+    return; // work already done
+  }
+
+  // integer ceiling
+  int clusters_needed = (new_size + cluster_size_ - 1) / cluster_size_;
+  auto existing_clusters = file_list_clusters(inode_id);
+
+  if (static_cast<size_t>(clusters_needed) <= existing_clusters.size()) {
+    return; // work already done
+  }
+
+  // for 1 existing cluster the begin index is 1, which is OK
+  int begin_idx = static_cast<int>(existing_clusters.size());
+  int end_idx = static_cast<size_t>(clusters_needed) > std::size(inode.direct)
+                    ? std::size(inode.direct)
+                    : clusters_needed;
+
+  // direct
+  for (int i = begin_idx; i < end_idx; i++) {
+    inode.direct[i] = cluster_alloc();
+    if (inode.direct[i] < 0) {
+      throw jkfilesystem_error("No empty cluster.");
+    }
+  }
+
+  // indirect
+  // ensure indirect exist
+  if (inode.indirect1 <= 0) {
+    inode.indirect1 = cluster_alloc();
+    if (inode.indirect1 < 0) {
+      throw jkfilesystem_error("No empty cluster.");
+    }
+  }
+  auto bytes = cluster_read(inode.indirect1);
+  std::span<const int32_t> cluster_idxs{
+      reinterpret_cast<const int32_t *>(bytes.data()),
+      bytes.size() / sizeof(int32_t)};
+}
 
 // TODO:
 void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,

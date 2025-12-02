@@ -141,6 +141,7 @@ public:
   void file_create(int32_t parent_inode_id, std::string file_name);
   // compute how many clusters needed, allocate or free them, update inode
   // (in)directs, update filesize
+  // WARN: only can enlarge/extend file
   void file_resize(int32_t inode_id, int32_t new_size);
   // writes accross multiple clusters
   void file_write(int32_t inode_id, int32_t offset, const char *data,
