@@ -145,6 +145,8 @@ public:
   // WARN: Is really not atomic - on fail the system is corrupted
   void file_resize(int32_t inode_id, int32_t new_size);
   // writes accross multiple clusters
+  // offset is in bytes - offset 15 means, that 15th byte will be the first to
+  // be written to
   void file_write(int32_t inode_id, int32_t offset, const char *data,
                   int32_t data_size);
   // handle read accross multiple clusters

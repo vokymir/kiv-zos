@@ -129,9 +129,31 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
                 cluster_size_);
 }
 
-// TODO:
 void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
-                            int32_t data_size) {}
+                            int32_t data_size) {
+  auto clusters = file_list_clusters(inode_id);
+  size_t start_cluster_idx = static_cast<size_t>(offset / cluster_size_);
+  auto start_cluster_offset = offset % cluster_size_;
+
+  // look at the data differently
+  std::span<const uint8_t> data_to_write(
+      reinterpret_cast<const uint8_t *>(data), static_cast<size_t>(data_size));
+
+  // work with the first cluster - different, because of offset
+  auto first_cluster_contents = cluster_read(clusters[start_cluster_idx]);
+  for (size_t i = 0; i < static_cast<size_t>(cluster_size_); i++) {
+    if (i < static_cast<size_t>(start_cluster_offset)) {
+      continue;
+    }
+    first_cluster_contents[i] = data_to_write[i];
+  }
+  cluster_write(clusters[start_cluster_idx],
+                reinterpret_cast<const char *>(first_cluster_contents.data()),
+                cluster_size_);
+
+  // potrebuju si pamatovat kolik jsem toho zapsal do dalsich souboru.
+  // dalsi clustery uz jsou jednoduchy, ty cely jenom zapisu, nebudu cist.
+}
 
 std::vector<uint8_t> Filesystem::file_read(int32_t inode_id) {
   std::vector<uint8_t> file_contents;
