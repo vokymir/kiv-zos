@@ -53,7 +53,6 @@ void Filesystem::file_create(int32_t parent_id, std::string file_name) {
   }
 }
 
-// TODO:
 void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
   auto inode = inode_read(inode_id);
   if (new_size < inode.file_size) {
@@ -64,38 +63,70 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
 
   // integer ceiling
   int clusters_needed = (new_size + cluster_size_ - 1) / cluster_size_;
-  auto existing_clusters = file_list_clusters(inode_id);
+  auto allocated_clusters = file_list_clusters(inode_id);
 
-  if (static_cast<size_t>(clusters_needed) <= existing_clusters.size()) {
+  if (static_cast<size_t>(clusters_needed) <= allocated_clusters.size()) {
     return; // work already done
   }
 
-  // for 1 existing cluster the begin index is 1, which is OK
-  int begin_idx = static_cast<int>(existing_clusters.size());
-  int end_idx = static_cast<size_t>(clusters_needed) > std::size(inode.direct)
-                    ? std::size(inode.direct)
-                    : clusters_needed;
+  // allocate new clusters
+  while (static_cast<size_t>(clusters_needed) > allocated_clusters.size()) {
+    allocated_clusters.push_back(cluster_alloc());
+  }
+
+  // vector can only pop back, so reverse the order and have first cluster at
+  // the end
+  std::reverse(allocated_clusters.begin(), allocated_clusters.end());
 
   // direct
-  for (int i = begin_idx; i < end_idx; i++) {
-    inode.direct[i] = cluster_alloc();
-    if (inode.direct[i] < 0) {
-      throw jkfilesystem_error("No empty cluster.");
+  for (int i = 0; i < static_cast<int>(std::size(inode.direct)); i++) {
+    inode.direct[i] = allocated_clusters.back();
+    allocated_clusters.pop_back();
+  }
+
+  // ensure indirect1 exists
+  if (inode.indirect1 <= 0) {
+    inode.indirect1 = cluster_alloc();
+    if (inode.indirect1 <= 0) {
+      throw jkfilesystem_error("Not enough empty clusters (for indirect1).");
+    }
+  }
+  file_resize_cluster_indirect(inode.indirect1, allocated_clusters);
+
+  // ensure indirect2 exists
+  if (inode.indirect2 <= 0) {
+    inode.indirect2 = cluster_alloc();
+    if (inode.indirect2 <= 0) {
+      throw jkfilesystem_error("Not enough empty clusters (for indirect2).");
+    }
+  }
+  // read the indirect2 cluster
+  auto indirect2s_bytes = cluster_read(inode.indirect2);
+  std::span<int32_t> indirect2s{
+      reinterpret_cast<int32_t *>(indirect2s_bytes.data()),
+      indirect2s_bytes.size() / sizeof(int32_t)};
+
+  // for each entry in indirect2 do indirect1
+  size_t max_entries = static_cast<size_t>(cluster_size_) / sizeof(int32_t);
+  for (size_t i = 0; i < max_entries; i++) {
+    if (indirect2s[i] <= 0) {
+      if (allocated_clusters.empty() <= 0) {
+        break;
+      }
+      indirect2s[i] = cluster_alloc();
+      if (indirect2s[i] <= 0) {
+        throw jkfilesystem_error(
+            "Not enough empty clusters (for indirect1 in indirect2).");
+      }
+
+      file_resize_cluster_indirect(indirect2s[i], allocated_clusters);
     }
   }
 
-  // indirect
-  // ensure indirect exist
-  if (inode.indirect1 <= 0) {
-    inode.indirect1 = cluster_alloc();
-    if (inode.indirect1 < 0) {
-      throw jkfilesystem_error("No empty cluster.");
-    }
-  }
-  auto bytes = cluster_read(inode.indirect1);
-  std::span<const int32_t> cluster_idxs{
-      reinterpret_cast<const int32_t *>(bytes.data()),
-      bytes.size() / sizeof(int32_t)};
+  // write back to cluster
+  cluster_write(inode.indirect2,
+                reinterpret_cast<const char *>(indirect2s_bytes.data()),
+                cluster_size_);
 }
 
 // TODO:
@@ -158,6 +189,31 @@ Filesystem::file_list_clusters_indirect(int32_t cluster_idx) {
   }
 
   return clusters;
+}
+
+void Filesystem::file_resize_cluster_indirect(int32_t indirect_id,
+                                              std::vector<int32_t> &to_write) {
+  // read bytes in indirect cluster
+  auto indirect_bytes = cluster_read(indirect_id);
+  // look at them as if they are cluster indexes
+  auto indirect_entries = reinterpret_cast<int32_t *>(indirect_bytes.data());
+
+  int32_t max_entries = cluster_size_ / static_cast<int>(sizeof(int32_t));
+  for (int i = 0; i < max_entries; i++) {
+    if (indirect_entries[i] <= 0) { // empty entry - only >0 are valid indexes
+      if (to_write.empty()) {       // no more clusters to add
+        break;
+      }
+
+      // fill with new cluster id
+      indirect_entries[i] = to_write.back();
+      to_write.pop_back();
+    }
+  }
+
+  cluster_write(indirect_id,
+                reinterpret_cast<const char *>(indirect_bytes.data()),
+                cluster_size_);
 }
 
 } // namespace jkfs

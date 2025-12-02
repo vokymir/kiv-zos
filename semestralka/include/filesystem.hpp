@@ -142,6 +142,7 @@ public:
   // compute how many clusters needed, allocate or free them, update inode
   // (in)directs, update filesize
   // WARN: only can enlarge/extend file
+  // WARN: Is really not atomic - on fail the system is corrupted
   void file_resize(int32_t inode_id, int32_t new_size);
   // writes accross multiple clusters
   void file_write(int32_t inode_id, int32_t offset, const char *data,
@@ -251,8 +252,13 @@ private:
   // == file ==
   // list all clusters which are used in the order
   std::vector<int32_t> file_list_clusters(int32_t inode_id);
-
+  // list all clusters indexes (in order) which are stored in given cluster
   std::vector<int32_t> file_list_clusters_indirect(int32_t cluster_idx);
+
+  // write all cluster indexes stored in to_write_from_back into cluster with
+  // cluster_idx - that cluster is indirect and stores cluster indexes
+  void file_resize_cluster_indirect(int32_t cluster_idx,
+                                    std::vector<int32_t> &to_write_from_back);
 };
 
 } // namespace jkfs
