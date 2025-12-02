@@ -63,6 +63,10 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
   }
 
   auto all_clusters = file_resize_allocate_clusters(inode_id, new_size);
+  // for atomicity
+  std::vector<int32_t> copy_all_clusters(all_clusters.size());
+  std::copy(all_clusters.begin(), all_clusters.end(),
+            copy_all_clusters.begin());
 
   // vector can only pop back, so reverse the order and have first cluster at
   // the end
@@ -70,35 +74,54 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
   // strategy: rewrite all existing values, because apart from time it is not
   // against anything :D
 
-  // direct
-  for (int i = 0; i < static_cast<int>(std::size(inode.direct)); i++) {
-    if (all_clusters.empty()) {
-      break;
+  try {
+    // direct
+    for (int i = 0; i < static_cast<int>(std::size(inode.direct)); i++) {
+      if (all_clusters.empty()) {
+        break;
+      }
+      inode.direct[i] = all_clusters.back();
+      all_clusters.pop_back();
     }
-    inode.direct[i] = all_clusters.back();
-    all_clusters.pop_back();
-  }
 
-  // indirect1
-  if (inode.indirect1 <= 0) {
-    inode.indirect1 = cluster_alloc();
+    // indirect1
     if (inode.indirect1 <= 0) {
-      throw jkfilesystem_error("Not enough empty clusters (for indirect1).");
+      inode.indirect1 = cluster_alloc();
+      if (inode.indirect1 <= 0) {
+        throw jkfilesystem_error("Not enough empty clusters (for indirect1).");
+      }
     }
-  }
-  file_resize_cluster_indirect1(inode.indirect1, all_clusters);
+    file_resize_cluster_indirect1(inode.indirect1, all_clusters);
 
-  // indirect2
-  if (inode.indirect2 <= 0) {
-    inode.indirect2 = cluster_alloc();
+    // indirect2
     if (inode.indirect2 <= 0) {
-      throw jkfilesystem_error("Not enough empty clusters (for indirect2).");
+      inode.indirect2 = cluster_alloc();
+      if (inode.indirect2 <= 0) {
+        throw jkfilesystem_error("Not enough empty clusters (for indirect2).");
+      }
     }
-  }
-  file_resize_cluster_indirect2(inode.indirect2, all_clusters);
+    file_resize_cluster_indirect2(inode.indirect2, all_clusters);
 
-  // write (potentially) changed inode
-  inode_write(inode_id, inode);
+    // write (potentially) changed inode
+    inode_write(inode_id, inode);
+  } catch (...) {
+    // TODO:
+    // atomicity strategy:
+    // 1. direct fail - OK
+    // 2. indirect1 fail - OK, is atomic & direct need no reverting
+    // 3. indirect2 fail - its atomic, but need to revert indirect1: PANIC
+    // 4. inode_write fail - PANIC
+
+    // this would free all newly allocated clusters - but is it good?
+    auto original_size = file_list_clusters(inode_id).size();
+    for (auto i = original_size; i < copy_all_clusters.size(); i++) {
+      if (copy_all_clusters[i] > 0) {
+        cluster_free(copy_all_clusters[i]);
+      }
+    }
+
+    throw;
+  }
 }
 
 void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
