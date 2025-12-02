@@ -133,8 +133,17 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
 void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
                             int32_t data_size) {}
 
-// TODO:
-std::vector<uint8_t> Filesystem::file_read(int32_t inode_id) { return {}; }
+std::vector<uint8_t> Filesystem::file_read(int32_t inode_id) {
+  std::vector<uint8_t> file_contents;
+  auto clusters = file_list_clusters(inode_id);
+
+  for (const auto &cluster : clusters) {
+    auto data = cluster_read(cluster);
+    file_contents.insert(file_contents.end(), data.begin(), data.end());
+  }
+
+  return file_contents;
+}
 
 // TODO:
 void Filesystem::file_delete(int32_t parent_inode_id, std::string file_name) {}
