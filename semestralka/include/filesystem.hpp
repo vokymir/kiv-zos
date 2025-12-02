@@ -250,6 +250,8 @@ private:
   // == file ==
   // list all clusters which are used in the order
   std::vector<int32_t> file_list_clusters(int32_t inode_id);
+
+  std::vector<int32_t> file_list_clusters_indirect(int32_t cluster_idx);
 };
 
 } // namespace jkfs

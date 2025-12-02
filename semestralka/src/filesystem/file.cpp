@@ -70,6 +70,7 @@ std::vector<int32_t> Filesystem::file_list_clusters(int32_t inode_id) {
   std::vector<int32_t> clusters;
   auto inode = inode_read(inode_id);
 
+  // direct
   for (const auto &idx : inode.direct) {
     if (idx <= 0) {
       return clusters;
@@ -81,41 +82,35 @@ std::vector<int32_t> Filesystem::file_list_clusters(int32_t inode_id) {
   if (inode.indirect1 <= 0) {
     return clusters;
   }
-  auto bytes_in1 = cluster_read(inode.indirect1);
-  std::span<const int32_t> cluster_idxs_in1{
-      reinterpret_cast<const int32_t *>(bytes_in1.data()),
-      bytes_in1.size() / sizeof(int32_t)};
-
-  for (const auto &idx : cluster_idxs_in1) {
-    if (idx <= 0) {
-      return clusters;
-    }
-    clusters.push_back(idx);
-  }
+  auto indirect1 = file_list_clusters_indirect(inode.indirect1);
+  clusters.insert(clusters.end(), indirect1.begin(), indirect1.end());
 
   // indirect 2
   if (inode.indirect2 <= 0) {
     return clusters;
   }
-  auto bytes_in2 = cluster_read(inode.indirect2);
-  std::span<const int32_t> in2_pointer_2{
-      reinterpret_cast<const int32_t *>(bytes_in2.data()),
-      bytes_in2.size() / sizeof(int32_t)};
-  for (const auto &pointer_idx : in2_pointer_2) {
-    if (pointer_idx <= 0) {
+  auto indirects = file_list_clusters_indirect(inode.indirect2);
+  for (const auto &indirect : indirects) {
+    auto indirect2 = file_list_clusters_indirect(indirect);
+    clusters.insert(clusters.end(), indirect2.begin(), indirect2.end());
+  }
+
+  return clusters;
+}
+
+std::vector<int32_t>
+Filesystem::file_list_clusters_indirect(int32_t cluster_idx) {
+  std::vector<int32_t> clusters;
+  auto bytes = cluster_read(cluster_idx);
+  std::span<const int32_t> cluster_idxs{
+      reinterpret_cast<const int32_t *>(bytes.data()),
+      bytes.size() / sizeof(int32_t)};
+
+  for (const auto &idx : cluster_idxs) {
+    if (idx <= 0) {
       return clusters;
     }
-    auto bytes_in2__ = cluster_read(pointer_idx);
-    std::span<const int32_t> in2_pointer_1{
-        reinterpret_cast<const int32_t *>(bytes_in2__.data()),
-        bytes_in2__.size() / sizeof(int32_t)};
-
-    for (const auto &idx : in2_pointer_1) {
-      if (idx <= 0) {
-        return clusters;
-      }
-      clusters.push_back(idx);
-    }
+    clusters.push_back(idx);
   }
 
   return clusters;
