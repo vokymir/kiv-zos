@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
+#include <vector>
 
 namespace jkfs {
 
@@ -130,29 +131,60 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
 }
 
 void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
-                            int32_t data_size) {
+                            size_t data_size) {
+  // list all clusters to write into
   auto clusters = file_list_clusters(inode_id);
+
+  // if dont have enough space, resize
+  if (static_cast<int>(clusters.size()) * cluster_size_ <
+      static_cast<int>(data_size) + offset) {
+    file_resize(inode_id, static_cast<int32_t>(data_size) + offset);
+  }
+  // reload clusters
+  clusters = file_list_clusters(inode_id);
+
   size_t start_cluster_idx = static_cast<size_t>(offset / cluster_size_);
-  auto start_cluster_offset = offset % cluster_size_;
+  size_t start_cluster_offset = static_cast<size_t>(offset % cluster_size_);
+
+  // only for readability - static type here and not on X places below
+  size_t cluster_size = static_cast<size_t>(cluster_size_);
 
   // look at the data differently
   std::span<const uint8_t> data_to_write(
-      reinterpret_cast<const uint8_t *>(data), static_cast<size_t>(data_size));
+      reinterpret_cast<const uint8_t *>(data), data_size);
 
-  // work with the first cluster - different, because of offset
+  size_t written_bytes = 0;
+  size_t written_clusters = 0;
+
+  // work with the first cluster - different, because we need to write only
+  // after offset
   auto first_cluster_contents = cluster_read(clusters[start_cluster_idx]);
-  for (size_t i = 0; i < static_cast<size_t>(cluster_size_); i++) {
-    if (i < static_cast<size_t>(start_cluster_offset)) {
-      continue;
-    }
-    first_cluster_contents[i] = data_to_write[i];
+  for (size_t i = start_cluster_offset; i < cluster_size; i++) {
+    first_cluster_contents[i] = data_to_write[written_bytes];
+    written_bytes++;
   }
   cluster_write(clusters[start_cluster_idx],
                 reinterpret_cast<const char *>(first_cluster_contents.data()),
                 cluster_size_);
+  written_clusters++;
 
-  // potrebuju si pamatovat kolik jsem toho zapsal do dalsich souboru.
-  // dalsi clustery uz jsou jednoduchy, ty cely jenom zapisu, nebudu cist.
+  // next clusters - write from cluster beginning
+  while (written_bytes < data_size) {
+    std::vector<uint8_t> contents(cluster_size);
+
+    for (size_t i = 0; i < cluster_size; i++) {
+      if (written_bytes >= data_size) {
+        break; // already wrote everything
+      }
+      contents[i] = data_to_write[written_bytes];
+      written_bytes++;
+    }
+
+    cluster_write(clusters[start_cluster_idx + written_clusters],
+                  reinterpret_cast<const char *>(contents.data()),
+                  cluster_size_);
+    written_clusters++;
+  }
 }
 
 std::vector<uint8_t> Filesystem::file_read(int32_t inode_id) {

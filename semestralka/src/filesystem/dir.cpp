@@ -95,7 +95,7 @@ void Filesystem::dir_item_remove(int32_t id, std::string item_name) {
 
   // write back to file - this handles all inode.filesize changes, removing
   // clusters, ...
-  int data_size = static_cast<int>(items.size() * sizeof(dir_item));
+  auto data_size = items.size() * sizeof(dir_item);
   file_write(id, 0, reinterpret_cast<const char *>(items.data()), data_size);
 }
 
