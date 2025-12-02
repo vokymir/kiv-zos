@@ -145,8 +145,21 @@ std::vector<uint8_t> Filesystem::file_read(int32_t inode_id) {
   return file_contents;
 }
 
-// TODO:
-void Filesystem::file_delete(int32_t parent_inode_id, std::string file_name) {}
+void Filesystem::file_delete(int32_t parent_inode_id, std::string file_name) {
+  // find inode to delete
+  auto inode = dir_lookup(parent_inode_id, file_name);
+
+  // free clusters
+  auto clusters = file_list_clusters(inode);
+  for (const auto &cluster : clusters) {
+    cluster_free(cluster);
+  }
+
+  // free inode
+  inode_free(inode);
+  // free dir item reference
+  dir_item_remove(parent_inode_id, file_name);
+}
 
 // PRIVATE
 
