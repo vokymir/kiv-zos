@@ -261,6 +261,20 @@ private:
   // cluster_idx - that cluster is indirect and stores cluster indexes
   void file_resize_cluster_indirect(int32_t cluster_idx,
                                     std::vector<int32_t> &to_write_from_back);
+
+  // write first cluster in file_write() - different behaviour than others,
+  // because write only after offset bytes
+  // return written_bytes
+  size_t file_write_first_cluster(int32_t cluster_idx,
+                                  int32_t offset_in_cluster,
+                                  const std::vector<uint8_t> &to_write);
+
+  // write next clusters in file_write()
+  // no read, only write
+  // written_bytes are updated
+  void file_write_next_clusters(int32_t cluster_idx,
+                                const std::vector<uint8_t> &to_write,
+                                size_t &written_bytes);
 };
 
 } // namespace jkfs

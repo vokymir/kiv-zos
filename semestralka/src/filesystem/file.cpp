@@ -146,43 +146,24 @@ void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
   size_t start_cluster_idx = static_cast<size_t>(offset / cluster_size_);
   size_t start_cluster_offset = static_cast<size_t>(offset % cluster_size_);
 
-  // only for readability - static type here and not on X places below
-  size_t cluster_size = static_cast<size_t>(cluster_size_);
-
   // look at the data differently
-  std::span<const uint8_t> data_to_write(
-      reinterpret_cast<const uint8_t *>(data), data_size);
+  std::span<uint8_t> data_to_write(
+      reinterpret_cast<uint8_t *>(const_cast<char *>(data)), data_size);
 
   size_t written_bytes = 0;
   size_t written_clusters = 0;
 
-  // work with the first cluster - different, because we need to write only
-  // after offset
-  auto first_cluster_contents = cluster_read(clusters[start_cluster_idx]);
-  for (size_t i = start_cluster_offset; i < cluster_size; i++) {
-    first_cluster_contents[i] = data_to_write[written_bytes];
-    written_bytes++;
-  }
-  cluster_write(clusters[start_cluster_idx],
-                reinterpret_cast<const char *>(first_cluster_contents.data()),
-                cluster_size_);
+  written_bytes += file_write_first_cluster(
+      static_cast<int>(start_cluster_idx),
+      static_cast<int>(start_cluster_offset),
+      reinterpret_cast<std::vector<uint8_t> &>(data_to_write));
   written_clusters++;
 
   // next clusters - write from cluster beginning
   while (written_bytes < data_size) {
-    std::vector<uint8_t> contents(cluster_size);
-
-    for (size_t i = 0; i < cluster_size; i++) {
-      if (written_bytes >= data_size) {
-        break; // already wrote everything
-      }
-      contents[i] = data_to_write[written_bytes];
-      written_bytes++;
-    }
-
-    cluster_write(clusters[start_cluster_idx + written_clusters],
-                  reinterpret_cast<const char *>(contents.data()),
-                  cluster_size_);
+    file_write_next_clusters(
+        clusters[start_cluster_idx + written_clusters],
+        reinterpret_cast<std::vector<uint8_t> &>(data_to_write), written_bytes);
     written_clusters++;
   }
 }
@@ -289,6 +270,45 @@ void Filesystem::file_resize_cluster_indirect(int32_t indirect_id,
 
   cluster_write(indirect_id,
                 reinterpret_cast<const char *>(indirect_bytes.data()),
+                cluster_size_);
+}
+
+size_t
+Filesystem::file_write_first_cluster(int32_t cluster_idx, int32_t offset,
+                                     const std::vector<uint8_t> &to_write) {
+  auto raw = cluster_read(cluster_idx);
+  size_t written_bytes = 0;
+
+  for (int i = offset; i < cluster_size_; i++) {
+    raw[static_cast<size_t>(i)] = to_write[written_bytes];
+    written_bytes++;
+  }
+  cluster_write(cluster_idx, reinterpret_cast<const char *>(raw.data()),
+                cluster_size_);
+
+  return written_bytes;
+}
+
+void Filesystem::file_write_next_clusters(int32_t cluster_idx,
+                                          const std::vector<uint8_t> &to_write,
+                                          size_t &written_bytes) {
+  // only for readability - static type here and not on X places below
+  size_t cluster_size = static_cast<size_t>(cluster_size_);
+
+  // buffer
+  std::vector<uint8_t> contents(cluster_size);
+
+  // fill cluster
+  for (size_t i = 0; i < cluster_size; i++) {
+    if (written_bytes >= to_write.size()) {
+      break; // already wrote everything
+    }
+
+    contents[i] = to_write[written_bytes];
+    written_bytes++;
+  }
+
+  cluster_write(cluster_idx, reinterpret_cast<const char *>(contents.data()),
                 cluster_size_);
 }
 
