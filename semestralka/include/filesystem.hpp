@@ -259,21 +259,25 @@ private:
 
   // in file_resize() allocate more clusters if neccessary
   // return vector of cluster indexes
+  // IS ATOMIC
   std::vector<int32_t> file_resize_allocate_clusters(int32_t inode_id,
                                                      int32_t new_size);
   // write all cluster indexes stored in to_write_from_back into cluster with
   // cluster_idx - that cluster is indirect and stores cluster indexes
+  // IS ATOMIC
   void file_resize_cluster_indirect1(int32_t cluster_idx,
                                      std::vector<int32_t> &to_write_from_back);
 
   // write all cluster indexes stored in to_write_from_back into clusters
   // pointed to from clusters which are pointed from cluster_idx :D
+  // IS ATOMIC
   void file_resize_cluster_indirect2(int32_t cluster_idx,
                                      std::vector<int32_t> &to_write_from_back);
 
   // write first cluster in file_write() - different behaviour than others,
   // because write only after offset bytes
   // return written_bytes
+  // IS ATOMIC (by default)
   size_t file_write_first_cluster(int32_t cluster_idx,
                                   int32_t offset_in_cluster,
                                   const std::vector<uint8_t> &to_write);
@@ -281,6 +285,7 @@ private:
   // write next clusters in file_write()
   // no read, only write
   // written_bytes are updated
+  // IS ATOMIC (by default)
   void file_write_next_clusters(int32_t cluster_idx,
                                 const std::vector<uint8_t> &to_write,
                                 size_t &written_bytes);

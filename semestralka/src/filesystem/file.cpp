@@ -62,19 +62,21 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
     return; // work already done
   }
 
-  auto allocated_clusters = file_resize_allocate_clusters(inode_id, new_size);
+  auto all_clusters = file_resize_allocate_clusters(inode_id, new_size);
 
   // vector can only pop back, so reverse the order and have first cluster at
   // the end
-  std::reverse(allocated_clusters.begin(), allocated_clusters.end());
+  std::reverse(all_clusters.begin(), all_clusters.end());
+  // strategy: rewrite all existing values, because apart from time it is not
+  // against anything :D
 
   // direct
   for (int i = 0; i < static_cast<int>(std::size(inode.direct)); i++) {
-    if (allocated_clusters.empty()) {
+    if (all_clusters.empty()) {
       break;
     }
-    inode.direct[i] = allocated_clusters.back();
-    allocated_clusters.pop_back();
+    inode.direct[i] = all_clusters.back();
+    all_clusters.pop_back();
   }
 
   // indirect1
@@ -84,7 +86,7 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
       throw jkfilesystem_error("Not enough empty clusters (for indirect1).");
     }
   }
-  file_resize_cluster_indirect1(inode.indirect1, allocated_clusters);
+  file_resize_cluster_indirect1(inode.indirect1, all_clusters);
 
   // indirect2
   if (inode.indirect2 <= 0) {
@@ -93,7 +95,10 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
       throw jkfilesystem_error("Not enough empty clusters (for indirect2).");
     }
   }
-  file_resize_cluster_indirect2(inode.indirect2, allocated_clusters);
+  file_resize_cluster_indirect2(inode.indirect2, all_clusters);
+
+  // write (potentially) changed inode
+  inode_write(inode_id, inode);
 }
 
 void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
@@ -219,14 +224,27 @@ Filesystem::file_resize_allocate_clusters(int32_t inode_id, int32_t new_size) {
   // integer ceiling
   int clusters_needed = (new_size + cluster_size_ - 1) / cluster_size_;
   auto allocated_clusters = file_list_clusters(inode_id);
+  // for atomicity - used in try/catch
+  auto original_size = allocated_clusters.size();
 
   if (static_cast<size_t>(clusters_needed) <= allocated_clusters.size()) {
     return allocated_clusters; // work already done
   }
 
-  // allocate new clusters
-  while (static_cast<size_t>(clusters_needed) > allocated_clusters.size()) {
-    allocated_clusters.push_back(cluster_alloc());
+  try {
+    // allocate new clusters
+    while (static_cast<size_t>(clusters_needed) > allocated_clusters.size()) {
+      allocated_clusters.push_back(cluster_alloc());
+    }
+  } catch (...) {
+    // free all newly allocated clusters
+    while (allocated_clusters.size() > original_size) {
+      cluster_free(allocated_clusters.back());
+      allocated_clusters.pop_back();
+    }
+
+    // let others know error happened
+    throw;
   }
 
   return allocated_clusters;
@@ -260,32 +278,43 @@ void Filesystem::file_resize_cluster_indirect1(int32_t indirect_id,
 void Filesystem::file_resize_cluster_indirect2(
     int32_t cluster_idx, std::vector<int32_t> &to_write_from_back) {
   // read the indirect2 cluster
-  auto indirect2s_bytes = cluster_read(cluster_idx);
-  std::span<int32_t> indirect2s{
-      reinterpret_cast<int32_t *>(indirect2s_bytes.data()),
-      indirect2s_bytes.size() / sizeof(int32_t)};
+  auto bytes = cluster_read(cluster_idx);
+  std::span<int32_t> indirect2s{reinterpret_cast<int32_t *>(bytes.data()),
+                                bytes.size() / sizeof(int32_t)};
 
-  // for each entry in indirect2 do indirect1
-  size_t max_entries = static_cast<size_t>(cluster_size_) / sizeof(int32_t);
-  for (size_t i = 0; i < max_entries; i++) {
-    if (indirect2s[i] <= 0) { // if entry in indirect2 is invalid
-      if (to_write_from_back.empty() <= 0) {
-        break;
-      }
-      // allocate new cluster
-      indirect2s[i] = cluster_alloc();
-      if (indirect2s[i] <= 0) {
-        throw jkfilesystem_error(
-            "Not enough empty clusters (for indirect1 in indirect2).");
-      }
+  // for atomicity
+  std::vector<int32_t> allocated_here;
 
-      file_resize_cluster_indirect1(indirect2s[i], to_write_from_back);
+  try {
+    // for each entry in indirect2 do indirect1
+    size_t max_entries = static_cast<size_t>(cluster_size_) / sizeof(int32_t);
+    for (size_t i = 0; i < max_entries; i++) {
+      if (indirect2s[i] <= 0) { // if entry in indirect2 is invalid
+        if (to_write_from_back.empty() <= 0) {
+          break;
+        }
+        // allocate new cluster
+        indirect2s[i] = cluster_alloc();
+        if (indirect2s[i] <= 0) {
+          throw jkfilesystem_error(
+              "Not enough empty clusters (for indirect1 in indirect2).");
+        }
+        allocated_here.push_back(indirect2s[i]); // atomicity
+
+        file_resize_cluster_indirect1(indirect2s[i], to_write_from_back);
+      }
     }
+  } catch (...) {
+    for (const auto &cluster : allocated_here) {
+      cluster_free(cluster);
+    }
+
+    // let others know
+    throw;
   }
 
   // write back to cluster
-  cluster_write(cluster_idx,
-                reinterpret_cast<const char *>(indirect2s_bytes.data()),
+  cluster_write(cluster_idx, reinterpret_cast<const char *>(bytes.data()),
                 cluster_size_);
 }
 
