@@ -246,6 +246,10 @@ private:
   // join path from parts
   // if path begins with "/" (root), will work with it
   std::string path_join(std::vector<std::string> parts);
+
+  // == file ==
+  // list all clusters which are used in the order
+  std::vector<int32_t> file_list_clusters(int32_t inode_id);
 };
 
 } // namespace jkfs
