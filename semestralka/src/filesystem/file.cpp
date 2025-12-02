@@ -26,7 +26,7 @@ void Filesystem::file_create(int32_t parent_id, std::string file_name) {
     file.node_id = id;
     file.is_dir = false;
     file.file_size = 0;
-    file.direct1 = cluster;
+    file.direct[0] = cluster;
 
     // write inode
     inode_write(id, file);
@@ -70,40 +70,12 @@ std::vector<int32_t> Filesystem::file_list_clusters(int32_t inode_id) {
   std::vector<int32_t> clusters;
   auto inode = inode_read(inode_id);
 
-  // direct 1
-  int32_t cluster_idx = inode.direct1;
-  if (cluster_idx <= 0) {
-    return clusters;
+  for (const auto &idx : inode.direct) {
+    if (idx <= 0) {
+      return clusters;
+    }
+    clusters.push_back(idx);
   }
-  clusters.push_back(cluster_idx);
-
-  // direct 2
-  cluster_idx = inode.direct1;
-  if (cluster_idx <= 0) {
-    return clusters;
-  }
-  clusters.push_back(cluster_idx);
-
-  // direct 3
-  cluster_idx = inode.direct1;
-  if (cluster_idx <= 0) {
-    return clusters;
-  }
-  clusters.push_back(cluster_idx);
-
-  // direct 4
-  cluster_idx = inode.direct1;
-  if (cluster_idx <= 0) {
-    return clusters;
-  }
-  clusters.push_back(cluster_idx);
-
-  // direct 5
-  cluster_idx = inode.direct1;
-  if (cluster_idx <= 0) {
-    return clusters;
-  }
-  clusters.push_back(cluster_idx);
 
   // indirect 1
   if (inode.indirect1 <= 0) {

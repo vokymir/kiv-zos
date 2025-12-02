@@ -34,11 +34,7 @@ struct inode {
   int32_t node_id = 0;
   char is_dir = 0;
   int32_t file_size = 0;
-  int32_t direct1 = 0;
-  int32_t direct2 = 0;
-  int32_t direct3 = 0;
-  int32_t direct4 = 0;
-  int32_t direct5 = 0;
+  int32_t direct[5] = {0};
   int32_t indirect1 = 0;
   int32_t indirect2 = 0;
 };

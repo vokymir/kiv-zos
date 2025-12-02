@@ -31,7 +31,7 @@ void Filesystem::dir_create(int32_t parent_id, std::string name) {
     dir.node_id = id;
     dir.is_dir = true;
     dir.file_size = 0;
-    dir.direct1 = cluster;
+    dir.direct[0] = cluster;
 
     // write inode
     inode_write(id, dir);
