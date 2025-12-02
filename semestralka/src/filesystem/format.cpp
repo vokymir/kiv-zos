@@ -41,6 +41,10 @@ void Filesystem::resize_file(size_t size) {
 
   superblock(sb);
 
+  // set the first cluster as used - because idx 0 is reserved for "INVALID
+  // CLUSTER"
+  cluster_alloc();
+
   // root is its own parent
   dir_create(0, "/");
 }
