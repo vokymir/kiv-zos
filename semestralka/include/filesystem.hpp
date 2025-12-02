@@ -257,6 +257,10 @@ private:
   // list all clusters indexes (in order) which are stored in given cluster
   std::vector<int32_t> file_list_clusters_indirect(int32_t cluster_idx);
 
+  // in file_resize() allocate more clusters if neccessary
+  // return vector of cluster indexes
+  std::vector<int32_t> file_resize_allocate_clusters(int32_t inode_id,
+                                                     int32_t new_size);
   // write all cluster indexes stored in to_write_from_back into cluster with
   // cluster_idx - that cluster is indirect and stores cluster indexes
   void file_resize_cluster_indirect(int32_t cluster_idx,

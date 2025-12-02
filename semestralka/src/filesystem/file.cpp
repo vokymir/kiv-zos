@@ -62,18 +62,7 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
     return; // work already done
   }
 
-  // integer ceiling
-  int clusters_needed = (new_size + cluster_size_ - 1) / cluster_size_;
-  auto allocated_clusters = file_list_clusters(inode_id);
-
-  if (static_cast<size_t>(clusters_needed) <= allocated_clusters.size()) {
-    return; // work already done
-  }
-
-  // allocate new clusters
-  while (static_cast<size_t>(clusters_needed) > allocated_clusters.size()) {
-    allocated_clusters.push_back(cluster_alloc());
-  }
+  auto allocated_clusters = file_resize_allocate_clusters(inode_id, new_size);
 
   // vector can only pop back, so reverse the order and have first cluster at
   // the end
@@ -246,6 +235,24 @@ Filesystem::file_list_clusters_indirect(int32_t cluster_idx) {
   }
 
   return clusters;
+}
+
+std::vector<int32_t>
+Filesystem::file_resize_allocate_clusters(int32_t inode_id, int32_t new_size) {
+  // integer ceiling
+  int clusters_needed = (new_size + cluster_size_ - 1) / cluster_size_;
+  auto allocated_clusters = file_list_clusters(inode_id);
+
+  if (static_cast<size_t>(clusters_needed) <= allocated_clusters.size()) {
+    return allocated_clusters; // work already done
+  }
+
+  // allocate new clusters
+  while (static_cast<size_t>(clusters_needed) > allocated_clusters.size()) {
+    allocated_clusters.push_back(cluster_alloc());
+  }
+
+  return allocated_clusters;
 }
 
 void Filesystem::file_resize_cluster_indirect(int32_t indirect_id,
