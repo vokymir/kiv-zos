@@ -139,9 +139,9 @@ void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
   if (static_cast<int>(clusters.size()) * cluster_size_ <
       static_cast<int>(data_size) + offset) {
     file_resize(inode_id, static_cast<int32_t>(data_size) + offset);
+    // reload clusters
+    clusters = file_list_clusters(inode_id);
   }
-  // reload clusters
-  clusters = file_list_clusters(inode_id);
 
   size_t start_cluster_idx = static_cast<size_t>(offset / cluster_size_);
   size_t start_cluster_offset = static_cast<size_t>(offset % cluster_size_);
