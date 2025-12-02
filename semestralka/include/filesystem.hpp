@@ -263,8 +263,13 @@ private:
                                                      int32_t new_size);
   // write all cluster indexes stored in to_write_from_back into cluster with
   // cluster_idx - that cluster is indirect and stores cluster indexes
-  void file_resize_cluster_indirect(int32_t cluster_idx,
-                                    std::vector<int32_t> &to_write_from_back);
+  void file_resize_cluster_indirect1(int32_t cluster_idx,
+                                     std::vector<int32_t> &to_write_from_back);
+
+  // write all cluster indexes stored in to_write_from_back into clusters
+  // pointed to from clusters which are pointed from cluster_idx :D
+  void file_resize_cluster_indirect2(int32_t cluster_idx,
+                                     std::vector<int32_t> &to_write_from_back);
 
   // write first cluster in file_write() - different behaviour than others,
   // because write only after offset bytes
