@@ -62,7 +62,7 @@ private:
                      static_cast<size_t>(cluster_size_) + 2;
   size_t max_size_ = INT32_MAX; // limit of 32bit addressing
   // i-nodes to data ratio
-  double id_ratio_ = 0.2;
+  double id_ratio_ = 0.05;
   static constexpr Bit_Order BIT_ORDER = Bit_Order::LSB_FIRST;
 
   // member variables
