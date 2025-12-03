@@ -9,9 +9,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # with neovim using
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Enable debug symbols
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-
 # include headers
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
@@ -22,6 +19,12 @@ file(GLOB_RECURSE SOURCES
 
 # Add the executable
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+# 1. Force highest level of debug info (gdb and lldb compatible)
+target_compile_options(${PROJECT_NAME} PRIVATE -g3)
+
+# 2. Force NO optimization to prevent code rearrangement
+target_compile_options(${PROJECT_NAME} PRIVATE -O0)
 
 # include libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE readline)

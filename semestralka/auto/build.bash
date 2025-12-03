@@ -7,4 +7,4 @@ if [ "$#" -gt 0 ]; then
 fi
 
 echo ">>> CMAKE BUILD"
-cmake --build build
+cmake --build build --config Debug
