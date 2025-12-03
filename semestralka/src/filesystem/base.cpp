@@ -61,8 +61,8 @@ void Filesystem::superblock(const struct superblock &sb) {
 }
 
 // insider knowledge - roots inode ID is always 0
-struct inode Filesystem::root_inode() { return inode_read(0); }
 int32_t Filesystem::root_id() { return 0; }
+struct inode Filesystem::root_inode() { return inode_read(root_id()); }
 
 // ===== methods =====
 
