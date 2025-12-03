@@ -73,7 +73,7 @@ void Filesystem::write_bytes(const char *data, size_t count,
                              std::ios_base::seekdir way) {
   file_.clear();
 
-  file_.seekg(offset, way);
+  file_.seekp(offset, way);
   file_.write(data, static_cast<std::streamsize>(count));
 
   if (!file_) {
