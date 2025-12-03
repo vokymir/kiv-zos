@@ -60,7 +60,7 @@ int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
 void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
   auto inode = inode_read(inode_id);
   if (new_size < inode.file_size) {
-    throw jkfilesystem_error("file_resize() cannot make the file smaller");
+    return; // work already done
   } else if (new_size == inode.file_size) {
     return; // work already done
   }
@@ -106,6 +106,7 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
     file_resize_cluster_indirect2(inode.indirect2, all_clusters);
 
     // write (potentially) changed inode
+    inode.file_size = new_size;
     inode_write(inode_id, inode);
   } catch (...) {
     // TODO: not anymore
@@ -122,16 +123,11 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
 
 void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
                             size_t data_size) {
+  // if dont have enough space, resize
+  file_resize(inode_id, static_cast<int32_t>(data_size) + offset);
+
   // list all clusters to write into
   auto clusters = file_list_clusters(inode_id);
-
-  // if dont have enough space, resize
-  if (static_cast<int>(clusters.size()) * cluster_size_ <
-      static_cast<int>(data_size) + offset) {
-    file_resize(inode_id, static_cast<int32_t>(data_size) + offset);
-    // reload clusters
-    clusters = file_list_clusters(inode_id);
-  }
 
   size_t start_cluster_idx = static_cast<size_t>(offset / cluster_size_);
   size_t start_cluster_offset = static_cast<size_t>(offset % cluster_size_);
