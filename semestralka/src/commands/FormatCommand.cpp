@@ -86,7 +86,7 @@ void FormatCommand::execute_inner(std::vector<std::string> &args) {
   }
 
   int size = get_total_size(args[0]);
-  fs_.resize_file(static_cast<size_t>(size));
+  fs_.filesystem_resize(static_cast<size_t>(size));
 }
 
 } // namespace jkfs

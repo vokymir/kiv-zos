@@ -95,11 +95,11 @@ public:
   // == format ==
 
   // create file if it doesn't exist
-  void ensure_file();
+  void filesystem_ensure();
   // resize filesystem to new size, does not gurantee data coherance except for
   // superblock - its existence is guaranteed. size must fulfil: fs_min_size <=
   // size <= fs_max_size
-  void resize_file(size_t size);
+  void filesystem_resize(size_t size);
 
   // == inodes ==
 

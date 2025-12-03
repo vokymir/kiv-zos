@@ -12,7 +12,7 @@ namespace jkfs {
 
 // === METHODS ===
 
-void Filesystem::ensure_file() {
+void Filesystem::filesystem_ensure() {
   if (!std::filesystem::exists(path_)) {
     file_.close();
     std::ofstream o(path_);
@@ -21,7 +21,7 @@ void Filesystem::ensure_file() {
   }
 }
 
-void Filesystem::resize_file(size_t size) {
+void Filesystem::filesystem_resize(size_t size) {
   if (size < min_size_) {
     throw jkfilesystem_error("The size is too small. Min size: " +
                              std::to_string(min_size_));
@@ -33,7 +33,7 @@ void Filesystem::resize_file(size_t size) {
   // if this fails, rather fail before resizing
   auto sb = sb_from_size(static_cast<int32_t>(size));
 
-  ensure_file();
+  filesystem_ensure();
 
   file_.close();
   std::filesystem::resize_file(path_, static_cast<uintmax_t>(size));
