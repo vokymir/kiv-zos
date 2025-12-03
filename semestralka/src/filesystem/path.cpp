@@ -54,6 +54,7 @@ std::vector<std::string> Filesystem::path_split(std::string path) {
     if (start == 0 && end == 0) { // if we are on root
       parts.push_back("/");
     } else {
+      parts.push_back(".");
       parts.push_back(path.substr(start, end - start));
     }
     start = end + 1;
