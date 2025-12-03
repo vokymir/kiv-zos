@@ -9,6 +9,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # with neovim using
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Enable debug symbols
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+
 # include headers
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
