@@ -1,7 +1,13 @@
-#include <iostream>
+#include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <ios>
 #include <string>
+#include <vector>
 
 #include "commands.hpp"
+#include "errors.hpp"
 
 namespace jkfs {
 
@@ -12,13 +18,48 @@ IncpCommand::IncpCommand() {
   how_ = "incp outside_path.txt inside_path.txt";
 }
 
-void IncpCommand::execute_inner(std::vector<std::string> &a_args) {
-  std::string args = "";
-  for (auto arg : a_args) {
-    args += arg + " ";
+void IncpCommand::execute_inner(std::vector<std::string> &args) {
+  if (args.size() < 2) {
+    throw command_error("The incp command expects two arguments.");
   }
-  std::cout << "Running " + name_ + " command, with arguments: " << args
-            << std::endl;
+
+  auto input = read_real_file(args[0]);
+  write_unreal_file(args[1], input);
+}
+
+std::vector<uint8_t> IncpCommand::read_real_file(const std::string &path) {
+  // open file
+  std::ifstream file(path, std::ios::binary);
+  if (!file) {
+    throw command_error("Cannot read the input file.");
+  }
+
+  // get filesize
+  file.seekg(0, std::ios::end);
+  size_t size = static_cast<size_t>(file.tellg());
+  file.seekg(0, std::ios::beg);
+
+  // read into buffer
+  std::vector<uint8_t> buffer(size);
+  file.read(reinterpret_cast<char *>(buffer.data()),
+            static_cast<std::streamsize>(size));
+
+  // close file
+  file.close();
+
+  // return
+  return buffer;
+}
+
+void IncpCommand::write_unreal_file(std::string &whole_path,
+                                    std::vector<uint8_t> &input) {
+  std::filesystem::path path(whole_path);
+
+  auto parent_inode = fs_.path_lookup(path.parent_path());
+  auto file_inode = fs_.file_create(parent_inode, path.filename());
+
+  fs_.file_write(file_inode, 0, reinterpret_cast<const char *>(input.data()),
+                 input.size());
 }
 
 } // namespace jkfs

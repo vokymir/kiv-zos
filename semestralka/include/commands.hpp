@@ -2,6 +2,7 @@
 
 #include "CommandManager.hpp"
 #include "ICommand.hpp"
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -90,6 +91,10 @@ public:
 class IncpCommand : public ICommand { // 11
 protected:
   void execute_inner(std::vector<std::string> &args) override;
+
+private:
+  std::vector<uint8_t> read_real_file(const std::string &path);
+  void write_unreal_file(std::string &whole_path, std::vector<uint8_t> &input);
 
 public:
   IncpCommand();
