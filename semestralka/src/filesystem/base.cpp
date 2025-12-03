@@ -99,6 +99,43 @@ std::vector<uint8_t> Filesystem::read_bytes(size_t count, std::streamoff offset,
   return buf;
 }
 
+bool Filesystem::bit_get(uint8_t byte, uint32_t bit_index) {
+  switch (BIT_ORDER) {
+  case Bit_Order::LSB_FIRST:
+    return (byte >> bit_index) & 1u;
+  case Bit_Order::MSB_FIRST:
+    return (byte >> (7 - bit_index)) & 1u;
+  default:
+    throw jkfilesystem_error("Unknown bit order.");
+  }
+}
+
+void Filesystem::bit_set(uint8_t &byte, uint32_t bit_index) {
+  switch (BIT_ORDER) {
+  case Bit_Order::LSB_FIRST:
+    byte |= (1u << bit_index);
+    break;
+  case Bit_Order::MSB_FIRST:
+    byte |= (1u << (7 - bit_index));
+    break;
+  default:
+    throw jkfilesystem_error("Unknown bit order.");
+  }
+}
+
+void Filesystem::bit_clear(uint8_t &byte, uint32_t bit_index) {
+  switch (BIT_ORDER) {
+  case Bit_Order::LSB_FIRST:
+    byte &= ~(1u << bit_index);
+    break;
+  case Bit_Order::MSB_FIRST:
+    byte &= ~(1u << (7 - bit_index));
+    break;
+  default:
+    throw jkfilesystem_error("Unknown bit order.");
+  }
+}
+
 int32_t Filesystem::get_first_bit(std::vector<uint8_t> &vec, bool value) {
   // walk all bytes
   for (size_t byte_idx = 0; byte_idx < vec.size(); byte_idx++) {

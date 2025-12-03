@@ -31,6 +31,11 @@ concept Not_Pointer_Or_Reference =
 template <typename T>
 concept Raw_Writable = Trivially_Serializable<T> && Not_Pointer_Or_Reference<T>;
 
+enum class Bit_Order {
+  LSB_FIRST,
+  MSB_FIRST,
+};
+
 // class representing the filesystem exposing API which is used by commands
 class Filesystem {
   // singleton behaviour
@@ -58,6 +63,7 @@ private:
   size_t max_size_ = INT32_MAX; // limit of 32bit addressing
   // i-nodes to data ratio
   double id_ratio_ = 0.2;
+  static constexpr Bit_Order BIT_ORDER = Bit_Order::LSB_FIRST;
 
   // member variables
 private:
@@ -215,6 +221,8 @@ private:
     return s;
   }
 
+  // == byte-wise ==
+
   // write raw bytes (but as char * because of stream) into anywhere
   void write_bytes(const char *data, size_t count, std::streamoff offset,
                    std::ios_base::seekdir way = std::ios::beg);
@@ -222,6 +230,14 @@ private:
   // read raw bytes from FS, useful for bitmaps
   std::vector<uint8_t> read_bytes(size_t count, std::streamoff offset,
                                   std::ios_base::seekdir way = std::ios::beg);
+
+  // == bit-wise ==
+
+  // get/set/clear bit at index in byte - usefull for bitmaps not to be confused
+  // by LSB or MSB ordering - that is retrieved from filesystem::BIT_ORDER
+  bool bit_get(uint8_t byte, uint32_t bit_index);
+  void bit_set(uint8_t &byte, uint32_t bit_index);
+  void bit_clear(uint8_t &byte, uint32_t bit_index);
 
   // get first bit in vector which is 0 or 1 based on value
   // return index of bit, classic 0-indexed
