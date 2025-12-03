@@ -105,20 +105,13 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
     // write (potentially) changed inode
     inode_write(inode_id, inode);
   } catch (...) {
-    // TODO:
+    // TODO: not anymore
+    // UPDATE: probably doesn't matter for semestral work
     // atomicity strategy:
     // 1. direct fail - OK
     // 2. indirect1 fail - OK, is atomic & direct need no reverting
     // 3. indirect2 fail - its atomic, but need to revert indirect1: PANIC
     // 4. inode_write fail - PANIC
-
-    // this would free all newly allocated clusters - but is it good?
-    auto original_size = file_list_clusters(inode_id).size();
-    for (auto i = original_size; i < copy_all_clusters.size(); i++) {
-      if (copy_all_clusters[i] > 0) {
-        cluster_free(copy_all_clusters[i]);
-      }
-    }
 
     throw;
   }
