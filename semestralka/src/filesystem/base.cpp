@@ -111,29 +111,37 @@ bool Filesystem::bit_get(uint8_t byte, uint32_t bit_index) {
 }
 
 void Filesystem::bit_set(uint8_t &byte, uint32_t bit_index) {
+  uint8_t mask;
+
   switch (BIT_ORDER) {
   case Bit_Order::LSB_FIRST:
-    byte |= (1u << bit_index);
+    mask = static_cast<uint8_t>(1u << bit_index);
     break;
   case Bit_Order::MSB_FIRST:
-    byte |= (1u << (7 - bit_index));
+    mask = static_cast<uint8_t>(1u << (7 - bit_index));
     break;
   default:
     throw jkfilesystem_error("Unknown bit order.");
   }
+
+  byte |= mask;
 }
 
 void Filesystem::bit_clear(uint8_t &byte, uint32_t bit_index) {
+  uint8_t mask;
+
   switch (BIT_ORDER) {
   case Bit_Order::LSB_FIRST:
-    byte &= ~(1u << bit_index);
+    mask = static_cast<uint8_t>(~(1u << bit_index));
     break;
   case Bit_Order::MSB_FIRST:
-    byte &= ~(1u << (7 - bit_index));
+    mask = static_cast<uint8_t>(~(1u << (7 - bit_index)));
     break;
   default:
     throw jkfilesystem_error("Unknown bit order.");
   }
+
+  byte &= mask;
 }
 
 int32_t Filesystem::get_first_bit(std::vector<uint8_t> &vec, bool value) {
@@ -143,9 +151,9 @@ int32_t Filesystem::get_first_bit(std::vector<uint8_t> &vec, bool value) {
 
     // walk all bits left to right
     // its only logical order, the physical is in bit_get
-    for (uint32_t logical_bit = 7; logical_bit >= 0; logical_bit--) {
-      if (bit_get(byte, logical_bit) == value) {
-        return static_cast<int32_t>(byte_idx * 8 + logical_bit);
+    for (int logical_bit = 7; logical_bit >= 0; logical_bit--) {
+      if (bit_get(byte, static_cast<uint8_t>(logical_bit)) == value) {
+        return static_cast<int32_t>(byte_idx) * 8 + logical_bit;
       }
     }
   }
