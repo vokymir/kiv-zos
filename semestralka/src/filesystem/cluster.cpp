@@ -50,6 +50,7 @@ bool Filesystem::cluster_is_empty(int32_t idx) {
   auto used = bit_get(byte, static_cast<unsigned int>(bit_idx));
   return !used;
 }
+
 void Filesystem::cluster_write(int32_t idx, const char *data, int32_t size) {
   if (idx < 0) {
     throw jkfilesystem_error(
