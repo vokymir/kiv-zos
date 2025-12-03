@@ -77,7 +77,7 @@ int32_t Filesystem::iterative_count_max(int32_t available_space,
 int32_t Filesystem::count_clusters(int32_t effective_size) const {
   int size = static_cast<int>(std::floor(effective_size * (1 - id_ratio_)));
 
-  return std::max(1, iterative_count_max(size, cluster_size_));
+  return std::max(2, iterative_count_max(size, cluster_size_));
 }
 
 int32_t Filesystem::count_inodes(int32_t effective_size,
