@@ -14,9 +14,9 @@ LsCommand::LsCommand() {
 
 void LsCommand::execute_inner([[maybe_unused]] std::vector<std::string> &_) {
   auto cwd = fs_.path_lookup(".");
-  auto tems = fs_.dir_list(cwd);
+  auto items = fs_.dir_list(cwd);
 
-  for (const auto &item : tems) {
+  for (const auto &item : items) {
     std::cout << item.item_name << " ";
   }
   std::cout << std::endl;
