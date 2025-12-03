@@ -85,6 +85,9 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
       }
       inode.direct[i] = all_clusters.back();
       all_clusters.pop_back();
+      if (all_clusters.empty()) {
+        goto end;
+      }
     }
 
     // indirect1
@@ -96,6 +99,10 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
     }
     file_resize_cluster_indirect1(inode.indirect1, all_clusters);
 
+    if (all_clusters.empty()) {
+      goto end;
+    }
+
     // indirect2
     if (inode.indirect2 <= 0) {
       inode.indirect2 = cluster_alloc();
@@ -105,6 +112,7 @@ void Filesystem::file_resize(int32_t inode_id, int32_t new_size) {
     }
     file_resize_cluster_indirect2(inode.indirect2, all_clusters);
 
+  end:
     // write (potentially) changed inode
     inode.file_size = new_size;
     inode_write(inode_id, inode);

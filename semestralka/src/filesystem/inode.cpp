@@ -9,7 +9,7 @@ struct inode Filesystem::inode_read(int32_t id) {
         "Inodes have IDs from range <0,inf), but you tried " +
         std::to_string(id));
   }
-  if (!inode_is_empty(id)) {
+  if (inode_is_empty(id)) {
     throw jkfilesystem_error("Inode with id=" + std::to_string(id) +
                              " is not used.");
   }
