@@ -9,7 +9,7 @@
 
 namespace jkfs {
 
-void Filesystem::file_create(int32_t parent_id, std::string file_name) {
+int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
   int32_t id = -1;
   int32_t cluster = -1;
   bool parent_entry_added = false;
@@ -37,6 +37,9 @@ void Filesystem::file_create(int32_t parent_id, std::string file_name) {
     // add this to parent dir
     dir_item_add(parent_id, id, file_name);
     parent_entry_added = true;
+
+    // return inode id
+    return id;
   } catch (...) {
     // rollback
     if (parent_entry_added) {

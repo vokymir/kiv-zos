@@ -136,9 +136,9 @@ public:
 
   // == file ==
   // allocate inode & cluster, insert dir_item into parent dir & increase its
-  // size
+  // size; return file inode id
   // IS ATOMIC
-  void file_create(int32_t parent_inode_id, std::string file_name);
+  int32_t file_create(int32_t parent_inode_id, std::string file_name);
   // compute how many clusters needed, allocate or free them, update inode
   // (in)directs, update filesize
   // WARN: only can enlarge/extend file
@@ -146,7 +146,7 @@ public:
   void file_resize(int32_t inode_id, int32_t new_size);
   // writes accross multiple clusters
   // offset is in bytes - offset 15 means, that 15th byte will be the first to
-  // be written to
+  // be written to; if file is too small, will be resized
   void file_write(int32_t inode_id, int32_t offset, const char *data,
                   size_t data_size);
   // handle read accross multiple clusters
