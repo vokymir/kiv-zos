@@ -151,7 +151,7 @@ int32_t Filesystem::get_first_bit(std::vector<uint8_t> &vec, bool value) {
 
     // walk all bits left to right
     // its only logical order, the physical is in bit_get
-    for (int logical_bit = 7; logical_bit >= 0; logical_bit--) {
+    for (int logical_bit = 0; logical_bit < 8; logical_bit++) {
       if (bit_get(byte, static_cast<uint8_t>(logical_bit)) == value) {
         return static_cast<int32_t>(byte_idx) * 8 + logical_bit;
       }
