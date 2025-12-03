@@ -1,6 +1,7 @@
 #include "errors.hpp"
 #include "filesystem.hpp"
 #include <cstring>
+#include <string>
 
 namespace jkfs {
 
@@ -12,6 +13,10 @@ std::vector<uint8_t> Filesystem::cluster_read(int32_t idx) {
   }
 
   auto sb = superblock();
+  if (idx >= sb.cluster_count) {
+    "Clusters are indexed from 0 to " + std::to_string(sb.cluster_count - 1) +
+        ", but you tried " + std::to_string(idx);
+  }
   auto offset = sb.data_start_addr + idx * sb.cluster_size;
 
   return read_bytes(static_cast<size_t>(sb.cluster_size), offset);
