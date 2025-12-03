@@ -11,7 +11,6 @@ namespace jkfs {
 
 int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
   int32_t id = -1;
-  int32_t cluster = -1;
   bool parent_entry_added = false;
 
   try {
@@ -19,17 +18,12 @@ int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
     if (id < 0) {
       throw jkfilesystem_error("There is no empty inode for file.");
     }
-    cluster = cluster_alloc();
-    if (cluster < 0) {
-      throw jkfilesystem_error("There is no empty cluster for file.");
-    }
 
     // fill inode
     struct inode file{};
     file.node_id = id;
     file.is_dir = false;
     file.file_size = 0;
-    file.direct[0] = cluster;
 
     // write inode
     inode_write(id, file);
@@ -44,9 +38,6 @@ int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
     // rollback
     if (parent_entry_added) {
       dir_item_remove(parent_id, file_name);
-    }
-    if (cluster >= 0) {
-      cluster_free(cluster);
     }
     if (id >= 0) {
       inode_free(id);
