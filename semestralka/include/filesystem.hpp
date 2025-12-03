@@ -235,6 +235,7 @@ private:
 
   // get/set/clear bit at index in byte - usefull for bitmaps not to be confused
   // by LSB or MSB ordering - that is retrieved from filesystem::BIT_ORDER
+  // they take logical bit index and work with it in physical
   bool bit_get(uint8_t byte, uint32_t bit_index);
   void bit_set(uint8_t &byte, uint32_t bit_index);
   void bit_clear(uint8_t &byte, uint32_t bit_index);

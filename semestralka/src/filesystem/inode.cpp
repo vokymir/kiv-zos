@@ -50,7 +50,7 @@ bool Filesystem::inode_is_empty(int32_t id) {
 
   auto byte = read<uint8_t>(sb.bitmapi_start_addr + byte_idx);
 
-  auto used = (byte >> bit_idx) & 1u;
+  auto used = bit_get(byte, static_cast<unsigned int>(bit_idx));
   return !used;
 }
 
@@ -68,7 +68,7 @@ void Filesystem::inode_write(int32_t id, const struct inode &i) {
   int bit_idx = id % 8;
 
   uint8_t byte = read<uint8_t>(sb.bitmapi_start_addr + byte_idx);
-  byte |= (1u << bit_idx); // mark as used
+  bit_set(byte, static_cast<unsigned int>(bit_idx)); // mark as used
   write(byte, sb.bitmapi_start_addr + byte_idx);
 
   // inode
@@ -87,8 +87,7 @@ void Filesystem::inode_free(int32_t id) {
   int bit_idx = id % 8;
 
   uint8_t byte = read<uint8_t>(sb.bitmapi_start_addr + byte_idx);
-  uint8_t mask = static_cast<uint8_t>(1u << bit_idx);
-  byte &= ~mask; // mark as unused
+  bit_clear(byte, static_cast<unsigned int>(bit_idx)); // mark as unused
   write(byte, sb.bitmapi_start_addr + byte_idx);
 }
 
