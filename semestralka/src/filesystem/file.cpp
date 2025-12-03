@@ -17,11 +17,11 @@ int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
   try {
     id = inode_alloc();
     if (id < 0) {
-      throw jkfilesystem_error("There is no empty inode.");
+      throw jkfilesystem_error("There is no empty inode for file.");
     }
     cluster = cluster_alloc();
     if (cluster < 0) {
-      throw jkfilesystem_error("There is no empty cluster.");
+      throw jkfilesystem_error("There is no empty cluster for file.");
     }
 
     // fill inode

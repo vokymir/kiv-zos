@@ -19,11 +19,11 @@ void Filesystem::dir_create(int32_t parent_id, std::string name) {
   try {
     id = inode_alloc();
     if (id < 0) {
-      throw jkfilesystem_error("There is no empty inode.");
+      throw jkfilesystem_error("There is no empty inode for dir.");
     }
     cluster = cluster_alloc();
     if (cluster < 0) {
-      throw jkfilesystem_error("There is no empty cluster.");
+      throw jkfilesystem_error("There is no empty cluster for dir.");
     }
 
     // fill inode
