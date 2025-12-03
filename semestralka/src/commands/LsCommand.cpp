@@ -12,13 +12,14 @@ LsCommand::LsCommand() {
   how_ = "ls . // lists all items in current directory";
 }
 
-void LsCommand::execute_inner(std::vector<std::string> &a_args) {
-  std::string args = "";
-  for (auto arg : a_args) {
-    args += arg + " ";
+void LsCommand::execute_inner([[maybe_unused]] std::vector<std::string> &_) {
+  auto cwd = fs_.path_lookup(".");
+  auto tems = fs_.dir_list(cwd);
+
+  for (const auto &item : tems) {
+    std::cout << item.item_name << " ";
   }
-  std::cout << "Running " + name_ + " command, with arguments: " << args
-            << std::endl;
+  std::cout << std::endl;
 }
 
 } // namespace jkfs
