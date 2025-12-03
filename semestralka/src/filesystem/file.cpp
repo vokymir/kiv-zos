@@ -348,6 +348,10 @@ Filesystem::file_write_first_cluster(int32_t cluster_idx, int32_t offset,
   size_t written_bytes = 0;
 
   for (int i = offset; i < cluster_size_; i++) {
+    if (written_bytes >= to_write.size()) {
+      break; // already wrote everything
+    }
+
     raw[static_cast<size_t>(i)] = to_write[written_bytes];
     written_bytes++;
   }
