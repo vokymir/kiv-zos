@@ -49,9 +49,6 @@ struct dir_item {
 
   // only uses first MAX_NAME_LEN characters as item_name
   dir_item(int32_t inode_id, std::string name) : inode(inode_id) {
-    if (name.contains('/')) {
-      throw jkfilesystem_error("Filename cannot contain the character '/'.");
-    }
     memset(item_name, 0, sizeof(item_name));
     strncpy(item_name, name.c_str(), sizeof(item_name) - 1);
   }
