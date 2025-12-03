@@ -2,5 +2,11 @@ build/
 .cache/
 
 compile_commands.json
+
+# binaries
 *.voky
+*.vky
+*.vk
+*.vy
+*.v
 
