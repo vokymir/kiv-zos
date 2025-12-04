@@ -114,7 +114,7 @@ struct superblock Filesystem::sb_from_size(int32_t total_size) const {
   // effective size which can be used to store everything except superblock
   int32_t size = total_size - static_cast<int32_t>(sizeof(struct superblock));
 
-  memcpy(sb.signature, "javok", 5);
+  std::copy_n("javok", 5, sb.signature);
   sb.disk_size = total_size;
   sb.cluster_size = cluster_size_;
   sb.inode_size = static_cast<int32_t>(sizeof(struct inode));
