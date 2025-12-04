@@ -1,5 +1,6 @@
 #include "errors.hpp"
 #include "filesystem.hpp"
+#include <string>
 
 namespace jkfs {
 
@@ -9,12 +10,17 @@ struct inode Filesystem::inode_read(int32_t id) {
         "Inodes have IDs from range <0,inf), but you tried " +
         std::to_string(id));
   }
+  auto sb = superblock();
+  if (id > sb.inode_count) {
+    throw jkfilesystem_error("Inodes have IDs from range <0," +
+                             std::to_string(sb.inode_count) +
+                             ">, but you tried " + std::to_string(id));
+  }
   if (inode_is_empty(id)) {
     throw jkfilesystem_error("Inode with id=" + std::to_string(id) +
                              " is not used.");
   }
 
-  auto sb = superblock();
   int32_t position = sb.inode_start_addr + id * sb.inode_size;
 
   return read<struct inode>(position);
@@ -43,8 +49,13 @@ bool Filesystem::inode_is_empty(int32_t id) {
         "Inodes have IDs from range <0,inf), but you tried " +
         std::to_string(id));
   }
-
   auto sb = superblock();
+  if (id > sb.inode_count) {
+    throw jkfilesystem_error("Inodes have IDs from range <0," +
+                             std::to_string(sb.inode_count) +
+                             ">, but you tried " + std::to_string(id));
+  }
+
   int byte_idx = id / 8;
   int bit_idx = id % 8;
 
@@ -60,8 +71,12 @@ void Filesystem::inode_write(int32_t id, const struct inode &i) {
         "Inodes have IDs from range <0,inf), but you tried " +
         std::to_string(id));
   }
-
   auto sb = superblock();
+  if (id > sb.inode_count) {
+    throw jkfilesystem_error("Inodes have IDs from range <0," +
+                             std::to_string(sb.inode_count) +
+                             ">, but you tried " + std::to_string(id));
+  }
 
   // bitmap
   int byte_idx = id / 8;
@@ -81,8 +96,14 @@ void Filesystem::inode_free(int32_t id) {
         "Inodes have IDs from range <0,inf), but you tried " +
         std::to_string(id));
   }
-
   auto sb = superblock();
+  if (id > sb.inode_count) {
+    throw jkfilesystem_error("Inodes have IDs from range <0," +
+                             std::to_string(sb.inode_count) +
+                             ">, but you tried " + std::to_string(id));
+  }
+
+  // bitmap
   int byte_idx = id / 8;
   int bit_idx = id % 8;
 
