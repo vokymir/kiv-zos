@@ -41,7 +41,83 @@ int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
   }
 }
 
-void Filesystem::file_ensure_size(int32_t inode_id, int32_t new_size) {}
+void Filesystem::file_ensure_size(int32_t inode_id, int32_t new_size) {
+  // count how many are needed
+  auto need = file_count_clusters(new_size);
+  if (!need.possible) {
+    throw jkfilesystem_error("Not enough space.");
+  }
+
+  // prepare for new
+  auto have = file_list_clusters(inode_id);
+  auto have_data = std::get<0>(have);
+  auto have_overhead = std::get<1>(have);
+
+  std::vector<int32_t> new_data;
+  new_data.reserve(have_data.size() - need.data);
+  std::vector<int32_t> new_overhead;
+  new_overhead.reserve(have_overhead.size() -
+                       (need.indirect1 + need.indirect2));
+
+  // fill new
+  for (auto i = have_data.size(); i < need.data; i++) {
+    auto cluster = cluster_alloc();
+    if (cluster == -1) {
+      // TODO: free all already allocated & throw
+    }
+    new_data.push_back(cluster);
+  }
+
+  for (auto i = have_overhead.size(); i < need.indirect1 + need.indirect2;
+       i++) {
+    auto cluster = cluster_alloc();
+    if (cluster == -1) {
+      // TODO: free all already allocated & throw
+    }
+    new_overhead.push_back(cluster);
+  }
+
+  // write all
+
+  // = prepare where to write
+  auto inode = inode_read(inode_id);
+
+  // = prepare what to write
+  std::vector<int32_t> join_data;
+  join_data.insert(join_data.end(), have_data.begin(), have_data.end());
+  join_data.insert(join_data.end(), new_data.begin(), new_data.end());
+
+  std::vector<int32_t> join_overhead;
+  join_overhead.insert(join_overhead.end(), have_overhead.begin(),
+                       have_overhead.end());
+  join_overhead.insert(join_overhead.end(), new_overhead.begin(),
+                       new_overhead.end());
+
+  auto index_data = 0;
+  auto index_overhead = 0;
+
+  // direct
+  for (int i = 0; i < std::size(inode.direct); i++) {
+    if (i >= join_data.size()) {
+      // TODO: write inode & return
+    }
+    inode.direct[i] = join_data[index_data++];
+  }
+
+  // indirect 1
+  if (join_overhead.size() <= index_overhead) {
+    // TODO: write inode & return
+  }
+  inode.indirect1 = join_overhead[index_overhead++];
+
+  for (int i = 0; i < sizeof(dir_item) / cluster_size_; i++) {
+    if (index_data >= join_data.size()) {
+      // TODO: write inode & return
+    }
+    // ??? TODO: urcite ne
+    inode.indirect1 = join_data[index_data++];
+  }
+}
 
 void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
                             size_t data_size) {
@@ -49,7 +125,9 @@ void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
   file_ensure_size(inode_id, static_cast<int32_t>(data_size) + offset);
 
   // list all clusters to write into
-  auto clusters = file_list_clusters(inode_id);
+  auto clusters_tuple = file_list_clusters(inode_id);
+  // only take data clusters
+  auto clusters = std::get<0>(clusters_tuple);
 
   size_t start_cluster_idx = static_cast<size_t>(offset / cluster_size_);
   size_t start_cluster_offset = static_cast<size_t>(offset % cluster_size_);
@@ -74,7 +152,8 @@ std::vector<uint8_t> Filesystem::file_read(int32_t inode_id) {
   std::vector<uint8_t> file_contents;
   auto clusters = file_list_clusters(inode_id);
 
-  for (const auto &cluster : clusters) {
+  auto data_clusters = std::get<0>(clusters);
+  for (const auto &cluster : data_clusters) {
     auto data = cluster_read(cluster);
     file_contents.insert(file_contents.end(), data.begin(), data.end());
   }
@@ -88,7 +167,8 @@ void Filesystem::file_delete(int32_t parent_inode_id, std::string file_name) {
 
   // free clusters
   auto clusters = file_list_clusters(inode);
-  for (const auto &cluster : clusters) {
+  auto data_clusters = std::get<0>(clusters);
+  for (const auto &cluster : data_clusters) {
     cluster_free(cluster);
   }
 
@@ -100,41 +180,47 @@ void Filesystem::file_delete(int32_t parent_inode_id, std::string file_name) {
 
 // PRIVATE
 
-std::vector<int32_t> Filesystem::file_list_clusters(int32_t inode_id) {
-  std::vector<int32_t> clusters;
+std::tuple<std::vector<int32_t>, std::vector<int32_t>>
+Filesystem::file_list_clusters(int32_t inode_id) {
+  std::vector<int32_t> data;
+  std::vector<int32_t> overhead;
   auto inode = inode_read(inode_id);
 
   // direct
   for (const auto &idx : inode.direct) {
     if (idx <= 0) {
-      return clusters; // already have all
+      return {data, overhead}; // already have all
     }
-    clusters.push_back(idx);
+    data.push_back(idx);
   }
 
   // indirect 1
   if (inode.indirect1 <= 0) {
-    return clusters; // already have all
+    return {data, overhead}; // already have all
   }
+  overhead.push_back(inode.indirect1); // STORE OVERHEAD CLUSTERS
   auto indirect1 = file_list_clusters_indirect(inode.indirect1);
-  clusters.insert(clusters.end(), indirect1.begin(), indirect1.end());
+  data.insert(data.end(), indirect1.begin(), indirect1.end());
 
   // indirect 2
   if (inode.indirect2 <= 0) {
-    return clusters; // already have all
+    return {data, overhead}; // already have all
   }
+  overhead.push_back(inode.indirect2); // STORE OVERHEAD CLUSTERS
   // load where to look
   auto indirects = file_list_clusters_indirect(inode.indirect2);
+  // STORE OVERHEAD CLUSTERS
+  overhead.insert(overhead.end(), indirects.begin(), indirects.end());
   // look there
   for (const auto &indirect : indirects) {
     auto indirect2 = file_list_clusters_indirect(indirect);
     if (indirect2.empty()) {
-      return clusters; // already have all
+      return {data, overhead}; // already have all
     }
-    clusters.insert(clusters.end(), indirect2.begin(), indirect2.end());
+    data.insert(data.end(), indirect2.begin(), indirect2.end());
   }
 
-  return clusters;
+  return {data, overhead};
 }
 
 std::vector<int32_t>

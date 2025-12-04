@@ -277,14 +277,26 @@ private:
   std::string path_join(std::vector<std::string> parts);
 
   // == file ==
-  // list all clusters which are used in the order
-  std::vector<int32_t> file_list_clusters(int32_t inode_id);
+
+  // list all clusters which are used
+  // return {data clusters, overhead clusters}
+  // data clusters are in order:
+  // 1. directs
+  // 2. indirect1
+  // 3. indirect2
+  // overhead clusters are in order:
+  // 1. indirect1
+  // 2. indirect2
+  // 3. from indirect2 all indirect1s
+  std::tuple<std::vector<int32_t>, std::vector<int32_t>>
+  file_list_clusters(int32_t inode_id);
   // list all clusters indexes (in order) which are stored in given cluster
   std::vector<int32_t> file_list_clusters_indirect(int32_t cluster_idx);
 
   // write data to any cluster, if offset > 0 will first read and only write
   // after existing data; modify written_bytes
   // IS ATOMIC
+  // TODO: WTF? this is cluster_write() or????
   void file_write_cluster(int32_t cluster_idx, int32_t offset_in_cluster,
                           const std::span<uint8_t> &data_to_write,
                           size_t &written_bytes);
