@@ -1,5 +1,4 @@
 #include "structures.hpp"
-#include <cstring>
 #include <ostream>
 #include <string>
 
