@@ -177,25 +177,30 @@ std::vector<int32_t> Filesystem::file_list_clusters(int32_t inode_id) {
   // direct
   for (const auto &idx : inode.direct) {
     if (idx <= 0) {
-      return clusters;
+      return clusters; // already have all
     }
     clusters.push_back(idx);
   }
 
   // indirect 1
   if (inode.indirect1 <= 0) {
-    return clusters;
+    return clusters; // already have all
   }
   auto indirect1 = file_list_clusters_indirect(inode.indirect1);
   clusters.insert(clusters.end(), indirect1.begin(), indirect1.end());
 
   // indirect 2
   if (inode.indirect2 <= 0) {
-    return clusters;
+    return clusters; // already have all
   }
+  // load where to look
   auto indirects = file_list_clusters_indirect(inode.indirect2);
+  // look there
   for (const auto &indirect : indirects) {
     auto indirect2 = file_list_clusters_indirect(indirect);
+    if (indirect2.empty()) {
+      return clusters; // already have all
+    }
     clusters.insert(clusters.end(), indirect2.begin(), indirect2.end());
   }
 
@@ -205,6 +210,7 @@ std::vector<int32_t> Filesystem::file_list_clusters(int32_t inode_id) {
 std::vector<int32_t>
 Filesystem::file_list_clusters_indirect(int32_t cluster_idx) {
   std::vector<int32_t> clusters;
+
   auto bytes = cluster_read(cluster_idx);
   std::span<const int32_t> cluster_idxs{
       reinterpret_cast<const int32_t *>(bytes.data()),
