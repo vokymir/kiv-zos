@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <ranges>
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <string>
@@ -16,7 +17,12 @@ void setup_cmds(jkfs::CommandManager &manager);
 void terminal(jkfs::CommandManager &manager);
 
 int main(int argc, char *argv[]) {
-  std::vector<std::string> args{argv + 1, argv + argc};
+  // get args
+  auto args =
+      std::vector<std::string>(std::views::counted(argv, argc) |
+                               std::views::drop(1) | // drop program name
+                               std::ranges::to<std::vector<std::string>>());
+
   jkfs::CommandManager manager = jkfs::CommandManager();
   std::string filename = "";
 
