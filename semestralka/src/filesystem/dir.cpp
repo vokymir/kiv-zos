@@ -54,7 +54,7 @@ void Filesystem::dir_item_remove(int32_t id, std::string item_name) {
   auto items = dir_list(id);
 
   // find the item to remove
-  auto it = std::ranges::find_if(items, [&](const dir_item &item) {
+  auto it = std::ranges::find_if(items, [&item_name](const dir_item &item) {
     return item.name_matches(item_name);
   });
   if (it == items.end()) {
@@ -73,7 +73,7 @@ int32_t Filesystem::dir_lookup(int32_t id, std::string lookup_name) {
   auto items = dir_list(id);
 
   // find the matching name
-  auto it = std::ranges::find_if(items, [&](const dir_item &item) {
+  auto it = std::ranges::find_if(items, [&lookup_name](const dir_item &item) {
     return item.name_matches(lookup_name);
   });
 
@@ -85,19 +85,27 @@ int32_t Filesystem::dir_lookup(int32_t id, std::string lookup_name) {
 
 std::vector<dir_item> Filesystem::dir_list(int32_t id) {
   auto raw_file = file_read(id);
-  // view the file as array of dir_items
-  auto items =
-      std::span<dir_item>(reinterpret_cast<dir_item *>(raw_file.data()),
-                          raw_file.size() / sizeof(dir_item));
 
-  // filter-out empty entries
-  auto view = items | std::ranges::views::filter(
-                          [](const dir_item &item) { return !item.empty(); });
+  // prepare space for items
+  std::vector<dir_item> items;
+  items.reserve(raw_file.size() / sizeof(dir_item));
 
-  // collect to vector
-  std::vector<dir_item> result;
-  std::ranges::copy(view, std::back_inserter(result));
-  return result;
+  // go through raw_file
+  for (std::size_t offset = 0; offset + sizeof(dir_item) <= raw_file.size();
+       offset += sizeof(dir_item)) {
+
+    dir_item item{}; // zero-initialized
+                     // copy only one item
+    std::copy_n(reinterpret_cast<const char *>(&raw_file[offset]),
+                sizeof(dir_item), reinterpret_cast<char *>(&item));
+
+    // only insert valid entries
+    if (!item.empty()) {
+      items.push_back(std::move(item));
+    }
+  }
+
+  return items;
 }
 
 } // namespace jkfs
