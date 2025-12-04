@@ -1,6 +1,7 @@
 #include "structures.hpp"
 #include <cstring>
 #include <ostream>
+#include <string>
 
 namespace jkfs {
 
@@ -35,25 +36,18 @@ std::ostream &operator<<(std::ostream &os, const inode &i) {
 }
 
 std::ostream &operator<<(std::ostream &os, const dir_item &dit) {
-  std::string name(dit.item_name);
-
   os << "dir_item{\n"
-     << " inode=" << dit.inode << ",\n name=\"" << name << "\""
+     << " inode=" << dit.inode << ",\n name=\"" << dit.item_name.data() << "\""
      << "\n }";
 
   return os;
 }
 
 bool dir_item::name_matches(const std::string &other_name) const {
-  // both strings are equal up-to MAX_NAME_LEN characters
-  // => if other.len < MAX_NAME_LEN only other.len are compared
-  bool string_equals =
-      std::strncmp(item_name, other_name.c_str(), MAX_NAME_LEN) == 0;
+  std::string_view stored(item_name.data(),
+                          std::char_traits<char>::length(item_name.data()));
 
-  // item name is not longer than other_name
-  bool item_name_not_longer = item_name[other_name.size()] == '\0';
-
-  return string_equals && item_name_not_longer;
+  return stored == other_name;
 }
 
 bool dir_item::empty() const { return item_name[0] == '\0'; }

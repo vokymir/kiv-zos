@@ -1,6 +1,7 @@
 #pragma once
 
 #include "errors.hpp"
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <ostream>
@@ -43,14 +44,15 @@ struct inode {
 std::ostream &operator<<(std::ostream &os, const inode &i);
 
 struct dir_item {
-  static constexpr int MAX_NAME_LEN = 11; // 8 + 3 (+ \0 )
+  static constexpr uint8_t MAX_NAME_LEN = 11; // 8 + 3 (+ \0 )
   int32_t inode = 0;
-  char item_name[MAX_NAME_LEN + 1] = {};
+  std::array<char, MAX_NAME_LEN + 1> item_name{};
 
   // only uses first MAX_NAME_LEN characters as item_name
   dir_item(int32_t inode_id, std::string name) : inode(inode_id) {
-    memset(item_name, 0, sizeof(item_name));
-    strncpy(item_name, name.c_str(), sizeof(item_name) - 1);
+    const auto n = std::min(static_cast<uint8_t>(name.size()), MAX_NAME_LEN);
+    std::copy_n(name.data(), n, item_name.data());
+    item_name[n] = '\0'; // zero-terminate
   }
   dir_item() {}
 
