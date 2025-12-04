@@ -11,7 +11,6 @@ namespace jkfs {
 
 int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
   int32_t id = -1;
-  bool parent_entry_added = false;
 
   try {
     id = inode_alloc();
@@ -30,18 +29,12 @@ int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
 
     // add this to parent dir
     dir_item_add(parent_id, id, file_name);
-    parent_entry_added = true;
 
     // return inode id
     return id;
   } catch (...) {
     // rollback
-    if (parent_entry_added) {
-      dir_item_remove(parent_id, file_name);
-    }
-    if (id >= 0) {
-      inode_free(id);
-    }
+    file_delete(parent_id, file_name);
 
     // let others know the exception
     throw;
@@ -136,20 +129,14 @@ void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
       reinterpret_cast<uint8_t *>(const_cast<char *>(data)), data_size);
 
   size_t written_bytes = 0;
-  size_t written_clusters = 0;
 
-  written_bytes += file_write_first_cluster(
-      static_cast<int>(start_cluster_idx),
-      static_cast<int>(start_cluster_offset),
-      reinterpret_cast<std::vector<uint8_t> &>(data_to_write));
-  written_clusters++;
-
-  // next clusters - write from cluster beginning
   while (written_bytes < data_size) {
-    file_write_next_clusters(
-        clusters[start_cluster_idx + written_clusters],
-        reinterpret_cast<std::vector<uint8_t> &>(data_to_write), written_bytes);
-    written_clusters++;
+    // get current cluster index
+    auto cluster = clusters[start_cluster_idx + written_bytes / cluster_size_];
+    // if 1st cluster: give offset, otherwise 0
+    auto offset = written_bytes < cluster_size_ ? written_bytes : 0;
+
+    file_write_cluster(cluster, offset, data_to_write, written_bytes);
   }
 }
 
@@ -332,46 +319,29 @@ void Filesystem::file_resize_cluster_indirect2(
                 cluster_size_);
 }
 
-size_t
-Filesystem::file_write_first_cluster(int32_t cluster_idx, int32_t offset,
-                                     const std::vector<uint8_t> &to_write) {
-  auto raw = cluster_read(cluster_idx);
-  size_t written_bytes = 0;
+void Filesystem::file_write_cluster(int32_t cluster_idx,
+                                    int32_t offset_in_cluster,
+                                    const std::span<uint8_t> &data_to_write,
+                                    size_t &written_bytes) {
+  std::vector<uint8_t> raw;
+  if (offset_in_cluster > 0) {
+    raw = cluster_read(cluster_idx);
+  } else {
+    raw.resize(cluster_size_);
+  }
 
-  for (int i = offset; i < cluster_size_; i++) {
-    if (written_bytes >= to_write.size()) {
+  // start somewhere, end correctly
+  for (int i = offset_in_cluster; i < cluster_size_; i++) {
+    if (written_bytes >= data_to_write.size()) {
       break; // already wrote everything
     }
 
-    raw[static_cast<size_t>(i)] = to_write[written_bytes];
-    written_bytes++;
-  }
-  cluster_write(cluster_idx, reinterpret_cast<const char *>(raw.data()),
-                cluster_size_);
-
-  return written_bytes;
-}
-
-void Filesystem::file_write_next_clusters(int32_t cluster_idx,
-                                          const std::vector<uint8_t> &to_write,
-                                          size_t &written_bytes) {
-  // only for readability - static type here and not on X places below
-  size_t cluster_size = static_cast<size_t>(cluster_size_);
-
-  // buffer
-  std::vector<uint8_t> contents(cluster_size);
-
-  // fill cluster
-  for (size_t i = 0; i < cluster_size; i++) {
-    if (written_bytes >= to_write.size()) {
-      break; // already wrote everything
-    }
-
-    contents[i] = to_write[written_bytes];
+    raw[static_cast<size_t>(i)] = data_to_write[written_bytes];
     written_bytes++;
   }
 
-  cluster_write(cluster_idx, reinterpret_cast<const char *>(contents.data()),
+  // write to cluster
+  cluster_write(cluster_idx, reinterpret_cast<char *>(raw.data()),
                 cluster_size_);
 }
 
