@@ -36,6 +36,15 @@ enum class Bit_Order {
   MSB_FIRST,
 };
 
+// storage for file_count_clusters(), so it can return more things at once
+struct Needed_Clusters {
+  bool possible = true; // if data clusters fit inside overhead clusters
+  size_t data = 0;      // how many data clusters are needed
+  size_t direct = 0;    // how many direct clusters are needed
+  size_t indirect1 = 0; // how many indirect clusters of 1st order are needed
+  size_t indirect2 = 0; // how many indirect clusters of 2nd order are needed
+};
+
 // class representing the filesystem exposing API which is used by commands
 class Filesystem {
   // singleton behaviour
@@ -149,9 +158,8 @@ public:
   int32_t file_create(int32_t parent_inode_id, std::string file_name);
   // compute how many clusters needed, allocate or free them, update inode
   // (in)directs, update filesize
-  // WARN: only can enlarge/extend file
-  // WARN: Is really not atomic - on fail the system is corrupted
-  void file_resize(int32_t inode_id, int32_t new_size);
+  // NOTE: only can and will enlarge/extend file
+  void file_ensure_size(int32_t inode_id, int32_t needed_size);
   // writes accross multiple clusters
   // offset is in bytes - offset 15 means, that 15th byte will be the first to
   // be written to; if file is too small, will be resized
@@ -274,29 +282,16 @@ private:
   // list all clusters indexes (in order) which are stored in given cluster
   std::vector<int32_t> file_list_clusters_indirect(int32_t cluster_idx);
 
-  // in file_resize() allocate more clusters if neccessary
-  // return vector of cluster indexes
-  // IS ATOMIC
-  std::vector<int32_t> file_resize_allocate_clusters(int32_t inode_id,
-                                                     int32_t new_size);
-  // write all cluster indexes stored in to_write_from_back into cluster with
-  // cluster_idx - that cluster is indirect and stores cluster indexes
-  // IS ATOMIC
-  void file_resize_cluster_indirect1(int32_t cluster_idx,
-                                     std::vector<int32_t> &to_write_from_back);
-
-  // write all cluster indexes stored in to_write_from_back into clusters
-  // pointed to from clusters which are pointed from cluster_idx :D
-  // IS ATOMIC
-  void file_resize_cluster_indirect2(int32_t cluster_idx,
-                                     std::vector<int32_t> &to_write_from_back);
-
   // write data to any cluster, if offset > 0 will first read and only write
   // after existing data; modify written_bytes
   // IS ATOMIC
   void file_write_cluster(int32_t cluster_idx, int32_t offset_in_cluster,
                           const std::span<uint8_t> &data_to_write,
                           size_t &written_bytes);
+
+  // compute how many clusters are needed for data, which size is known in bytes
+  // if is returned struct
+  struct Needed_Clusters file_count_clusters(int32_t data_size_bytes);
 };
 
 } // namespace jkfs
