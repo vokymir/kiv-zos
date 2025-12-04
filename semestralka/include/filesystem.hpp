@@ -263,10 +263,8 @@ private:
 
   // == path ==
 
-  // split path from root, directory by dir, ending by dir or file
   // if path begins with '/' (root), will save it also, otherwise split by '/'
   std::vector<std::string> path_split(std::string path);
-  // join path from parts
   // if path begins with "/" (root), will work with it
   std::string path_join(std::vector<std::string> parts);
 

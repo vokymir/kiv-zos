@@ -18,6 +18,7 @@ int32_t Filesystem::path_lookup(std::string path) {
   std::vector<std::string> traversed;
 
   // begin
+  int32_t begin_id;
   int32_t curr_id;
   if (parts[0] == "/") {
     curr_id = root_id();
@@ -28,10 +29,15 @@ int32_t Filesystem::path_lookup(std::string path) {
     curr_id = current_inode_;
     traversed.push_back(".");
   }
+  begin_id = curr_id;
 
   for (const auto &name : parts) {
     curr_id = dir_lookup(curr_id, name);
     if (curr_id < 0) { // lookup failed
+      if (curr_id == begin_id) {
+        throw jkfilesystem_error("Couldn't even started looking for path: " +
+                                 path);
+      }
       throw jkfilesystem_error("Cannot find path, wanted: '" + path +
                                "' but only found: '" + path_join(traversed) +
                                "'.");
@@ -54,7 +60,8 @@ std::vector<std::string> Filesystem::path_split(std::string path) {
     if (start == 0 && end == 0) { // if we are on root
       parts.push_back("/");
     } else {
-      parts.push_back(".");
+      // why was it here???
+      // parts.push_back(".");
       parts.push_back(path.substr(start, end - start));
     }
     start = end + 1;
@@ -70,7 +77,7 @@ std::vector<std::string> Filesystem::path_split(std::string path) {
 std::string Filesystem::path_join(std::vector<std::string> parts) {
   std::ostringstream oss;
 
-  // a) is "smth but not root /"
+  // a) is "smth but not root"
   // b) is "/"
   if (parts[0] != "/") {
     oss << parts[0];
