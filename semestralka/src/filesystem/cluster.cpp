@@ -1,5 +1,7 @@
 #include "errors.hpp"
 #include "filesystem.hpp"
+#include <algorithm>
+#include <cstddef>
 #include <cstring>
 #include <string>
 
@@ -11,11 +13,11 @@ std::vector<uint8_t> Filesystem::cluster_read(int32_t idx) {
         "Clusters are indexed from 0 upwards, but you tried " +
         std::to_string(idx));
   }
-
   auto sb = superblock();
   if (idx >= sb.cluster_count) {
-    "Clusters are indexed from 0 to " + std::to_string(sb.cluster_count - 1) +
-        ", but you tried " + std::to_string(idx);
+    throw jkfilesystem_error("Clusters are indexed from 0 to " +
+                             std::to_string(sb.cluster_count - 1) +
+                             ", but you tried " + std::to_string(idx));
   }
   auto offset = sb.data_start_addr + idx * sb.cluster_size;
 
@@ -45,8 +47,13 @@ bool Filesystem::cluster_is_empty(int32_t idx) {
         "Clusters are indexed from 0 upwards, but you tried " +
         std::to_string(idx));
   }
-
   auto sb = superblock();
+  if (idx >= sb.cluster_count) {
+    throw jkfilesystem_error("Clusters are indexed from 0 to " +
+                             std::to_string(sb.cluster_count - 1) +
+                             ", but you tried " + std::to_string(idx));
+  }
+
   int byte_idx = idx / 8;
   int bit_idx = idx % 8;
 
@@ -62,8 +69,12 @@ void Filesystem::cluster_write(int32_t idx, const char *data, int32_t size) {
         "Clusters are indexed from 0 upwards, but you tried " +
         std::to_string(idx));
   }
-
   auto sb = superblock();
+  if (idx >= sb.cluster_count) {
+    throw jkfilesystem_error("Clusters are indexed from 0 to " +
+                             std::to_string(sb.cluster_count - 1) +
+                             ", but you tried " + std::to_string(idx));
+  }
 
   // bitmap
   int byte_idx = idx / 8;
@@ -78,7 +89,7 @@ void Filesystem::cluster_write(int32_t idx, const char *data, int32_t size) {
   std::vector<char> buf(static_cast<size_t>(sb.cluster_size), 0);
   if (!(data == nullptr || size <= 0)) {
     // copy actual data
-    memcpy(buf.data(), data, static_cast<size_t>(size));
+    std::copy_n(data, size, buf.begin());
   }
   // write into FS
   write_bytes(buf.data(), static_cast<size_t>(sb.cluster_size),
@@ -91,8 +102,13 @@ void Filesystem::cluster_free(int32_t idx) {
         "Clusters are indexed from 0 upwards, but you tried " +
         std::to_string(idx));
   }
-
   auto sb = superblock();
+  if (idx >= sb.cluster_count) {
+    throw jkfilesystem_error("Clusters are indexed from 0 to " +
+                             std::to_string(sb.cluster_count - 1) +
+                             ", but you tried " + std::to_string(idx));
+  }
+
   int byte_idx = idx / 8;
   int bit_idx = idx % 8;
 
