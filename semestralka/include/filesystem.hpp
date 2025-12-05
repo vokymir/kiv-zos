@@ -236,6 +236,11 @@ public:
   // b) ".." => [dir1, dir2, dir1] ==> remove everything in between duplicates
   void path_make_flat(std::vector<int32_t> &inode_path);
 
+  // return inode id of parent dir in path
+  std::string path_parent_dir(const std::string &path);
+  // return filename in path
+  std::string path_filename(const std::string &path);
+
   // private methods
 private:
   // write anything into file - beware: if structure is something more

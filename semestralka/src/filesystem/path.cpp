@@ -1,3 +1,4 @@
+#include "errors.hpp"
 #include "filesystem.hpp"
 #include <cstddef>
 #include <cstdint>
@@ -134,6 +135,23 @@ std::string Filesystem::path_join(std::vector<std::string> parts) {
   // b) /part
 
   return oss.str();
+}
+
+std::string Filesystem::path_parent_dir(const std::string &path) {
+  auto parts = path_split(path);
+  if (parts.empty()) {
+    throw jkfilesystem_error("given path have no parent");
+  }
+  parts.pop_back();
+  return path_join(parts);
+}
+
+std::string Filesystem::path_filename(const std::string &path) {
+  auto parts = path_split(path);
+  if (parts.empty()) {
+    throw jkfilesystem_error("given path have no filename");
+  }
+  return parts.back();
 }
 
 } // namespace jkfs
