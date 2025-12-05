@@ -374,6 +374,8 @@ Filesystem::file_ensure_size__fill(const struct Needed_Clusters &need,
     for (const auto &cluster : new_overhead) {
       cluster_free(cluster);
     }
+
+    throw;
   }
 
   return {new_data, new_overhead};
