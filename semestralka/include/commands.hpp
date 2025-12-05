@@ -12,6 +12,9 @@ class CpCommand : public ICommand { // 1
 protected:
   void execute_inner(const std::vector<std::string> &args) override;
 
+private:
+  bool has_force_flag(const std::vector<std::string> &args) const;
+
 public:
   CpCommand();
 };

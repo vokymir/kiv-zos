@@ -17,6 +17,7 @@ CpCommand::CpCommand() {
 
 void CpCommand::execute_inner(const std::vector<std::string> &args) {
   if (args.size() < 2) {
+    failure_message_ = "FILE NOT FOUND (neni zdroj)";
     throw command_error("The cp command require at least 2 arguments.");
   }
 
@@ -35,37 +36,34 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
     throw command_error("cannot find parent of target path");
   }
 
-  // if something is on target path
   auto target = fs_.path_lookup(args[1]);
-  if (target >= 0) {
-    if (args.size() >= 3) {
-      bool flag_force = false;
-      for (auto i = 2; i < args.size(); i++) {
-        if (args[i] == "-f" || args[i] == "--force") {
-          flag_force = true;
-          break;
-        }
-      }
 
-      // delete file with force
-      if (flag_force) {
-        fs_.file_delete(parent, path.filename());
-
-      } else {
-        if (fs_.vocal()) {
-          std::cout << "The target file already exists. If you wish to "
-                       "overwrite it, repeat command with the additional flag "
-                       "-f. See more info: 'cp -h'";
-        }
-        failure_message_ = "PATH NOT FOUND (obsazena cilova cesta)";
-        throw command_error("the target path is already used");
-      }
+  // something is on target path
+  if (target >= 0 && has_force_flag(args)) {
+    // have permission to kill
+    fs_.file_delete(parent, path.filename());
+  } else {
+    if (fs_.vocal()) {
+      std::cout << "The target file already exists. If you wish to "
+                   "overwrite it, repeat command with the additional flag "
+                   "-f. See more info: 'cp -h'";
     }
+    failure_message_ = "PATH NOT FOUND (obsazena cilova cesta)";
+    throw command_error("the target path is already used");
   }
 
   target = fs_.file_create(parent, path.filename());
   fs_.file_write(target, 0, reinterpret_cast<const char *>(data.data()),
                  data.size());
+}
+
+bool CpCommand::has_force_flag(const std::vector<std::string> &args) const {
+  for (auto i = 2; i < args.size(); i++) {
+    if (args[i] == "-f" || args[i] == "--force") {
+      return true;
+    }
+  }
+  return false;
 }
 
 } // namespace jkfs
