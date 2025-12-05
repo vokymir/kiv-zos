@@ -1,4 +1,3 @@
-#include "errors.hpp"
 #include "filesystem.hpp"
 #include <cstddef>
 #include <cstdint>
