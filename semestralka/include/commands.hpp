@@ -23,6 +23,9 @@ class MvCommand : public ICommand { // 2
 protected:
   void execute_inner(const std::vector<std::string> &args) override;
 
+private:
+  bool has_force_flag(const std::vector<std::string> &args) const;
+
 public:
   MvCommand();
 };
@@ -177,6 +180,9 @@ public:
 class XcpCommand : public ICommand { // BONUS
 protected:
   void execute_inner(const std::vector<std::string> &args) override;
+
+private:
+  bool has_force_flag(const std::vector<std::string> &args) const;
 
 public:
   XcpCommand();
