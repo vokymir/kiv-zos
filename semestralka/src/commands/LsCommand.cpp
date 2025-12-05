@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
 
@@ -29,6 +30,7 @@ void LsCommand::execute_inner(const std::vector<std::string> &args) {
   }
 
   auto items = fs_.dir_list(cwd);
+  std::sort(items.begin(), items.end());
 
   for (const auto &item : items) {
     std::cout << item.item_name.data() << " ";
