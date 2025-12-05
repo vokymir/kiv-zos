@@ -135,14 +135,18 @@ void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
       reinterpret_cast<uint8_t *>(const_cast<char *>(data)), data_size);
 
   size_t written_bytes = 0;
+  size_t cluster_idx = start_cluster_idx;
 
   while (written_bytes < data_size) {
     // get current cluster index
-    auto cluster = clusters[start_cluster_idx + written_bytes / cluster_size_];
+    auto cluster = clusters[cluster_idx];
     // if 1st cluster: give offset, otherwise 0
-    auto offset = written_bytes < cluster_size_ ? written_bytes : 0;
+    auto cluster_offset =
+        start_cluster_idx == cluster_idx ? start_cluster_offset : 0;
 
-    file_write__cluster(cluster, offset, data_to_write, written_bytes);
+    file_write__cluster(cluster, cluster_offset, data_to_write, written_bytes);
+
+    cluster_idx++;
   }
 }
 
@@ -247,12 +251,8 @@ void Filesystem::file_write__cluster(int32_t cluster_idx,
                                      int32_t offset_in_cluster,
                                      const std::span<uint8_t> &data_to_write,
                                      size_t &written_bytes) {
-  std::vector<uint8_t> raw;
-  if (offset_in_cluster > 0) {
-    raw = cluster_read(cluster_idx);
-  } else {
-    raw.resize(cluster_size_);
-  }
+  // always read - because this function should not discard other data
+  std::vector<uint8_t> raw = cluster_read(cluster_idx);
 
   // start somewhere, end correctly
   for (int i = offset_in_cluster; i < cluster_size_; i++) {
