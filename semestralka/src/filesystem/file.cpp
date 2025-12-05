@@ -56,11 +56,14 @@ int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
   }
 }
 
-void Filesystem::file_create_sized(int32_t parent_inode_id,
-                                   std::string file_name, int32_t needed_size) {
+int32_t Filesystem::file_create_sized(int32_t parent_inode_id,
+                                      std::string file_name,
+                                      int32_t needed_size) {
   try {
     auto inode = file_create(parent_inode_id, file_name);
     file_ensure_size(inode, needed_size);
+
+    return inode;
   } catch (...) {
     file_delete(parent_inode_id, file_name);
 
