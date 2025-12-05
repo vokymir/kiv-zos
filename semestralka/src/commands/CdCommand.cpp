@@ -1,4 +1,3 @@
-#include <iostream>
 #include <string>
 
 #include "commands.hpp"
@@ -12,13 +11,15 @@ CdCommand::CdCommand() {
   how_ = "cd .. // go to parent directory";
 }
 
-void CdCommand::execute_inner(const std::vector<std::string> &a_args) {
-  std::string args = "";
-  for (auto arg : a_args) {
-    args += arg + " ";
+void CdCommand::execute_inner(const std::vector<std::string> &args) {
+  if (args.empty()) {
+    // mimic linux behaviour
+    fs_.current_directory(fs_.root_id());
+    return;
   }
-  std::cout << "Running " + name_ + " command, with arguments: " << args
-            << std::endl;
+
+  auto target = fs_.path_lookup(args[0]);
+  fs_.current_directory(target);
 }
 
 } // namespace jkfs
