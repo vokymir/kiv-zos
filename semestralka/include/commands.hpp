@@ -199,6 +199,7 @@ public:
   AddCommand();
 };
 
+// show all available commands
 class HelpCommand : public ICommand { // USEFUL ADDITION
 protected:
   void execute_inner(const std::vector<std::string> &args) override;
@@ -208,6 +209,15 @@ private:
 
 public:
   HelpCommand(CommandManager &manager);
+};
+
+// allows shell commands execution inside FS
+class ExecCommand : public ICommand { // USEFUL ADDITION
+protected:
+  void execute_inner(const std::vector<std::string> &args) override;
+
+public:
+  ExecCommand();
 };
 
 } // namespace jkfs

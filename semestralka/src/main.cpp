@@ -73,6 +73,7 @@ void setup_cmds(jkfs::CommandManager &manager) {
   manager.register_command(std::make_unique<jkfs::XcpCommand>());
   manager.register_command(std::make_unique<jkfs::AddCommand>());
   manager.register_command(std::make_unique<jkfs::HelpCommand>(manager));
+  manager.register_command(std::make_unique<jkfs::ExecCommand>());
 }
 
 // Start and run the terminal.
