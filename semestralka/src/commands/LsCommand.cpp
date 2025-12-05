@@ -17,7 +17,7 @@ void LsCommand::execute_inner([[maybe_unused]] std::vector<std::string> &_) {
   auto items = fs_.dir_list(cwd);
 
   for (const auto &item : items) {
-    std::cout << item.item_name << " ";
+    std::cout << item.item_name.data() << " ";
   }
   std::cout << std::endl;
 }
