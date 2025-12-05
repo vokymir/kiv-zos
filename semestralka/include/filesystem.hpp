@@ -167,6 +167,10 @@ public:
   // size; return file inode id
   // IS ATOMIC
   int32_t file_create(int32_t parent_inode_id, std::string file_name);
+  // wrapper around file_create & file_resize
+  // IS ATOMIC
+  void file_create_sized(int32_t parent_inode_id, std::string file_name,
+                         int32_t needed_size);
   // compute how many clusters needed, allocate or free them, update inode
   // (in)directs, update filesize
   // NOTE: only can and will enlarge/extend file
