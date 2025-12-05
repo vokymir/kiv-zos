@@ -31,7 +31,12 @@ protected:
   static constexpr bool FAILURE = false;
   // print standard success/failure message
   void inline print_message(bool success) const noexcept {
-    std::cout << (success ? success_message_ : failure_message_) << std::endl;
+    if (success && !success_message_.empty()) {
+      std::cout << success_message_ << std::endl;
+    }
+    if (!success && !failure_message_.empty()) {
+      std::cout << failure_message_ << std::endl;
+    }
   }
 
   // given a vector of arguments, execute the command
