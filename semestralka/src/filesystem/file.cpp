@@ -44,6 +44,12 @@ int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
   } catch (...) {
     // rollback
     file_delete(parent_id, file_name);
+    if (cluster >= 0) {
+      cluster_free(cluster);
+    }
+    if (inode >= 0) {
+      inode_free(inode);
+    }
 
     // let others know the exception
     throw;
@@ -139,6 +145,10 @@ void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
 
   while (written_bytes < data_size) {
     // get current cluster index
+    if (cluster_idx >= clusters.size()) {
+      throw jkfilesystem_error(
+          "Something is wrong, cluster_idx >= clusters.size()");
+    }
     auto cluster = clusters[cluster_idx];
     // if 1st cluster: give offset, otherwise 0
     auto cluster_offset =
