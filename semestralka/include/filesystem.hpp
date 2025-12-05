@@ -158,7 +158,7 @@ public:
   void cluster_free(int32_t cluster_index);
 
   // == file ==
-  // allocate inode & cluster, insert dir_item into parent dir & increase its
+  // allocate inode, insert dir_item into parent dir & increase its
   // size; return file inode id
   // IS ATOMIC
   int32_t file_create(int32_t parent_inode_id, std::string file_name);
@@ -179,7 +179,7 @@ public:
   void file_delete(int32_t parent_inode_id, std::string file_name);
 
   // == dir ==
-  // allocate inode & cluster, insert dir_item into parent dir & increase its
+  // allocate inode, insert dir_item into parent dir & increase its
   // size, insert . and .. into self
   // first call with parent_inode == 0 will setup root, all subsequent are
   // creating top-level files/dirs
@@ -277,6 +277,8 @@ private:
   void print_sb_usage_info(struct superblock &sb, int32_t position) const;
   // create superblock for filesystem of given size with the use of
   struct superblock sb_from_size(int32_t size) const;
+  // clears bitmap of inodes and bitmap of clusters
+  void clear_bitmaps(const struct superblock &sb);
 
   // == path ==
 

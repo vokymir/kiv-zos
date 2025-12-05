@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <vector>
 
 namespace jkfs {
 
@@ -153,6 +154,18 @@ struct superblock Filesystem::sb_from_size(int32_t total_size) const {
   }
 
   return sb;
+}
+
+void Filesystem::clear_bitmaps(const struct superblock &sb) {
+  std::vector<uint8_t> zeros;
+
+  zeros.assign(static_cast<size_t>(sb.bitmapi_size), 0);
+  write_bytes(reinterpret_cast<const char *>(zeros.data()), sb.bitmapi_size,
+              sb.bitmapi_start_addr);
+
+  zeros.assign(static_cast<size_t>(sb.bitmapd_size), 0);
+  write_bytes(reinterpret_cast<const char *>(zeros.data()), sb.bitmapd_size,
+              sb.bitmapd_start_addr);
 }
 
 } // namespace jkfs

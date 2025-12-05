@@ -13,9 +13,9 @@ struct superblock {
   int32_t disk_size = 0;             // celkova velikost VFS
 
   int32_t bitmapi_start_addr = 0; // bitmap i-node
-  int32_t bitmapi_size = 0;
+  int32_t bitmapi_size = 0;       // in bytes
   int32_t bitmapd_start_addr = 0; // bitmap cluster
-  int32_t bitmapd_size = 0;
+  int32_t bitmapd_size = 0;       // in bytes
 
   int32_t inode_size = 0; // i-node
   int32_t inode_count = 0;

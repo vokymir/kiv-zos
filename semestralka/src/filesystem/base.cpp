@@ -58,6 +58,7 @@ struct superblock Filesystem::superblock() {
 
 void Filesystem::superblock(const struct superblock &sb) {
   write<struct superblock>(sb, 0);
+  clear_bitmaps(sb);
 }
 
 // insider knowledge - roots inode ID is always 0
