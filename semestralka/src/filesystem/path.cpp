@@ -2,7 +2,6 @@
 #include "filesystem.hpp"
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -17,10 +16,6 @@ int32_t Filesystem::path_lookup(std::string path) {
   std::vector<std::string> parts = path_split(path);
   // ERROR OUPUT: store which part of path was already traversed
   std::vector<std::string> traversed;
-
-  std::cout << "PARTS: " << parts.size() << std::endl;
-  for (const auto &part : parts)
-    std::cout << part << std::endl;
 
   // begin
   int32_t begin_id;
@@ -40,7 +35,6 @@ int32_t Filesystem::path_lookup(std::string path) {
     bool starting = begin_id == curr_id;
     curr_id = dir_lookup(curr_id, name);
     if (curr_id < 0) { // lookup failed
-      std::cout << "FAILED UPON:" << name << std::endl;
       if (starting) {
         throw jkfilesystem_error("Couldn't even start looking for path: " +
                                  path);
