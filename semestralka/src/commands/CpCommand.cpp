@@ -1,7 +1,9 @@
+#include <filesystem>
 #include <iostream>
 #include <string>
 
 #include "commands.hpp"
+#include "errors.hpp"
 
 namespace jkfs {
 
@@ -13,13 +15,57 @@ CpCommand::CpCommand() {
   exmp_ = {"cp s1 s2", "cp s2 s2"};
 }
 
-void CpCommand::execute_inner(const std::vector<std::string> &a_args) {
-  std::string args = "";
-  for (auto arg : a_args) {
-    args += arg + " ";
+void CpCommand::execute_inner(const std::vector<std::string> &args) {
+  if (args.size() < 2) {
+    throw command_error("The cp command require at least 2 arguments.");
   }
-  std::cout << "Running " + name_ + " command, with arguments: " << args
-            << std::endl;
+
+  auto source = fs_.path_lookup(args[0]);
+  if (source < 0) {
+    failure_message_ = "FILE NOT FOUND (neni zdroj)";
+    throw command_error("cannot find source file");
+  }
+  auto data = fs_.file_read(source);
+
+  // get parent for create/delete
+  std::filesystem::path path(args[1]);
+  auto parent = fs_.path_lookup(path.parent_path());
+  if (parent < 0) {
+    failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
+    throw command_error("cannot find parent of target path");
+  }
+
+  // if something is on target path
+  auto target = fs_.path_lookup(args[1]);
+  if (target >= 0) {
+    if (args.size() >= 3) {
+      bool flag_force = false;
+      for (auto i = 2; i < args.size(); i++) {
+        if (args[i] == "-f" || args[i] == "--force") {
+          flag_force = true;
+          break;
+        }
+      }
+
+      // delete file with force
+      if (flag_force) {
+        fs_.file_delete(parent, path.filename());
+
+      } else {
+        if (fs_.vocal()) {
+          std::cout << "The target file already exists. If you wish to "
+                       "overwrite it, repeat command with the additional flag "
+                       "-f. See more info: 'cp -h'";
+        }
+        failure_message_ = "PATH NOT FOUND (obsazena cilova cesta)";
+        throw command_error("the target path is already used");
+      }
+    }
+  }
+
+  target = fs_.file_create(parent, path.filename());
+  fs_.file_write(target, 0, reinterpret_cast<const char *>(data.data()),
+                 data.size());
 }
 
 } // namespace jkfs
