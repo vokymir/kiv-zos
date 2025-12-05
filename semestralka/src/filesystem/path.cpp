@@ -79,7 +79,7 @@ std::string Filesystem::path_join(std::vector<std::string> parts) {
   std::ostringstream oss;
 
   if (parts.empty()) {
-    return "<GIVEN EMPTY PATH>";
+    return "<EMPTY PATH>";
   } else if (parts.size() == 1) {
     // this is the case if only "/" is given, then the for-loop never runs
     return parts[0];
