@@ -291,19 +291,47 @@ private:
   std::tuple<std::vector<int32_t>, std::vector<int32_t>>
   file_list_clusters(int32_t inode_id);
   // list all clusters indexes (in order) which are stored in given cluster
-  std::vector<int32_t> file_list_clusters_indirect(int32_t cluster_idx);
+  std::vector<int32_t> file_list_clusters__indirect(int32_t cluster_idx);
 
   // write data to any cluster, if offset > 0 will first read and only write
   // after existing data; modify written_bytes
+  // this is convenience cluster_write() wrapper
   // IS ATOMIC
-  // TODO: WTF? this is cluster_write() or????
-  void file_write_cluster(int32_t cluster_idx, int32_t offset_in_cluster,
-                          const std::span<uint8_t> &data_to_write,
-                          size_t &written_bytes);
+  void file_write__cluster(int32_t cluster_idx, int32_t offset_in_cluster,
+                           const std::span<uint8_t> &data_to_write,
+                           size_t &written_bytes);
 
   // compute how many clusters are needed for data, which size is known in bytes
   // if is returned struct
-  struct Needed_Clusters file_count_clusters(int32_t data_size_bytes);
+  struct Needed_Clusters
+  file_ensure_size__count_clusters(int32_t data_size_bytes);
+
+  // fill new_data & new_overhead with newly allocated clusters
+  // how many is calculatd using <need>
+  // return <new_data, new_overhead>
+  // IS ATOMIC
+  std::tuple<std::vector<int32_t>, std::vector<int32_t>>
+  file_ensure_size__fill(const struct Needed_Clusters &need,
+                         const size_t have_data_size,
+                         const size_t have_overhead_size);
+
+  // join two vectors into another one
+  std::vector<int32_t> file_ensure_size__join(std::vector<int32_t> &first,
+                                              std::vector<int32_t> &second);
+
+  // writes overhead clusters to inode, fills indirect2 with indirect1 if needed
+  // IS ATOMIC
+  void
+  file_ensure_size__write_overhead_clusters(struct inode &inode,
+                                            std::vector<int32_t> &clusters);
+
+  // write data clusters to inode & its overhead (indirect1/2) clusters
+  // It doesn't change the contents of data clusters, just writes their idx to
+  // inode/overhead clusters. IS ATOMIC
+  void
+  file_ensure_size__write_clusters_data(struct inode &inode,
+                                        std::vector<int32_t> &data,
+                                        const std::vector<int32_t> &overhead);
 };
 
 } // namespace jkfs
