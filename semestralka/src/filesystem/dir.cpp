@@ -9,7 +9,7 @@
 
 namespace jkfs {
 
-void Filesystem::dir_create(int32_t parent_id, const std::string &name) {
+int32_t Filesystem::dir_create(int32_t parent_id, const std::string &name) {
   int32_t id = -1;
 
   try {
@@ -33,6 +33,8 @@ void Filesystem::dir_create(int32_t parent_id, const std::string &name) {
     // let others know about the exception
     throw;
   }
+
+  return id;
 }
 
 void Filesystem::dir_create_recursive(const std::string &path) {
