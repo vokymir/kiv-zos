@@ -286,7 +286,7 @@ struct Needed_Clusters
 Filesystem::file_ensure_size__count_clusters(int32_t size) {
   Needed_Clusters result{};
 
-  // ceil of size/cluster_size
+  // ceil of how many data clusters needed
   size_t data = (size + cluster_size_ - 1) / cluster_size_;
   result.data = data;
 
@@ -305,11 +305,11 @@ Filesystem::file_ensure_size__count_clusters(int32_t size) {
   // indirect 1
   size_t indirect1 = 1; // if we are still here, it is needed
   // floor of how many dir_items fit inside one cluster
-  const size_t data_in_cluster = sizeof(dir_item) / cluster_size_;
+  const size_t data_in_cluster = cluster_size_ / sizeof(dir_item);
   result.indirect1 = indirect1;
   data -= data_in_cluster;
 
-  // in indirect1 can be some space left
+  // in indirect1 can be some space left, therefore also <
   if (data <= 0) {
     return result;
   }
@@ -317,7 +317,7 @@ Filesystem::file_ensure_size__count_clusters(int32_t size) {
   // indirect 2
   size_t indirect2 = 1; // the same logic - we are here, so its needed
   // floor of how many indirect1 pointers fit inside one indirect2
-  const size_t clusters_in_cluster = sizeof(int32_t) / cluster_size_;
+  const size_t clusters_in_cluster = cluster_size_ / sizeof(int32_t);
   // ceil of how many indirect1s are needed inside indirect2
   size_t in1_inside_in2 = (data + data_in_cluster - 1) / data_in_cluster;
 
