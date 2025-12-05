@@ -2,6 +2,7 @@
 #include "filesystem.hpp"
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -17,6 +18,10 @@ int32_t Filesystem::path_lookup(std::string path) {
   // ERROR OUPUT: store which part of path was already traversed
   std::vector<std::string> traversed;
 
+  std::cout << "PARTS: " << parts.size() << std::endl;
+  for (const auto &part : parts)
+    std::cout << part << std::endl;
+
   // begin
   int32_t begin_id;
   int32_t curr_id;
@@ -26,8 +31,8 @@ int32_t Filesystem::path_lookup(std::string path) {
     // remove the "/" from parts
     parts.erase(parts.begin());
   } else {
-    curr_id = current_inode_;
-    traversed.push_back(".");
+    // relative path
+    curr_id = current_dir_;
   }
   begin_id = curr_id;
 
@@ -35,6 +40,7 @@ int32_t Filesystem::path_lookup(std::string path) {
     bool starting = begin_id == curr_id;
     curr_id = dir_lookup(curr_id, name);
     if (curr_id < 0) { // lookup failed
+      std::cout << "FAILED UPON:" << name << std::endl;
       if (starting) {
         throw jkfilesystem_error("Couldn't even start looking for path: " +
                                  path);
@@ -61,7 +67,11 @@ std::vector<std::string> Filesystem::path_split(std::string path) {
     if (start == 0 && end == 0) { // if we are on root
       parts.push_back("/");
     } else {
-      parts.push_back(path.substr(start, end - start));
+      // skip double-slashes "...//..." as linux also does it
+      std::string segment = path.substr(start, end - start);
+      if (!segment.empty()) {
+        parts.push_back(segment);
+      }
     }
     start = end + 1;
   }
