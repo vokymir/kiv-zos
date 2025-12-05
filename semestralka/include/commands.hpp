@@ -120,6 +120,7 @@ protected:
   void execute_inner(const std::vector<std::string> &args) override;
 
 private:
+  static unsigned long long depth_;
   CommandManager &manager_;
 
 public:

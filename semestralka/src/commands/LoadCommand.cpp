@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <iostream>
 #include <string>
 
 #include "CommandManager.hpp"
@@ -6,6 +7,9 @@
 #include "errors.hpp"
 
 namespace jkfs {
+
+// stores the depth of recursion
+unsigned long long LoadCommand::depth_ = 0;
 
 LoadCommand::LoadCommand(CommandManager &manager) : manager_(manager) {
   id_ = "load";
@@ -29,11 +33,21 @@ void LoadCommand::execute_inner(const std::vector<std::string> &args) {
   }
 
   std::ifstream file(path);
+  depth_++;
 
   for (std::string line = ""; std::getline(file, line);) {
-    std::cout << ">> " << line << std::endl;
+    // show recursion depth
+    std::cout << depth_;
+    for (auto i = 0; i < depth_; i++) {
+      std::cout << ">";
+    }
+    // show the command
+    std::cout << " " << line << std::endl;
+    // do the command
     manager_.run_command(line);
   }
+
+  depth_--;
 }
 
 } // namespace jkfs
