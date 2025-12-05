@@ -86,6 +86,8 @@ std::vector<std::string> Filesystem::path_split(std::string path) {
   size_t start = 0;
   size_t end;
 
+  parts.push_back(".");
+
   // starting with root '/'
   while ((end = path.find('/', start)) != std::string::npos) {
     if (start == 0 && end == 0) { // if we are on root
