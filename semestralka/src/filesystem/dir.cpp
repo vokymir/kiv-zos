@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace jkfs {
@@ -30,6 +31,47 @@ void Filesystem::dir_create(int32_t parent_id, const std::string &name) {
     }
 
     // let others know about the exception
+    throw;
+  }
+}
+
+void Filesystem::dir_create_recursive(const std::string &path) {
+  auto parts = path_split(path);
+
+  int32_t current_inode = root_id();
+  if (parts.front() == ".") {
+    current_inode = current_directory().back();
+  }
+  // all paths after split have either '.' or '/' which is now solved
+  parts.erase(parts.begin());
+
+  // tuples of parent_id and child_name
+  std::vector<std::tuple<int32_t, std::string>> created;
+
+  try {
+    for (const auto &next_name : parts) {
+      // search
+      auto lookup = dir_lookup(current_inode, next_name);
+
+      // doesn't exist
+      if (lookup < 0) {
+        auto new_dir = dir_create(current_inode, next_name);
+        if (new_dir < 0) {
+          throw jkfilesystem_error("Cannot create more directories.");
+        }
+        created.push_back({current_inode, next_name});
+        lookup = new_dir;
+      }
+
+      // move on
+      current_inode = lookup;
+    }
+  } catch (...) {
+    for (auto it = created.rbegin(); it != created.rend(); it++) {
+      const auto &[par_id, chld_name] = *it;
+      file_delete(par_id, chld_name);
+    }
+
     throw;
   }
 }

@@ -203,13 +203,19 @@ public:
   file_list_clusters(int32_t inode_id);
 
   // == dir ==
+
   // allocate inode, insert dir_item into parent dir & increase its
   // size, insert . and .. into self
   // first call with parent_inode == 0 will setup root, all subsequent are
   // creating top-level files/dirs
+  // return inode id
   // IS ATOMIC
-  void dir_create(int32_t parent_directory_inode_id,
-                  const std::string &directory_name);
+  int32_t dir_create(int32_t parent_directory_inode_id,
+                     const std::string &directory_name);
+  // ensure any path exists if possible
+  // the function is not recursive, but will create the whole path recursively,
+  // even if some directories are missing
+  void dir_create_recursive(const std::string &path);
   // append one dir_item into any directory
   // IS ATOMIC
   void dir_item_add(int32_t directory_inode_id, int32_t item_inode_id,
