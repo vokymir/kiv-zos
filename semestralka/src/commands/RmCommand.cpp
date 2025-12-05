@@ -1,7 +1,8 @@
-#include <iostream>
+#include <filesystem>
 #include <string>
 
 #include "commands.hpp"
+#include "errors.hpp"
 
 namespace jkfs {
 
@@ -10,15 +11,23 @@ RmCommand::RmCommand() {
   name_ = "Remove";
   desc_ = "Remove file if exists.";
   how_ = "rm file.txt";
+
+  failure_message_ = "FILE NOT FOUND";
 }
 
-void RmCommand::execute_inner(const std::vector<std::string> &a_args) {
-  std::string args = "";
-  for (auto arg : a_args) {
-    args += arg + " ";
+void RmCommand::execute_inner(const std::vector<std::string> &args) {
+  if (args.empty()) {
+    throw command_error("rm command requires one argument");
   }
-  std::cout << "Running " + name_ + " command, with arguments: " << args
-            << std::endl;
+
+  auto path = fs_.path_lookup(args[0]);
+  auto last_inode = fs_.inode_read(path.back());
+  if (last_inode.is_dir) {
+    throw command_error("Cannot remove directory.");
+  }
+
+  std::filesystem::path p(args[0]);
+  fs_.file_delete(path.back() - 1, p.filename());
 }
 
 } // namespace jkfs
