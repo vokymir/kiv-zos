@@ -82,7 +82,8 @@ private:
   std::filesystem::path path_;
   std::fstream file_;
 
-  int32_t current_inode_ = 0; // always start at root
+  // ID of inode of current directory
+  int32_t current_dir_ = 0; // always start at root
 
   // get/set
 public:
@@ -100,6 +101,11 @@ public:
   struct inode root_inode();
   // return root directory inode id
   int32_t root_id();
+
+  // get cwd inode id
+  int32_t current_directory();
+  // set cwd inode id only if inode is directory
+  void current_directory(int32_t dir_inode_id);
 
   // methods
 public:

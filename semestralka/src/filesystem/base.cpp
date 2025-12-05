@@ -64,6 +64,16 @@ void Filesystem::superblock(const struct superblock &sb) {
 int32_t Filesystem::root_id() { return 0; }
 struct inode Filesystem::root_inode() { return inode_read(root_id()); }
 
+int32_t Filesystem::current_directory() { return current_dir_; }
+void Filesystem::current_directory(int32_t inode_id) {
+  auto inode = inode_read(inode_id);
+  if (!inode.is_dir) {
+    throw jkfilesystem_error(
+        "Cannot set cwd to inode which is not a directory.");
+  }
+  current_dir_ = inode_id;
+}
+
 // ===== methods =====
 
 // ===== private methods =====
