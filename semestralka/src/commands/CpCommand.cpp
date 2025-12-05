@@ -60,7 +60,8 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
   }
 
   // create new file & copy contents
-  auto target = fs_.file_create(parent, fs_.path_filename(tgt_path_str));
+  auto target = fs_.file_create_sized(parent, fs_.path_filename(tgt_path_str),
+                                      data.size());
   fs_.file_write(target, 0, reinterpret_cast<const char *>(data.data()),
                  data.size());
 }

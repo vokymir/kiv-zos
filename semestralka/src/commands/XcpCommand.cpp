@@ -70,7 +70,8 @@ void XcpCommand::execute_inner(const std::vector<std::string> &args) {
   }
 
   // create new file & copy contents
-  target = fs_.file_create(target_parent, target_path.filename());
+  target =
+      fs_.file_create_sized(target_parent, target_path.filename(), data.size());
   fs_.file_write(target, 0, reinterpret_cast<const char *>(data.data()),
                  data.size());
 }

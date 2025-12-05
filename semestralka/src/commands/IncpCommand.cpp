@@ -69,7 +69,8 @@ void IncpCommand::write_unreal_file(const std::string &string_path,
   }
 
   auto parent_inode = parent_path.back();
-  auto file_inode = fs_.file_create(parent_inode, fs_.path_filename(path));
+  auto file_inode = fs_.file_create_sized(parent_inode, fs_.path_filename(path),
+                                          input.size());
 
   fs_.file_write(file_inode, 0, reinterpret_cast<const char *>(input.data()),
                  input.size());
