@@ -13,6 +13,9 @@ PwdCommand::PwdCommand() {
   name_ = "Print working directory";
   desc_ = "Display the full name of current directory, from the 'root'.";
   how_ = "pwd";
+
+  success_message_ = "";
+  failure_message_ = "The unthinkable happened...";
 }
 
 void PwdCommand::execute_inner(
@@ -34,6 +37,8 @@ void PwdCommand::execute_inner(
     }
     std::cout << std::string(it->item_name.data());
   }
+
+  std::cout << std::endl;
 }
 
 } // namespace jkfs
