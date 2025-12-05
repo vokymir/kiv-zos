@@ -36,6 +36,7 @@ std::vector<int32_t> Filesystem::path_lookup(std::string path) {
       }
       return {};
     }
+    inode_path.push_back(curr_id);
     traversed.push_back(name);
   }
 
