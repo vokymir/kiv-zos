@@ -25,7 +25,11 @@ void CatCommand::execute_inner(const std::vector<std::string> &args) {
 
   // find the file contents
   auto path = args[0];
-  auto inode = fs_.path_lookup(path).back();
+  auto inode_path = fs_.path_lookup(path);
+  if (inode_path.empty()) {
+    throw command_error("Invalid path");
+  }
+  auto inode = inode_path.back();
 
   // if target path is a directory
   // NOTE: it works either way, but this is how linux behaves

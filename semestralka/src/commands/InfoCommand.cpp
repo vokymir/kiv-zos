@@ -1,4 +1,3 @@
-#include <cstdint>
 #include <iostream>
 #include <string>
 
@@ -20,14 +19,15 @@ InfoCommand::InfoCommand() {
 }
 
 void InfoCommand::execute_inner(const std::vector<std::string> &args) {
-  int32_t inode_id = fs_.current_directory().back();
+  auto inode_id_path = fs_.current_directory();
   if (!args.empty()) {
-    inode_id = fs_.path_lookup(args[0]).back();
+    inode_id_path = fs_.path_lookup(args[0]);
   }
 
-  if (inode_id < 0) {
+  if (inode_id_path.empty()) {
     throw command_error("Cannot find specified file/dir.");
   }
+  auto inode_id = inode_id_path.back();
 
   auto inode = fs_.inode_read(inode_id);
   auto clusters = fs_.file_list_clusters(inode_id);

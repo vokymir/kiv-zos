@@ -26,26 +26,29 @@ void MvCommand::execute_inner(const std::vector<std::string> &args) {
   }
 
   std::filesystem::path source_path(args[0]);
-  auto source = fs_.path_lookup(source_path).back();
-  if (source < 0) {
+  auto source_path_i = fs_.path_lookup(source_path);
+  if (source_path_i.empty()) {
     throw command_error("cannot find source file");
-  } else if (source == 0) {
+  }
+  auto source = source_path_i.back();
+  if (source == 0) {
     throw command_error("cannot move ROOT DIRECTORY :=)");
   }
   auto data = fs_.file_read(source);
 
   // get parent for TARGET create/delete
   std::filesystem::path target_path(args[1]);
-  auto target_parent = fs_.path_lookup(target_path.parent_path()).back();
-  if (target_parent < 0) {
+  auto target_parent_path = fs_.path_lookup(target_path.parent_path());
+  if (target_parent_path.empty()) {
     failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
     throw command_error("cannot find parent of target path");
   }
+  auto target_parent = target_parent_path.back();
 
-  auto target = fs_.path_lookup(args[1]).back();
+  auto target_path_i = fs_.path_lookup(args[1]);
 
   // something is on target path
-  if (target >= 0) {
+  if (!target_path_i.empty()) {
     if (has_force_flag(args)) {
       // have permission to kill
       fs_.file_delete(target_parent, target_path.filename());
@@ -62,7 +65,11 @@ void MvCommand::execute_inner(const std::vector<std::string> &args) {
   }
 
   // remove directory entry & add new directory entry
-  auto source_parent = fs_.path_lookup(source_path.parent_path()).back();
+  auto source_parent_path = fs_.path_lookup(source_path.parent_path());
+  if (source_parent_path.empty()) {
+    throw command_error("source parent path empty");
+  }
+  auto source_parent = source_parent_path.back();
 
   fs_.dir_item_add(target_parent, source, target_path.filename());
   fs_.dir_item_remove(source_parent, source_path.filename());

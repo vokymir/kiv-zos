@@ -3,6 +3,7 @@
 #include <string>
 
 #include "commands.hpp"
+#include "errors.hpp"
 
 namespace jkfs {
 
@@ -21,7 +22,12 @@ void LsCommand::execute_inner(const std::vector<std::string> &args) {
     path = args[0];
   }
 
-  auto cwd = fs_.path_lookup(path).back();
+  auto cwd_path = fs_.path_lookup(path);
+  if (cwd_path.empty()) {
+    throw command_error("empty cwd path");
+  }
+  auto cwd = cwd_path.back();
+
   // mimicking linux behaviour on "ls file"
   auto cwd_inode = fs_.inode_read(cwd);
   if (!cwd_inode.is_dir) {

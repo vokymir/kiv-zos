@@ -25,24 +25,25 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
     throw command_error("The cp command require at least 2 arguments.");
   }
 
-  auto source = fs_.path_lookup(args[0]).back();
-  if (source < 0) {
+  auto source_path = fs_.path_lookup(args[0]);
+  if (source_path.empty()) {
     throw command_error("cannot find source file");
   }
+  auto source = source_path.back();
   auto data = fs_.file_read(source);
 
-  // get parent for create/delete
-  std::filesystem::path path(args[1]);
-  auto parent = fs_.path_lookup(path.parent_path()).back();
-  if (parent < 0) {
+  // get parent
+  if (source_path.size() < 2) {
     failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
     throw command_error("cannot find parent of target path");
   }
+  std::filesystem::path path(args[1]);
+  auto parent = source_path.back() - 1;
 
-  auto target = fs_.path_lookup(args[1]).back();
+  auto target_path = fs_.path_lookup(args[1]);
 
   // something is on target path
-  if (target >= 0) {
+  if (!target_path.empty()) {
     if (has_force_flag(args)) {
       // have permission to kill
       fs_.file_delete(parent, path.filename());
@@ -59,7 +60,7 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
   }
 
   // create new file & copy contents
-  target = fs_.file_create(parent, path.filename());
+  auto target = fs_.file_create(parent, path.filename());
   fs_.file_write(target, 0, reinterpret_cast<const char *>(data.data()),
                  data.size());
 }

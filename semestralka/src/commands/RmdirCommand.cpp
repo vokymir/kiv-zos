@@ -21,6 +21,9 @@ void RmdirCommand::execute_inner(const std::vector<std::string> &args) {
   }
 
   auto path = fs_.path_lookup(args[0]);
+  if (path.empty()) {
+    throw command_error("invalid path");
+  }
 
   auto last_inode = fs_.inode_read(path.back());
   if (!last_inode.is_dir) {

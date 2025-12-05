@@ -18,8 +18,17 @@ void AddCommand::execute_inner(const std::vector<std::string> &args) {
         "Add command requires 2 arguments. See 'add -h' for more info.");
   }
 
-  auto from_id = fs_.path_lookup(args[0]).back();
-  auto to_id = fs_.path_lookup(args[1]).back();
+  auto from_id_path = fs_.path_lookup(args[0]);
+  if (from_id_path.empty()) {
+    throw command_error("cannot find source path");
+  }
+  auto from_id = from_id_path.back();
+
+  auto to_id_path = fs_.path_lookup(args[1]);
+  if (to_id_path.empty()) {
+    throw command_error("cannot find source path");
+  }
+  auto to_id = to_id_path.back();
 
   auto from_data = fs_.file_read(from_id);
   auto to_inode = fs_.inode_read(to_id);
