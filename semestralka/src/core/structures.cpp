@@ -1,4 +1,5 @@
 #include "structures.hpp"
+#include <iterator>
 #include <ostream>
 #include <string>
 
@@ -40,6 +41,17 @@ std::ostream &operator<<(std::ostream &os, const dir_item &dit) {
      << "\n }";
 
   return os;
+}
+
+void inode::copy_from(const inode &o) {
+  node_id = o.node_id;
+  is_dir = o.is_dir;
+  file_size = o.file_size;
+  for (auto i = 0; i < std::size(direct); i++) {
+    direct[i] = o.direct[i];
+  }
+  indirect1 = o.indirect1;
+  indirect2 = o.indirect2;
 }
 
 bool dir_item::name_matches(const std::string &other_name) const {

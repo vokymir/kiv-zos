@@ -36,6 +36,9 @@ struct inode {
   int32_t direct[5] = {0};
   int32_t indirect1 = 0;
   int32_t indirect2 = 0;
+
+  // set all member values to be the same as in other
+  void copy_from(const inode &other);
 };
 
 // write inode to stream
