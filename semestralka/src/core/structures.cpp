@@ -63,4 +63,8 @@ bool dir_item::name_matches(const std::string &other_name) const {
 
 bool dir_item::empty() const { return item_name[0] == '\0'; }
 
+bool dir_item::operator<(const dir_item &other) const {
+  return std::string(item_name.data()) < std::string(other.item_name.data());
+}
+
 } // namespace jkfs

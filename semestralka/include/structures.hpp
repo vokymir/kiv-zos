@@ -61,6 +61,9 @@ struct dir_item {
   bool name_matches(const std::string &name) const;
   // return if dir_item is empty
   bool empty() const;
+
+  // comparison on name - useful on sort
+  bool operator<(const dir_item &other) const;
 };
 
 // write directory item to stream
