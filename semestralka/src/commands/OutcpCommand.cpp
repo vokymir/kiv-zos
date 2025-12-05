@@ -7,6 +7,7 @@
 
 namespace jkfs {
 
+// TODO: add correct throws
 OutcpCommand::OutcpCommand() {
   id_ = "outcp";
   name_ = "Copy out of the filesystem";
