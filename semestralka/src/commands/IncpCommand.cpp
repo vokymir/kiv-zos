@@ -62,13 +62,13 @@ void IncpCommand::write_unreal_file(const std::string &string_path,
     throw command_error("the file with that name already exist");
   }
 
-  // if empty just use cwd
-  if (path_inodes.size() < 2) {
+  auto parent_path = fs_.path_lookup(path.parent_path());
+  if (parent_path.empty()) {
     failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
     throw command_error("cannot reach parent of copied file inside filesystem");
   }
 
-  auto parent_inode = path_inodes[path_inodes.size() - 2];
+  auto parent_inode = parent_path.back();
   auto file_inode = fs_.file_create(parent_inode, path.filename());
 
   fs_.file_write(file_inode, 0, reinterpret_cast<const char *>(input.data()),
