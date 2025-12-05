@@ -40,6 +40,7 @@ void InfoCommand::execute_inner(const std::vector<std::string> &args) {
   for (const auto &cluster : std::get<1>(clusters)) {
     std::cout << cluster << " ";
   }
+  std::cout << std::endl;
 }
 
 } // namespace jkfs
