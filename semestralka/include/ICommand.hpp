@@ -36,13 +36,13 @@ protected:
 
   // given a vector of arguments, execute the command
   // may throw as many exception as like
-  virtual void execute_inner(std::vector<std::string> &args) = 0;
+  virtual void execute_inner(const std::vector<std::string> &args) = 0;
 
 public:
   virtual ~ICommand() = default;
   // safe wrapper around execute_inner() which does the core logic of command
   // After operation, writes the success or error message to stdout
-  void execute(std::vector<std::string> &args) noexcept {
+  void execute(const std::vector<std::string> &args) noexcept {
     try {
       execute_inner(args);
       print_message(SUCCESS);

@@ -10,7 +10,7 @@ namespace jkfs {
 
 class CpCommand : public ICommand { // 1
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   CpCommand();
@@ -18,7 +18,7 @@ public:
 
 class MvCommand : public ICommand { // 2
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   MvCommand();
@@ -26,7 +26,7 @@ public:
 
 class RmCommand : public ICommand { // 3
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   RmCommand();
@@ -34,7 +34,7 @@ public:
 
 class MkdirCommand : public ICommand { // 4
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   MkdirCommand();
@@ -42,7 +42,7 @@ public:
 
 class RmdirCommand : public ICommand { // 5
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   RmdirCommand();
@@ -50,7 +50,7 @@ public:
 
 class LsCommand : public ICommand { // 6
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   LsCommand();
@@ -58,7 +58,7 @@ public:
 
 class CatCommand : public ICommand { // 7
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   CatCommand();
@@ -66,7 +66,7 @@ public:
 
 class CdCommand : public ICommand { // 8
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   CdCommand();
@@ -74,7 +74,7 @@ public:
 
 class PwdCommand : public ICommand { // 9
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   PwdCommand();
@@ -82,7 +82,7 @@ public:
 
 class InfoCommand : public ICommand { // 10
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   InfoCommand();
@@ -90,11 +90,11 @@ public:
 
 class IncpCommand : public ICommand { // 11
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 private:
   std::vector<uint8_t> read_real_file(const std::string &path);
-  void write_unreal_file(std::string &whole_path, std::vector<uint8_t> &input);
+  void write_unreal_file(std::string &path, std::vector<uint8_t> &input);
 
 public:
   IncpCommand();
@@ -102,7 +102,11 @@ public:
 
 class OutcpCommand : public ICommand { // 12
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
+
+private:
+  std::vector<uint8_t> read_unreal_file(const std::string &path);
+  void write_real_file(const std::string &path, std::vector<uint8_t> &input);
 
 public:
   OutcpCommand();
@@ -110,7 +114,7 @@ public:
 
 class LoadCommand : public ICommand { // 13
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 private:
   CommandManager &manager_;
@@ -121,7 +125,7 @@ public:
 
 class FormatCommand : public ICommand { // 14
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   FormatCommand();
@@ -130,7 +134,7 @@ public:
 
 class ExitCommand : public ICommand { // 15
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   ExitCommand();
@@ -138,7 +142,7 @@ public:
 
 class StatfsCommand : public ICommand { // 16
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   StatfsCommand();
@@ -146,7 +150,7 @@ public:
 
 class XcpCommand : public ICommand { // BONUS
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   XcpCommand();
@@ -154,7 +158,7 @@ public:
 
 class AddCommand : public ICommand { // BONUS
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 public:
   AddCommand();
@@ -162,7 +166,7 @@ public:
 
 class HelpCommand : public ICommand { // USEFUL ADDITION
 protected:
-  void execute_inner(std::vector<std::string> &args) override;
+  void execute_inner(const std::vector<std::string> &args) override;
 
 private:
   CommandManager &manager_;
