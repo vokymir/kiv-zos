@@ -27,7 +27,7 @@ int32_t Filesystem::path_lookup(std::string path) {
     parts.erase(parts.begin());
   } else {
     // relative path
-    curr_id = current_dir_;
+    curr_id = current_directory();
   }
   begin_id = curr_id;
 
