@@ -8,7 +8,7 @@
 
 namespace jkfs {
 
-void Filesystem::dir_create(int32_t parent_id, std::string name) {
+void Filesystem::dir_create(int32_t parent_id, const std::string &name) {
   int32_t id = -1;
 
   try {
@@ -35,7 +35,7 @@ void Filesystem::dir_create(int32_t parent_id, std::string name) {
 }
 
 void Filesystem::dir_item_add(int32_t id, int32_t item_id,
-                              std::string item_name) {
+                              const std::string &item_name) {
   auto existing = dir_lookup(id, item_name);
   if (existing >= 0) {
     throw jkfilesystem_error("File with that name already exists.");
@@ -47,7 +47,7 @@ void Filesystem::dir_item_add(int32_t id, int32_t item_id,
   file_write(id, offset, reinterpret_cast<const char *>(&item), sizeof(item));
 }
 
-void Filesystem::dir_item_remove(int32_t id, std::string item_name) {
+void Filesystem::dir_item_remove(int32_t id, const std::string &item_name) {
   auto items = dir_list(id);
 
   // find the item to remove
@@ -66,7 +66,7 @@ void Filesystem::dir_item_remove(int32_t id, std::string item_name) {
   file_write(id, 0, reinterpret_cast<const char *>(items.data()), data_size);
 }
 
-int32_t Filesystem::dir_lookup(int32_t id, std::string lookup_name) {
+int32_t Filesystem::dir_lookup(int32_t id, const std::string &lookup_name) {
   auto items = dir_list(id);
 
   // find the matching name
@@ -87,18 +87,11 @@ std::vector<dir_item> Filesystem::dir_list(int32_t id) {
   std::vector<dir_item> items;
   items.reserve(raw_file.size() / sizeof(dir_item));
 
-  // go through raw_file
-  for (std::size_t offset = 0; offset + sizeof(dir_item) <= raw_file.size();
-       offset += sizeof(dir_item)) {
-
-    dir_item item{}; // zero-initialized
-                     // copy only one item
-    std::copy_n(reinterpret_cast<const char *>(&raw_file[offset]),
-                sizeof(dir_item), reinterpret_cast<char *>(&item));
-
-    // only insert valid entries
-    if (!item.empty()) {
-      items.push_back(std::move(item));
+  // copy all valid items from raw_file to items
+  const dir_item *data = reinterpret_cast<const dir_item *>(raw_file.data());
+  for (size_t i = 0; i < raw_file.size() / sizeof(dir_item); ++i) {
+    if (!data[i].empty()) {
+      items.push_back(data[i]);
     }
   }
 

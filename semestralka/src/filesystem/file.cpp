@@ -155,6 +155,9 @@ std::vector<uint8_t> Filesystem::file_read(int32_t inode_id) {
 void Filesystem::file_delete(int32_t parent_inode_id, std::string file_name) {
   // find inode to delete
   auto inode = dir_lookup(parent_inode_id, file_name);
+  if (inode < 0) {
+    return; // already done
+  }
 
   // free clusters
   auto clusters = file_list_clusters(inode);
