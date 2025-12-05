@@ -31,7 +31,7 @@ void RmCommand::execute_inner(const std::vector<std::string> &args) {
   }
 
   std::filesystem::path p(args[0]);
-  fs_.file_delete(path.back() - 1, p.filename());
+  fs_.file_delete(path[path.size() - 2], p.filename());
 }
 
 } // namespace jkfs

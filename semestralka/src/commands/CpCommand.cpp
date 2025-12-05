@@ -38,7 +38,7 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
     throw command_error("cannot find parent of target path");
   }
   std::filesystem::path path(args[1]);
-  auto parent = source_path.back() - 1;
+  int32_t parent = source_path[source_path.size() - 2];
 
   auto target_path = fs_.path_lookup(args[1]);
 

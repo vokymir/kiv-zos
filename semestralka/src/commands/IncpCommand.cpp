@@ -68,7 +68,7 @@ void IncpCommand::write_unreal_file(const std::string &string_path,
     throw command_error("cannot reach parent of copied file inside filesystem");
   }
 
-  auto parent_inode = path_inodes.back() - 1;
+  auto parent_inode = path_inodes[path_inodes.size() - 2];
   auto file_inode = fs_.file_create(parent_inode, path.filename());
 
   fs_.file_write(file_inode, 0, reinterpret_cast<const char *>(input.data()),
