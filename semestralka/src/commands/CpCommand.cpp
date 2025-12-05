@@ -16,17 +16,17 @@ CpCommand::CpCommand() {
   how_ = "cp s1 s2 // where s1 is source and s2 target location";
   exmp_ = {"cp s1 s2 // s1 exists, s2 doesn't", "cp s2 s2 // won't work",
            "cp s2 s2 -f // will work", "cp s2 s2 --force // also works"};
+
+  failure_message_ = "FILE NOT FOUND (neni zdroj)";
 }
 
 void CpCommand::execute_inner(const std::vector<std::string> &args) {
   if (args.size() < 2) {
-    failure_message_ = "FILE NOT FOUND (neni zdroj)";
     throw command_error("The cp command require at least 2 arguments.");
   }
 
   auto source = fs_.path_lookup(args[0]).back();
   if (source < 0) {
-    failure_message_ = "FILE NOT FOUND (neni zdroj)";
     throw command_error("cannot find source file");
   }
   auto data = fs_.file_read(source);
