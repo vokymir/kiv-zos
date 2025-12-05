@@ -32,12 +32,10 @@ void InfoCommand::execute_inner(const std::vector<std::string> &args) {
   auto clusters = fs_.file_list_clusters(inode_id);
 
   std::cout << inode << std::endl;
-  std::cout << "Press Enter to see used clusters...";
-  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-  std::cout << "used clusters:\n1.data: ";
+  std::cout << "used clusters:\n 1.data: ";
   print_cluster_ranges(std::get<0>(clusters));
-  std::cout << "\n2.overhead: ";
+  std::cout << " 2.overhead: ";
   print_cluster_ranges(std::get<1>(clusters));
   std::cout << std::endl;
 }
