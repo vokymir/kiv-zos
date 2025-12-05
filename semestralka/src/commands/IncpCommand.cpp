@@ -58,6 +58,7 @@ void IncpCommand::write_unreal_file(const std::string &string_path,
 
   auto path_inodes = fs_.path_lookup(string_path);
   if (!path_inodes.empty()) {
+    // misleading message, but was in assignment...
     failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
     throw command_error("the file with that name already exist");
   }
