@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <iterator>
 #include <ranges>
 #include <tuple>
@@ -13,28 +14,34 @@
 namespace jkfs {
 
 int32_t Filesystem::file_create(int32_t parent_id, std::string file_name) {
-  int32_t id = -1;
+  int32_t inode = -1;
+  int32_t cluster = -1;
 
   try {
-    id = inode_alloc();
-    if (id < 0) {
+    inode = inode_alloc();
+    if (inode < 0) {
       throw jkfilesystem_error("There is no empty inode for file.");
+    }
+    cluster = cluster_alloc();
+    if (inode < 0) {
+      throw jkfilesystem_error("There is no empty cluster for file.");
     }
 
     // fill inode
     struct inode file{};
-    file.node_id = id;
+    file.node_id = inode;
     file.is_dir = false;
     file.file_size = 0;
+    file.direct[0] = cluster;
 
     // write inode
-    inode_write(id, file);
+    inode_write(inode, file);
 
     // add this to parent dir
-    dir_item_add(parent_id, id, file_name);
+    dir_item_add(parent_id, inode, file_name);
 
     // return inode id
-    return id;
+    return inode;
   } catch (...) {
     // rollback
     file_delete(parent_id, file_name);
@@ -184,10 +191,16 @@ Filesystem::file_list_clusters(int32_t inode_id) {
   // direct
   for (const auto &idx : inode.direct) {
     if (idx <= 0) {
+      std::cout << "DIR: data clusters: " << data.size()
+                << ", overhead clusters: " << overhead.size()
+                << ", inode: " << inode << std::endl;
       return {data, overhead}; // already have all
     }
     data.push_back(idx);
   }
+
+  std::cout << "DIR ALL: data clusters: " << data.size()
+            << ", overhead clusters: " << overhead.size() << std::endl;
 
   // indirect 1
   if (inode.indirect1 <= 0) {
@@ -196,6 +209,9 @@ Filesystem::file_list_clusters(int32_t inode_id) {
   overhead.push_back(inode.indirect1); // STORE OVERHEAD CLUSTERS
   auto indirect1 = file_list_clusters__indirect(inode.indirect1);
   data.insert(data.end(), indirect1.begin(), indirect1.end());
+
+  std::cout << "IND1: data clusters: " << data.size()
+            << ", overhead clusters: " << overhead.size() << std::endl;
 
   // indirect 2
   if (inode.indirect2 <= 0) {
@@ -214,6 +230,9 @@ Filesystem::file_list_clusters(int32_t inode_id) {
     }
     data.insert(data.end(), indirect2.begin(), indirect2.end());
   }
+
+  std::cout << "IND2: data clusters: " << data.size()
+            << ", overhead clusters: " << overhead.size() << std::endl;
 
   return {data, overhead};
 }
