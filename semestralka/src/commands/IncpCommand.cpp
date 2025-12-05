@@ -31,6 +31,7 @@ std::vector<uint8_t> IncpCommand::read_real_file(const std::string &path) {
   // open file
   std::ifstream file(path, std::ios::binary);
   if (!file) {
+    failure_message_ = "FILE NOT FOUND (není zdroj)";
     throw command_error("Cannot read the input file.");
   }
 
@@ -55,8 +56,18 @@ void IncpCommand::write_unreal_file(const std::string &string_path,
                                     std::vector<uint8_t> &input) {
   std::filesystem::path path(string_path);
 
+  auto exist = fs_.path_lookup(string_path);
+  if (exist != -1) {
+    failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
+    throw command_error("the file with that name already exist");
+  }
+
   // if empty just use cwd
   auto parent_inode = fs_.path_lookup(path.parent_path());
+  if (parent_inode < 0) {
+    failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
+    throw command_error("cannot reach parent of copied file inside filesystem");
+  }
   auto file_inode = fs_.file_create(parent_inode, path.filename());
 
   fs_.file_write(file_inode, 0, reinterpret_cast<const char *>(input.data()),
