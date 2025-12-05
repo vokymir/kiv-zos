@@ -55,7 +55,9 @@ void IncpCommand::write_unreal_file(std::string &whole_path,
                                     std::vector<uint8_t> &input) {
   std::filesystem::path path(whole_path);
 
-  auto parent_inode = fs_.path_lookup(path.parent_path());
+  // if empty just use cwd
+  auto parent_path = path.parent_path().empty() ? "." : path.parent_path();
+  auto parent_inode = fs_.path_lookup(parent_path);
   auto file_inode = fs_.file_create(parent_inode, path.filename());
 
   fs_.file_write(file_inode, 0, reinterpret_cast<const char *>(input.data()),
