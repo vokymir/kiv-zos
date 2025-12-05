@@ -40,12 +40,12 @@ void XcpCommand::execute_inner(const std::vector<std::string> &args) {
   }
   auto target_parent = target_parent_path.back();
 
+  // check if target is occupied
   auto target_path_i = fs_.path_lookup(args[2]);
-  if (target_path_i.empty()) {
-    failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
-    throw command_error("cannot find target path");
+  int target = -1;
+  if (!target_path_i.empty()) {
+    target = target_path_i.back();
   }
-  auto target = target_path_i.back();
 
   // ready data
   auto data = fs_.file_read(source_1);
