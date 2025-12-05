@@ -98,4 +98,16 @@ std::vector<dir_item> Filesystem::dir_list(int32_t id) {
   return items;
 }
 
+bool Filesystem::dir_is(int32_t inode_id) {
+  return inode_read(inode_id).is_dir;
+}
+
+bool Filesystem::dir_empty(int32_t dir_inode_id) {
+  auto inode = inode_read(dir_inode_id);
+  // every directory have "." and ".."
+  // root directory also have "/"
+  return (inode.file_size <=
+          sizeof(struct dir_item) * (dir_inode_id == root_id() ? 3 : 2));
+}
+
 } // namespace jkfs

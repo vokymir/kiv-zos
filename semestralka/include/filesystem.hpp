@@ -218,6 +218,10 @@ public:
                      const std::string &lookup_name);
   // list all dir_items in one directory
   std::vector<dir_item> dir_list(int32_t directory_inode_id);
+  // is inode a directory?
+  bool dir_is(int32_t inode_id);
+  // is directory empty?
+  bool dir_empty(int32_t dir_inode_id);
 
   // == path ==
 
