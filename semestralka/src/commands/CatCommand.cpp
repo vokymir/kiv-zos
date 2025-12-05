@@ -25,7 +25,7 @@ void CatCommand::execute_inner(const std::vector<std::string> &args) {
 
   // find the file contents
   auto path = args[0];
-  auto inode = fs_.path_lookup(path);
+  auto inode = fs_.path_lookup(path).back();
 
   // if target path is a directory
   // NOTE: it works either way, but this is how linux behaves

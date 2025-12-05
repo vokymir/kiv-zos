@@ -4,47 +4,77 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace jkfs {
 
-int32_t Filesystem::path_lookup(std::string path) {
+std::vector<int32_t> Filesystem::path_lookup(std::string path) {
+  std::vector<int32_t> inode_path;
   if (path.empty()) {
-    return current_directory();
+    return cwd_;
   }
 
   std::vector<std::string> parts = path_split(path);
   // ERROR OUPUT: store which part of path was already traversed
   std::vector<std::string> traversed;
 
-  // begin
-  int32_t begin_id;
-  int32_t curr_id;
-  if (parts[0] == "/") {
-    curr_id = root_id();
-    traversed.push_back("/");
-    // remove the "/" from parts
-    parts.erase(parts.begin());
-  } else {
-    // relative path
-    curr_id = current_directory();
+  // determine STARTUP point
+  if (parts[0] == "/") { // absolute path
+    inode_path.push_back(root_id());
+  } else { // relative path
+    inode_path.insert(inode_path.end(), cwd_.begin(), cwd_.end());
   }
-  begin_id = curr_id;
 
   for (const auto &name : parts) {
-    curr_id = dir_lookup(curr_id, name);
+    auto curr_id = dir_lookup(inode_path.back(), name);
     if (curr_id < 0) { // lookup failed
       if (vocal_) {
         std::cout << "Cannot find path, wanted: '" << path
                   << "' but only found: '" << path_join(traversed) << "'."
                   << std::endl;
       }
-      return -1;
+      return {};
     }
     traversed.push_back(name);
   }
 
-  return curr_id;
+  path_make_flat(inode_path);
+
+  return inode_path;
+}
+
+void Filesystem::path_make_flat(std::vector<int32_t> &inode_path) {
+  // inode_id -> index in flattened path
+  std::unordered_map<int32_t, size_t> seen;
+  std::vector<int32_t> flattened;
+
+  for (int32_t inode : inode_path) {
+    auto it = seen.find(inode);
+
+    // duplicate found => remove everything between first occurrence and this
+    if (it != seen.end()) {
+
+      size_t keep_idx = it->second;
+
+      // remove entries from seen that are now obsolette (from the region in
+      // between occurrences which will be removed)
+      for (size_t i = flattened.size(); i > keep_idx + 1; i--) {
+        seen.erase(flattened[i - 1]); // its 0-based
+      }
+
+      // truncate to keep only up to first occurrence
+      flattened.resize(keep_idx + 1);
+      continue; // skip adding that duplicate
+    }
+
+    // a) 1st occurrence
+    // b) just removed everything in between, so it does nothing
+    seen[inode] = flattened.size();
+    flattened.push_back(inode);
+  }
+
+  inode_path = std::move(flattened);
 }
 
 // PRIVATE

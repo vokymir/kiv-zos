@@ -21,7 +21,7 @@ void LsCommand::execute_inner(const std::vector<std::string> &args) {
     path = args[0];
   }
 
-  auto cwd = fs_.path_lookup(path);
+  auto cwd = fs_.path_lookup(path).back();
   // mimicking linux behaviour on "ls file"
   auto cwd_inode = fs_.inode_read(cwd);
   if (!cwd_inode.is_dir) {

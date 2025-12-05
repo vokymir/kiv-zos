@@ -8,6 +8,7 @@
 #include <mutex>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "structures.hpp"
@@ -83,7 +84,7 @@ private:
   std::fstream file_;
 
   // ID of inode of current directory
-  int32_t current_dir_ = 0; // always start at root
+  std::vector<int32_t> cwd_{0}; // always start at root
 
   // get/set
 public:
@@ -103,9 +104,13 @@ public:
   int32_t root_id();
 
   // get cwd inode id
-  int32_t current_directory();
+  std::vector<int32_t> current_directory();
   // set cwd inode id only if inode is directory
+  // WARN: not recursive - if dir_inode_id is not in path OR direct child of
+  // cwd_.back() it won't work
   void current_directory(int32_t dir_inode_id);
+  // set cwd inode id only if path is directory
+  void current_directory(const std::string &path);
 
   // methods
 public:
@@ -215,9 +220,17 @@ public:
   std::vector<dir_item> dir_list(int32_t directory_inode_id);
 
   // == path ==
-  // find any path and return its inode or -1
-  // if path is empty, find "."
-  int32_t path_lookup(std::string path);
+
+  // return inode-path from root to <path>
+  // if <path> is empty, find "."
+  // on fail (cannot find) return empty vector
+  std::vector<int32_t> path_lookup(std::string path);
+
+  // flatten the path
+  // two bad thingies:
+  // a) "." => [dir1, dir1] ==> remove subsequent duplicates
+  // b) ".." => [dir1, dir2, dir1] ==> remove everything in between duplicates
+  void path_make_flat(std::vector<int32_t> &inode_path);
 
   // private methods
 private:

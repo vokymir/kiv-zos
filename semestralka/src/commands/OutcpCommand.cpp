@@ -25,7 +25,7 @@ void OutcpCommand::execute_inner(const std::vector<std::string> &args) {
 }
 
 std::vector<uint8_t> OutcpCommand::read_unreal_file(const std::string &path) {
-  auto inode_id = fs_.path_lookup(path);
+  auto inode_id = fs_.path_lookup(path).back();
 
   return fs_.file_read(inode_id);
 }

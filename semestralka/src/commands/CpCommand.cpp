@@ -24,7 +24,7 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
     throw command_error("The cp command require at least 2 arguments.");
   }
 
-  auto source = fs_.path_lookup(args[0]);
+  auto source = fs_.path_lookup(args[0]).back();
   if (source < 0) {
     failure_message_ = "FILE NOT FOUND (neni zdroj)";
     throw command_error("cannot find source file");
@@ -33,13 +33,13 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
 
   // get parent for create/delete
   std::filesystem::path path(args[1]);
-  auto parent = fs_.path_lookup(path.parent_path());
+  auto parent = fs_.path_lookup(path.parent_path()).back();
   if (parent < 0) {
     failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
     throw command_error("cannot find parent of target path");
   }
 
-  auto target = fs_.path_lookup(args[1]);
+  auto target = fs_.path_lookup(args[1]).back();
 
   // something is on target path
   if (target >= 0) {

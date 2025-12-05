@@ -18,8 +18,7 @@ void CdCommand::execute_inner(const std::vector<std::string> &args) {
     return;
   }
 
-  auto target = fs_.path_lookup(args[0]);
-  fs_.current_directory(target);
+  fs_.current_directory(args[0]);
 }
 
 } // namespace jkfs

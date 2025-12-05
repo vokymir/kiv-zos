@@ -15,7 +15,9 @@ ExitCommand::ExitCommand() {
 
 void ExitCommand::execute_inner(
     [[maybe_unused]] const std::vector<std::string> &_) {
-  std::cout << "Exiting the filesystem terminal now." << std::endl;
+  if (fs_.vocal()) {
+    std::cout << "Exiting the filesystem terminal now." << std::endl;
+  }
 }
 
 } // namespace jkfs

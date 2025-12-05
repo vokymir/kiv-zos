@@ -22,7 +22,7 @@ InfoCommand::InfoCommand() {
 void InfoCommand::execute_inner(const std::vector<std::string> &args) {
   int32_t inode_id = fs_.current_directory();
   if (!args.empty()) {
-    inode_id = fs_.path_lookup(args[0]);
+    inode_id = fs_.path_lookup(args[0]).back();
   }
 
   if (inode_id < 0) {

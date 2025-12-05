@@ -1,6 +1,7 @@
 #include "errors.hpp"
 #include "filesystem.hpp"
 #include "structures.hpp"
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -8,6 +9,7 @@
 #include <fstream>
 #include <ios>
 #include <iostream>
+#include <iterator>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -65,14 +67,51 @@ void Filesystem::superblock(const struct superblock &sb) {
 int32_t Filesystem::root_id() { return 0; }
 struct inode Filesystem::root_inode() { return inode_read(root_id()); }
 
-int32_t Filesystem::current_directory() { return current_dir_; }
+std::vector<int32_t> Filesystem::current_directory() { return cwd_; }
+
 void Filesystem::current_directory(int32_t inode_id) {
+  // check if is really directory
   auto inode = inode_read(inode_id);
   if (!inode.is_dir) {
     throw jkfilesystem_error(
         "Cannot set cwd to inode which is not a directory.");
   }
-  current_dir_ = inode_id;
+  // find directory in existing tree
+  auto it = std::ranges::find_if(cwd_, [inode_id](const int32_t curr_inode_id) {
+    return inode_id == curr_inode_id;
+  });
+  if (it == cwd_.end()) {
+    // find dir in leaf inodes dir_items
+    auto find = dir_list(cwd_.back());
+    auto it2 = std::ranges::find_if(find, [inode_id](const dir_item &child) {
+      return child.inode == inode_id;
+    });
+    // didn't find it
+    if (it2 == find.end()) {
+      throw jkfilesystem_error(
+          "Cannot nest cwd by more than one level at a time when only knows "
+          "target inode id -> too many possibilities.");
+    }
+    cwd_.push_back(it2->inode);
+  } else {
+    cwd_.erase(std::next(it), cwd_.end());
+  }
+}
+
+void Filesystem::current_directory(const std::string &path) {
+  auto nwd = path_lookup(path); // next-working-directory
+  if (nwd.empty()) {
+    throw jkfilesystem_error("Cannot change current directory to " + path +
+                             ". It is not valid path.");
+  }
+
+  auto inode = inode_read(nwd.back());
+  if (!inode.is_dir) {
+    throw jkfilesystem_error("Cannot change current directory to " + path +
+                             ". It is path to file.");
+  }
+
+  cwd_ = nwd;
 }
 
 // ===== methods =====

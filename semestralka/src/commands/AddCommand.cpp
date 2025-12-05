@@ -18,8 +18,8 @@ void AddCommand::execute_inner(const std::vector<std::string> &args) {
         "Add command requires 2 arguments. See 'add -h' for more info.");
   }
 
-  auto from_id = fs_.path_lookup(args[0]);
-  auto to_id = fs_.path_lookup(args[1]);
+  auto from_id = fs_.path_lookup(args[0]).back();
+  auto to_id = fs_.path_lookup(args[1]).back();
 
   auto from_data = fs_.file_read(from_id);
   auto to_inode = fs_.inode_read(to_id);
