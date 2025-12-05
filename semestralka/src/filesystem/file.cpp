@@ -211,15 +211,12 @@ void Filesystem::file_delete(int32_t parent_inode_id, std::string file_name) {
   if (inode == root_id()) {
     throw jkfilesystem_error("Cannot remove root :)))");
   }
-
-  // ensure user won't stay in removed dir
-  auto cwd = current_directory();
-  // start on 1, because root cannot be removed
-  for (int i = 1; i < cwd.size(); i++) {
-    if (cwd[i] == inode) {           // if this is the removed dir
-      current_directory(cwd[i - 1]); // go one level up
-    }
+  if (inode == current_directory().back()) {
+    throw jkfilesystem_error("Cannot remove CWD");
   }
+
+  // free dir item reference
+  dir_item_remove(parent_inode_id, file_name);
 
   // free clusters
   auto clusters = file_list_clusters(inode);
@@ -230,9 +227,6 @@ void Filesystem::file_delete(int32_t parent_inode_id, std::string file_name) {
 
   // free inode
   inode_free(inode);
-
-  // free dir item reference
-  dir_item_remove(parent_inode_id, file_name);
 }
 
 // PRIVATE

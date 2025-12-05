@@ -20,7 +20,8 @@ void RmdirCommand::execute_inner(const std::vector<std::string> &args) {
     throw command_error("rmdir command requires one argument");
   }
 
-  auto path = fs_.path_lookup(args[0]);
+  auto path_str(args[0]);
+  auto path = fs_.path_lookup(path_str);
   if (path.empty()) {
     throw command_error("invalid path");
   }
@@ -36,8 +37,12 @@ void RmdirCommand::execute_inner(const std::vector<std::string> &args) {
     throw command_error("Cannot remove: directory not empty.");
   }
 
-  std::filesystem::path p(args[0]);
-  fs_.file_delete(path[path.size() - 2], p.filename());
+  if (last_inode.node_id == fs_.current_directory().back()) {
+    failure_message_ = "NOT EMPTY (adresář obsahuje podadresáře, nebo soubory)";
+    throw command_error("Cannot remove current working directory.");
+  }
+
+  fs_.file_delete(path[path.size() - 2], fs_.path_filename(path_str));
 }
 
 } // namespace jkfs
