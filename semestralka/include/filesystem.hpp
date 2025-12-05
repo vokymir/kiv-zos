@@ -159,6 +159,7 @@ public:
   // compute how many clusters needed, allocate or free them, update inode
   // (in)directs, update filesize
   // NOTE: only can and will enlarge/extend file
+  // IS ATOMIC
   void file_ensure_size(int32_t inode_id, int32_t needed_size);
   // writes accross multiple clusters
   // offset is in bytes - offset 15 means, that 15th byte will be the first to
@@ -303,6 +304,7 @@ private:
 
   // compute how many clusters are needed for data, which size is known in bytes
   // if is returned struct
+  // IS ATOMIC
   struct Needed_Clusters
   file_ensure_size__count_clusters(int32_t data_size_bytes);
 
@@ -316,6 +318,7 @@ private:
                          const size_t have_overhead_size);
 
   // join two vectors into another one
+  // IS ATOMIC
   std::vector<int32_t> file_ensure_size__join(std::vector<int32_t> &first,
                                               std::vector<int32_t> &second);
 
