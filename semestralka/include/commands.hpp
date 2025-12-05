@@ -90,6 +90,9 @@ class InfoCommand : public ICommand { // 10
 protected:
   void execute_inner(const std::vector<std::string> &args) override;
 
+private:
+  void print_cluster_ranges(const std::vector<int32_t> &clusters);
+
 public:
   InfoCommand();
 };

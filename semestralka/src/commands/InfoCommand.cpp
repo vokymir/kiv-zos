@@ -3,7 +3,6 @@
 
 #include "commands.hpp"
 #include "errors.hpp"
-#include "filesystem.hpp"
 
 namespace jkfs {
 
@@ -32,13 +31,39 @@ void InfoCommand::execute_inner(const std::vector<std::string> &args) {
   auto inode = fs_.inode_read(inode_id);
   auto clusters = fs_.file_list_clusters(inode_id);
 
-  std::cout << inode << "\nused clusters:\n1.data: ";
-  for (const auto &cluster : std::get<0>(clusters)) {
-    std::cout << cluster << " ";
-  }
+  std::cout << inode << std::endl;
+  std::cout << "Press Enter to see used clusters...";
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+  std::cout << "used clusters:\n1.data: ";
+  print_cluster_ranges(std::get<0>(clusters));
   std::cout << "\n2.overhead: ";
-  for (const auto &cluster : std::get<1>(clusters)) {
-    std::cout << cluster << " ";
+  print_cluster_ranges(std::get<1>(clusters));
+  std::cout << std::endl;
+}
+
+void InfoCommand::print_cluster_ranges(const std::vector<int32_t> &clusters) {
+  if (clusters.empty())
+    return;
+
+  int32_t start = clusters[0];
+  int32_t prev = clusters[0];
+
+  for (size_t i = 1; i <= clusters.size(); ++i) {
+    if (i == clusters.size() || clusters[i] != prev + 1) {
+      // end of a range
+      if (start == prev) {
+        std::cout << start << " ";
+      } else {
+        std::cout << start << "-" << prev << " ";
+      }
+      if (i < clusters.size()) {
+        start = clusters[i];
+      }
+    }
+    if (i < clusters.size()) {
+      prev = clusters[i];
+    }
   }
   std::cout << std::endl;
 }
