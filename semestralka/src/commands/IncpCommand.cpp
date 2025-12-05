@@ -1,6 +1,5 @@
 #include <cstddef>
 #include <cstdint>
-#include <filesystem>
 #include <fstream>
 #include <ios>
 #include <string>
@@ -54,7 +53,7 @@ std::vector<uint8_t> IncpCommand::read_real_file(const std::string &path) {
 
 void IncpCommand::write_unreal_file(const std::string &string_path,
                                     std::vector<uint8_t> &input) {
-  std::filesystem::path path(string_path);
+  std::string path(string_path);
 
   auto path_inodes = fs_.path_lookup(string_path);
   if (!path_inodes.empty()) {
@@ -63,14 +62,14 @@ void IncpCommand::write_unreal_file(const std::string &string_path,
     throw command_error("the file with that name already exist");
   }
 
-  auto parent_path = fs_.path_lookup(path.parent_path());
+  auto parent_path = fs_.path_lookup(fs_.path_parent_dir(path));
   if (parent_path.empty()) {
     failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
     throw command_error("cannot reach parent of copied file inside filesystem");
   }
 
   auto parent_inode = parent_path.back();
-  auto file_inode = fs_.file_create(parent_inode, path.filename());
+  auto file_inode = fs_.file_create(parent_inode, fs_.path_filename(path));
 
   fs_.file_write(file_inode, 0, reinterpret_cast<const char *>(input.data()),
                  input.size());

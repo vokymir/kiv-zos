@@ -1,4 +1,3 @@
-#include <filesystem>
 #include <iostream>
 #include <string>
 
@@ -33,8 +32,8 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
   auto data = fs_.file_read(source);
 
   // get parent
-  std::filesystem::path path(args[1]);
-  auto target_parent_path = fs_.path_lookup(path.parent_path());
+  auto tgt_path_str = args[1];
+  auto target_parent_path = fs_.path_lookup(fs_.path_parent_dir(tgt_path_str));
   if (target_parent_path.empty()) {
     failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
     throw command_error("cannot find parent of target path");
@@ -47,7 +46,7 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
   if (!target_path.empty()) {
     if (has_force_flag(args)) {
       // have permission to kill
-      fs_.file_delete(parent, path.filename());
+      fs_.file_delete(parent, fs_.path_filename(tgt_path_str));
     } else {
       if (fs_.vocal()) {
         std::cout << "The target file already exists. If you wish to "
@@ -61,7 +60,7 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
   }
 
   // create new file & copy contents
-  auto target = fs_.file_create(parent, path.filename());
+  auto target = fs_.file_create(parent, fs_.path_filename(tgt_path_str));
   fs_.file_write(target, 0, reinterpret_cast<const char *>(data.data()),
                  data.size());
 }
