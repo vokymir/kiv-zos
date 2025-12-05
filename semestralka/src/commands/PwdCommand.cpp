@@ -12,7 +12,7 @@ PwdCommand::PwdCommand() {
   how_ = "pwd";
 }
 
-void PwdCommand::execute_inner(std::vector<std::string> &a_args) {
+void PwdCommand::execute_inner(const std::vector<std::string> &a_args) {
   std::string args = "";
   for (auto arg : a_args) {
     args += arg + " ";

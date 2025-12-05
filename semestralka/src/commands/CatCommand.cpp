@@ -14,7 +14,7 @@ CatCommand::CatCommand() {
   how_ = "cat file.txt";
 }
 
-void CatCommand::execute_inner(std::vector<std::string> &args) {
+void CatCommand::execute_inner(const std::vector<std::string> &args) {
   if (args.empty()) {
     throw command_error(
         "Cat command requires one argument - the name of file to concatenate.");

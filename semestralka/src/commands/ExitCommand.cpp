@@ -13,7 +13,8 @@ ExitCommand::ExitCommand() {
   how_ = "exit // just write this";
 }
 
-void ExitCommand::execute_inner([[maybe_unused]] std::vector<std::string> &_) {
+void ExitCommand::execute_inner(
+    [[maybe_unused]] const std::vector<std::string> &_) {
   std::cout << "Exiting the filesystem terminal now." << std::endl;
 }
 

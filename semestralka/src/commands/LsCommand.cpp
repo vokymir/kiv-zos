@@ -14,7 +14,7 @@ LsCommand::LsCommand() {
            "ls filename // will just print filename"};
 }
 
-void LsCommand::execute_inner(std::vector<std::string> &args) {
+void LsCommand::execute_inner(const std::vector<std::string> &args) {
   std::string path;
   if (args.size() > 0) {
     path = args[0];

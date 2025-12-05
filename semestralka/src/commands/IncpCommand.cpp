@@ -18,7 +18,7 @@ IncpCommand::IncpCommand() {
   how_ = "incp outside_path.txt inside_path.txt";
 }
 
-void IncpCommand::execute_inner(std::vector<std::string> &args) {
+void IncpCommand::execute_inner(const std::vector<std::string> &args) {
   if (args.size() < 2) {
     throw command_error("The incp command expects two arguments.");
   }
@@ -51,9 +51,9 @@ std::vector<uint8_t> IncpCommand::read_real_file(const std::string &path) {
   return buffer;
 }
 
-void IncpCommand::write_unreal_file(std::string &whole_path,
+void IncpCommand::write_unreal_file(const std::string &string_path,
                                     std::vector<uint8_t> &input) {
-  std::filesystem::path path(whole_path);
+  std::filesystem::path path(string_path);
 
   // if empty just use cwd
   auto parent_inode = fs_.path_lookup(path.parent_path());

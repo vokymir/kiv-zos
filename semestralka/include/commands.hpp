@@ -94,7 +94,7 @@ protected:
 
 private:
   std::vector<uint8_t> read_real_file(const std::string &path);
-  void write_unreal_file(std::string &path, std::vector<uint8_t> &input);
+  void write_unreal_file(const std::string &path, std::vector<uint8_t> &input);
 
 public:
   IncpCommand();
@@ -123,9 +123,31 @@ public:
   LoadCommand(CommandManager &manager);
 };
 
+// File size that the file can be formatted to.
+// Only used in FormatCommand
+enum class FILE_SIZE {
+  B,
+  KB,
+  MB,
+};
+
 class FormatCommand : public ICommand { // 14
 protected:
   void execute_inner(const std::vector<std::string> &args) override;
+
+private:
+  // from arguments of FORMAT command, calculate the new total size of file
+  int get_total_size(const std::string &arg);
+
+  // from string, e.g. 600MB convert to 600 and MB
+  std::tuple<int, FILE_SIZE> get_size(const std::string &arg);
+
+  // convert from string to enum, optionally can start parsing string on
+  // position greater than 0
+  FILE_SIZE convert_filesize(const std::string &str, size_t pos = 0);
+
+  // convert FS to integer
+  int convert_size(enum FILE_SIZE fs);
 
 public:
   FormatCommand();

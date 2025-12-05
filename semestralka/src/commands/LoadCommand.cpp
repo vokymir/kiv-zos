@@ -18,7 +18,7 @@ LoadCommand::LoadCommand(CommandManager &manager) : manager_(manager) {
   failure_message_ = "FILE NOT FOUND";
 }
 
-void LoadCommand::execute_inner(std::vector<std::string> &args) {
+void LoadCommand::execute_inner(const std::vector<std::string> &args) {
   if (args.empty()) {
     throw command_error("Load command need one argument.");
   }
