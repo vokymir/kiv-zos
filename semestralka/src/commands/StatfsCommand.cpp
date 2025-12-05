@@ -13,13 +13,9 @@ StatfsCommand::StatfsCommand() {
   how_ = "statfs";
 }
 
-void StatfsCommand::execute_inner(const std::vector<std::string> &a_args) {
-  std::string args = "";
-  for (auto arg : a_args) {
-    args += arg + " ";
-  }
-  std::cout << "Running " + name_ + " command, with arguments: " << args
-            << std::endl;
+void StatfsCommand::execute_inner(
+    [[maybe_unused]] const std::vector<std::string> &_) {
+  std::cout << fs_.superblock() << std::endl;
 }
 
 } // namespace jkfs
