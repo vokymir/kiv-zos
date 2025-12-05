@@ -10,9 +10,12 @@ namespace jkfs {
 CpCommand::CpCommand() {
   id_ = "cp";
   name_ = "Copy";
-  desc_ = "Copy one file to another place.";
+  desc_ =
+      "Copy one file to another place. If on that place is already a file, \n\
+| copy won't overwrite it unless a force flag is used: -f or --force";
   how_ = "cp s1 s2 // where s1 is source and s2 target location";
-  exmp_ = {"cp s1 s2", "cp s2 s2"};
+  exmp_ = {"cp s1 s2 // s1 exists, s2 doesn't", "cp s2 s2 // won't work",
+           "cp s2 s2 -f // will work", "cp s2 s2 --force // also works"};
 }
 
 void CpCommand::execute_inner(const std::vector<std::string> &args) {
@@ -39,19 +42,23 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
   auto target = fs_.path_lookup(args[1]);
 
   // something is on target path
-  if (target >= 0 && has_force_flag(args)) {
-    // have permission to kill
-    fs_.file_delete(parent, path.filename());
-  } else {
-    if (fs_.vocal()) {
-      std::cout << "The target file already exists. If you wish to "
-                   "overwrite it, repeat command with the additional flag "
-                   "-f. See more info: 'cp -h'";
+  if (target >= 0) {
+    if (has_force_flag(args)) {
+      // have permission to kill
+      fs_.file_delete(parent, path.filename());
+    } else {
+      if (fs_.vocal()) {
+        std::cout << "The target file already exists. If you wish to "
+                     "overwrite it, repeat command with the additional flag "
+                     "-f. See more info: 'cp -h'"
+                  << std::endl;
+      }
+      failure_message_ = "PATH NOT FOUND (obsazena cilova cesta)";
+      throw command_error("the target path is already used");
     }
-    failure_message_ = "PATH NOT FOUND (obsazena cilova cesta)";
-    throw command_error("the target path is already used");
   }
 
+  // create new file & copy contents
   target = fs_.file_create(parent, path.filename());
   fs_.file_write(target, 0, reinterpret_cast<const char *>(data.data()),
                  data.size());
