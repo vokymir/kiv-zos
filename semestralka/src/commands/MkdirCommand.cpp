@@ -1,7 +1,7 @@
-#include <iostream>
 #include <string>
 
 #include "commands.hpp"
+#include "errors.hpp"
 
 namespace jkfs {
 
@@ -12,13 +12,12 @@ MkdirCommand::MkdirCommand() {
   how_ = "mkdir new-directory";
 }
 
-void MkdirCommand::execute_inner(const std::vector<std::string> &a_args) {
-  std::string args = "";
-  for (auto arg : a_args) {
-    args += arg + " ";
+void MkdirCommand::execute_inner(const std::vector<std::string> &args) {
+  if (args.empty()) {
+    throw command_error("The mkdir command requires one argument.");
   }
-  std::cout << "Running " + name_ + " command, with arguments: " << args
-            << std::endl;
+
+  fs_.dir_create(fs_.current_directory().back(), args[0]);
 }
 
 } // namespace jkfs
