@@ -1,0 +1,50 @@
+# --- FORMAT FILESYSTEM ---
+format 10MB
+
+# --- CREATE DIRECTORIES ---
+mkdir dir1
+mkdir dir2
+mkdir dir1/subdir1
+
+# --- CREATE TEST FILES ON HOST SYSTEM ---
+exec "bash" "-c" "echo 'Hello World' > /tmp/file1.txt"
+exec "bash" "-c" "echo 'Second line' > /tmp/file2.txt"
+exec "bash" "-c" "echo -e 'Line1\nLine2\nLine3' > /tmp/file3.txt"
+
+# --- UPLOAD FILES INTO FS ---
+incp /tmp/file1.txt file1.txt
+incp /tmp/file2.txt dir2/file2.txt
+incp /tmp/file3.txt dir1/subdir1/file3.txt
+
+# --- LIST CONTENTS ---
+ls
+ls dir1
+ls dir2
+
+# --- COPY & MOVE ---
+cp file1.txt dir1/file1_copy.txt
+mv dir2/file2.txt dir2/file2_renamed.txt
+
+# --- REMOVE FILES & EMPTY DIRS ---
+rm file1.txt
+rmdir dir1/subdir1   # should succeed
+rmdir dir2            # expect NOT EMPTY
+
+# --- CD & PWD ---
+cd dir1
+pwd
+
+# --- FILE INFO & CAT ---
+info file1_copy.txt
+cat file1_copy.txt
+
+# --- EXPORT FILES & VALIDATE ---
+outcp file1_copy.txt /tmp/fs_file1_copy.txt
+exec "diff" "/tmp/file1.txt" "/tmp/fs_file1_copy.txt"  # will fail if contents differ
+
+outcp dir1/subdir1/file3.txt /tmp/fs_file3.txt
+exec "diff" "/tmp/file3.txt" "/tmp/fs_file3.txt"
+
+# --- STATISTICS ---
+statfs
+
