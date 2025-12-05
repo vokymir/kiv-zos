@@ -65,7 +65,7 @@ public:
   // config variables
 private:
   bool vocal_ = true;
-  int32_t cluster_size_ = 512; // TODO: make it 4096 after debug
+  int32_t cluster_size_ = 4096;
   // how big can fs file be
   // superblock + 1 inode + 2 clusters + 1 byte for bitmapi + 1 byte for bitmapd
   // 1st cluster is reserved
