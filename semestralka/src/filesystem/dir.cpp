@@ -48,9 +48,6 @@ void Filesystem::dir_item_add(int32_t id, int32_t item_id,
 }
 
 void Filesystem::dir_item_remove(int32_t id, const std::string &item_name) {
-  if (id == root_id()) {
-    throw jkfilesystem_error("Cannot remove root :)");
-  }
   auto items = dir_list(id);
 
   // find the item to remove
@@ -64,13 +61,15 @@ void Filesystem::dir_item_remove(int32_t id, const std::string &item_name) {
   auto cwd = current_directory();
   // start on 1, because root cannot be removed
   for (int i = 1; i < cwd.size(); i++) {
-    // if this is the removed dir
-    if (cwd[i] == it->inode) {
-      // go one level up
-      current_directory(cwd[i - 1]);
+    if (cwd[i] == it->inode) {       // if this is the removed dir
+      current_directory(cwd[i - 1]); // go one level up
     }
   }
-  // remove the found item
+
+  // remove the found item; if its not root :))
+  if (it->inode == root_id()) {
+    throw jkfilesystem_error("Cannot remove root :]");
+  }
   items.erase(it);
 
   // write back to file - this handles all inode.filesize changes, removing
