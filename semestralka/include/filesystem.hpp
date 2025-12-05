@@ -178,6 +178,21 @@ public:
   // works on both files/directories
   void file_delete(int32_t parent_inode_id, std::string file_name);
 
+  // NOT WISE TO USE OUTSIDE FILESYSTEM
+  // is more of a private function
+  // list all clusters which are used
+  // return {data clusters, overhead clusters}
+  // data clusters are in order:
+  // 1. directs
+  // 2. indirect1
+  // 3. indirect2
+  // overhead clusters are in order:
+  // 1. indirect1
+  // 2. indirect2
+  // 3. from indirect2 all indirect1s
+  std::tuple<std::vector<int32_t>, std::vector<int32_t>>
+  file_list_clusters(int32_t inode_id);
+
   // == dir ==
   // allocate inode, insert dir_item into parent dir & increase its
   // size, insert . and .. into self
@@ -290,18 +305,6 @@ private:
 
   // == file ==
 
-  // list all clusters which are used
-  // return {data clusters, overhead clusters}
-  // data clusters are in order:
-  // 1. directs
-  // 2. indirect1
-  // 3. indirect2
-  // overhead clusters are in order:
-  // 1. indirect1
-  // 2. indirect2
-  // 3. from indirect2 all indirect1s
-  std::tuple<std::vector<int32_t>, std::vector<int32_t>>
-  file_list_clusters(int32_t inode_id);
   // list all clusters indexes (in order) which are stored in given cluster
   std::vector<int32_t> file_list_clusters__indirect(int32_t cluster_idx);
 
