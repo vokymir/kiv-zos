@@ -32,10 +32,11 @@ int32_t Filesystem::path_lookup(std::string path) {
   begin_id = curr_id;
 
   for (const auto &name : parts) {
+    bool starting = begin_id == curr_id;
     curr_id = dir_lookup(curr_id, name);
     if (curr_id < 0) { // lookup failed
-      if (curr_id == begin_id) {
-        throw jkfilesystem_error("Couldn't even started looking for path: " +
+      if (starting) {
+        throw jkfilesystem_error("Couldn't even start looking for path: " +
                                  path);
       }
       throw jkfilesystem_error("Cannot find path, wanted: '" + path +
@@ -60,8 +61,6 @@ std::vector<std::string> Filesystem::path_split(std::string path) {
     if (start == 0 && end == 0) { // if we are on root
       parts.push_back("/");
     } else {
-      // why was it here???
-      // parts.push_back(".");
       parts.push_back(path.substr(start, end - start));
     }
     start = end + 1;
@@ -76,6 +75,13 @@ std::vector<std::string> Filesystem::path_split(std::string path) {
 
 std::string Filesystem::path_join(std::vector<std::string> parts) {
   std::ostringstream oss;
+
+  if (parts.empty()) {
+    return "<GIVEN EMPTY PATH>";
+  } else if (parts.size() == 1) {
+    // this is the case if only "/" is given, then the for-loop never runs
+    return parts[0];
+  }
 
   // a) is "smth but not root"
   // b) is "/"
