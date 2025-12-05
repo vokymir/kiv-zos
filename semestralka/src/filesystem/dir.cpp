@@ -57,19 +57,8 @@ void Filesystem::dir_item_remove(int32_t id, const std::string &item_name) {
   if (it == items.end()) {
     return; // the work is already done
   }
-  // ensure won't stay in removed dir
-  auto cwd = current_directory();
-  // start on 1, because root cannot be removed
-  for (int i = 1; i < cwd.size(); i++) {
-    if (cwd[i] == it->inode) {       // if this is the removed dir
-      current_directory(cwd[i - 1]); // go one level up
-    }
-  }
 
-  // remove the found item; if its not root :))
-  if (it->inode == root_id()) {
-    throw jkfilesystem_error("Cannot remove root :]");
-  }
+  // remove the found item
   items.erase(it);
 
   // write back to file - this handles all inode.filesize changes, removing
