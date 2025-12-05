@@ -1,5 +1,5 @@
 #!/bin/bash
 
-name="filesystem.voky"
+name="tmp/filesystem.voky"
 
 ./bin/zos "$name" "$1"
