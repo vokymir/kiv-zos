@@ -22,7 +22,8 @@ void PwdCommand::execute_inner(
     [[maybe_unused]] const std::vector<std::string> &_) {
   auto cwd = fs_.current_directory();
 
-  std::cout << "/";
+  std::cout << "/"; // root
+
   for (auto i = 0; i < cwd.size() - 1; i++) {
     auto parent_id = cwd[i];
     auto child_id = cwd[i + 1];
@@ -36,6 +37,9 @@ void PwdCommand::execute_inner(
       throw command_error("Should've found path, but alas, it's unreachable.");
     }
     std::cout << std::string(it->item_name.data());
+    if (i + 1 != cwd.size() - 1) {
+      std::cout << "/"; // separator
+    }
   }
 
   std::cout << std::endl;
