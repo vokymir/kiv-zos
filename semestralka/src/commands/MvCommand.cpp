@@ -16,21 +16,20 @@ MvCommand::MvCommand() {
            "mv s2 s2 // won't work", "mv s2 s2 -f // will work",
            "mv s2 s2 --force // also works",
            "mv file1 novy_file // can use for file renaming"};
+
+  failure_message_ = "FILE NOT FOUND (neni zdroj)";
 }
 
 void MvCommand::execute_inner(const std::vector<std::string> &args) {
   if (args.size() < 2) {
-    failure_message_ = "FILE NOT FOUND (neni zdroj)";
     throw command_error("The mv command require at least 2 arguments.");
   }
 
   std::filesystem::path source_path(args[0]);
   auto source = fs_.path_lookup(source_path).back();
   if (source < 0) {
-    failure_message_ = "FILE NOT FOUND (neni zdroj)";
     throw command_error("cannot find source file");
   } else if (source == 0) {
-    failure_message_ = "FILE NOT FOUND (neni zdroj)";
     throw command_error("cannot move ROOT DIRECTORY :=)");
   }
   auto data = fs_.file_read(source);
