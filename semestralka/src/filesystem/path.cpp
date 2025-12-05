@@ -2,6 +2,7 @@
 #include "filesystem.hpp"
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -32,16 +33,14 @@ int32_t Filesystem::path_lookup(std::string path) {
   begin_id = curr_id;
 
   for (const auto &name : parts) {
-    bool starting = begin_id == curr_id;
     curr_id = dir_lookup(curr_id, name);
     if (curr_id < 0) { // lookup failed
-      if (starting) {
-        throw jkfilesystem_error("Couldn't even start looking for path: " +
-                                 path);
+      if (vocal_) {
+        std::cout << "Cannot find path, wanted: '" << path
+                  << "' but only found: '" << path_join(traversed) << "'."
+                  << std::endl;
       }
-      throw jkfilesystem_error("Cannot find path, wanted: '" + path +
-                               "' but only found: '" + path_join(traversed) +
-                               "'.");
+      return -1;
     }
     traversed.push_back(name);
   }
