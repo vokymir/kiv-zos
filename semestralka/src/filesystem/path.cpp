@@ -10,7 +10,7 @@ namespace jkfs {
 
 int32_t Filesystem::path_lookup(std::string path) {
   if (path.empty()) {
-    throw jkfilesystem_error("Cannot lookup empty path.");
+    return current_directory();
   }
 
   std::vector<std::string> parts = path_split(path);

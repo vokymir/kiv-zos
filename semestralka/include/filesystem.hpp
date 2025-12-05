@@ -201,6 +201,7 @@ public:
 
   // == path ==
   // find any path and return its inode or -1
+  // if path is empty, find "."
   int32_t path_lookup(std::string path);
 
   // private methods
