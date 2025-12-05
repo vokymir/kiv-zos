@@ -426,7 +426,7 @@ void Filesystem::file_ensure_size__write_overhead_clusters(
     backup_indirect2 = cluster_read(inode.indirect2);
     failed_in_indirect2 = true;
     cluster_write(inode.indirect2,
-                  reinterpret_cast<const char *>(clusters[idx]),
+                  reinterpret_cast<const char *>(&clusters[idx]),
                   overhead_left * sizeof(clusters[0]));
   } catch (...) {
     if (failed_in_indirect2) {
@@ -469,7 +469,7 @@ void Filesystem::file_ensure_size__write_clusters_data(
     backup_indirect_1s.push_back(
         {overhead[overhead_idx], cluster_read(overhead[overhead_idx])});
     cluster_write(overhead[overhead_idx++],
-                  reinterpret_cast<const char *>(data[idx]),
+                  reinterpret_cast<const char *>(&data[idx]),
                   amount_to_ind1 * sizeof(data[idx]));
     idx += amount_to_ind1;
 
@@ -486,7 +486,7 @@ void Filesystem::file_ensure_size__write_clusters_data(
       amount_to_ind1 = std::min(max_data_in_ind1, data.size() - idx);
       backup_indirect_1s.push_back({ind1, cluster_read(ind1)});
       cluster_write(overhead[overhead_idx++],
-                    reinterpret_cast<const char *>(data[idx]),
+                    reinterpret_cast<const char *>(&data[idx]),
                     amount_to_ind1 * sizeof(data[idx]));
 
       // go to next
