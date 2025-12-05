@@ -151,16 +151,30 @@ void Filesystem::file_write(int32_t inode_id, int32_t offset, const char *data,
 }
 
 std::vector<uint8_t> Filesystem::file_read(int32_t inode_id) {
-  std::vector<uint8_t> file_contents;
-  auto clusters = file_list_clusters(inode_id);
+  auto file_size = inode_read(inode_id).file_size;
 
+  auto clusters = file_list_clusters(inode_id);
   auto data_clusters = std::get<0>(clusters);
+
+  std::vector<uint8_t> output;
+  output.reserve(file_size);
+
+  size_t remaining = file_size;
+
   for (const auto &cluster : data_clusters) {
+    if (remaining == 0) {
+      break;
+    }
+
     auto data = cluster_read(cluster);
-    file_contents.insert(file_contents.end(), data.begin(), data.end());
+
+    size_t take = std::min(remaining, data.size());
+    output.insert(output.end(), data.begin(), data.begin() + take);
+
+    remaining -= take;
   }
 
-  return file_contents;
+  return output;
 }
 
 void Filesystem::file_delete(int32_t parent_inode_id, std::string file_name) {
