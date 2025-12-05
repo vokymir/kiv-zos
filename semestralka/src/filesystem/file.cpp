@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <iterator>
 #include <ranges>
 #include <tuple>
@@ -191,16 +190,10 @@ Filesystem::file_list_clusters(int32_t inode_id) {
   // direct
   for (const auto &idx : inode.direct) {
     if (idx <= 0) {
-      std::cout << "DIR: data clusters: " << data.size()
-                << ", overhead clusters: " << overhead.size()
-                << ", inode: " << inode << std::endl;
       return {data, overhead}; // already have all
     }
     data.push_back(idx);
   }
-
-  std::cout << "DIR ALL: data clusters: " << data.size()
-            << ", overhead clusters: " << overhead.size() << std::endl;
 
   // indirect 1
   if (inode.indirect1 <= 0) {
@@ -209,9 +202,6 @@ Filesystem::file_list_clusters(int32_t inode_id) {
   overhead.push_back(inode.indirect1); // STORE OVERHEAD CLUSTERS
   auto indirect1 = file_list_clusters__indirect(inode.indirect1);
   data.insert(data.end(), indirect1.begin(), indirect1.end());
-
-  std::cout << "IND1: data clusters: " << data.size()
-            << ", overhead clusters: " << overhead.size() << std::endl;
 
   // indirect 2
   if (inode.indirect2 <= 0) {
@@ -230,9 +220,6 @@ Filesystem::file_list_clusters(int32_t inode_id) {
     }
     data.insert(data.end(), indirect2.begin(), indirect2.end());
   }
-
-  std::cout << "IND2: data clusters: " << data.size()
-            << ", overhead clusters: " << overhead.size() << std::endl;
 
   return {data, overhead};
 }
