@@ -102,7 +102,7 @@ void Filesystem::current_directory(const std::string &path) {
   auto nwd = path_lookup(path); // next-working-directory
   if (nwd.empty()) {
     throw jkfilesystem_error("Cannot change current directory to " + path +
-                             ". It is not valid path.");
+                             ". It is not a valid path.");
   }
 
   auto inode = inode_read(nwd.back());
