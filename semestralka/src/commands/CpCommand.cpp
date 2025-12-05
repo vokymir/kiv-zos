@@ -33,12 +33,13 @@ void CpCommand::execute_inner(const std::vector<std::string> &args) {
   auto data = fs_.file_read(source);
 
   // get parent
-  if (source_path.size() < 2) {
+  std::filesystem::path path(args[1]);
+  auto target_parent_path = fs_.path_lookup(path.parent_path());
+  if (target_parent_path.empty()) {
     failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
     throw command_error("cannot find parent of target path");
   }
-  std::filesystem::path path(args[1]);
-  int32_t parent = source_path[source_path.size() - 2];
+  int32_t parent = target_parent_path.back();
 
   auto target_path = fs_.path_lookup(args[1]);
 
