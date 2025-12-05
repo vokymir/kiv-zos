@@ -86,6 +86,7 @@ void Filesystem::file_ensure_size(int32_t inode_id, int32_t new_size) {
     file_ensure_size__write_clusters_data(inode, join_data, join_overhead);
     backup_stage = 3;
     // = write inode back to fs
+    inode.file_size = new_size;
     inode_write(inode.node_id, inode);
   } catch (...) {
     // go from back & reverse all the actions to be in the before state
