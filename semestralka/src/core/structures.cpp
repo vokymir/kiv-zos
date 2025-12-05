@@ -25,9 +25,8 @@ std::ostream &operator<<(std::ostream &os, const superblock &sb) {
 
 std::ostream &operator<<(std::ostream &os, const inode &i) {
   os << "inode{\n"
-     << " node_id=" << i.node_id
-     << ",\n is_dir=" << static_cast<int>(i.is_dir) // print as number, not char
-     << ",\n file_size=" << i.file_size << ",\n direct1=" << i.direct[0]
+     << " node_id=" << i.node_id << ",\n is_dir=" << static_cast<bool>(i.is_dir)
+     << ",\n file_size=" << i.file_size << " b,\n direct1=" << i.direct[0]
      << ",\n direct2=" << i.direct[1] << ",\n direct3=" << i.direct[2]
      << ",\n direct4=" << i.direct[3] << ",\n direct5=" << i.direct[4]
      << ",\n indirect1=" << i.indirect1 << ",\n indirect2=" << i.indirect2
