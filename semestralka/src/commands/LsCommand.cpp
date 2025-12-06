@@ -12,14 +12,19 @@ LsCommand::LsCommand() {
   id_ = "ls";
   name_ = "List directory";
   desc_ = "List all items in directory.";
-  how_ = "ls // lists all items in current directory";
+  how_ = "ls [path] [options]";
   exmp_ = {"ls // cwd",
            "ls . // cwd",
            "ls subdir // subdir",
            "ls / // root",
            "ls filename // will just print filename",
            "ls -l // will list with more info and in list",
-           "ls -a // will show even hidden files"};
+           "ls -a // will show even hidden files",
+           "ls -la // combination of options",
+           "ls subdir -la // combination of path & options"};
+
+  success_message_ = "";
+  failure_message_ = "PATH NOT FOUND (neexistujici adresar)";
 }
 
 void LsCommand::execute_inner(const std::vector<std::string> &args) {
@@ -92,6 +97,19 @@ Ls_Flags LsCommand::get_flags(const std::vector<std::string> &args) {
   }
 
   return flags;
+}
+
+std::string LsCommand::get_path(const std::vector<std::string> &args) {
+  if (args.empty()) {
+    return "";
+  }
+
+  // if first argument is not flags
+  if (args[0].data()[0] != '-') {
+    return args[0];
+  }
+
+  return "";
 }
 
 } // namespace jkfs

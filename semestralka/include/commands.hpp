@@ -67,6 +67,8 @@ protected:
 private:
   // get all flags from arguments
   Ls_Flags get_flags(const std::vector<std::string> &args);
+  // find path to lookup
+  std::string get_path(const std::vector<std::string> &args);
 
 public:
   LsCommand();
