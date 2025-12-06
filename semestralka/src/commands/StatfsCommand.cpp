@@ -15,7 +15,9 @@ StatfsCommand::StatfsCommand() {
 
 void StatfsCommand::execute_inner(
     [[maybe_unused]] const std::vector<std::string> &_) {
-  std::cout << fs_.superblock() << std::endl;
+  auto sb = fs_.superblock();
+  std::cout << sb << std::endl;
+  fs_.print_usage_info(sb);
 }
 
 } // namespace jkfs

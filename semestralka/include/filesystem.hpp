@@ -122,6 +122,9 @@ public:
   // superblock - its existence is guaranteed. size must fulfil: fs_min_size <=
   // size <= fs_max_size
   void filesystem_resize(size_t size);
+  // print info about superblock usage based on sb and position after counting
+  // all really used bytes in fs
+  void print_usage_info(struct superblock &sb) const;
 
   // == inodes ==
 
@@ -320,9 +323,6 @@ private:
   int32_t count_clusters(int32_t available_space) const;
   // max count of inodes - uses cluster_size_
   int32_t count_inodes(int32_t available_space, int32_t cluster_count) const;
-  // print info about superblock usage based on sb and position after counting
-  // all really used bytes in fs
-  void print_sb_usage_info(struct superblock &sb, int32_t position) const;
   // create superblock for filesystem of given size with the use of
   struct superblock sb_from_size(int32_t size) const;
   // clears bitmap of inodes and bitmap of clusters

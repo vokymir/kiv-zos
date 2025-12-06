@@ -89,9 +89,9 @@ int32_t Filesystem::count_inodes(int32_t effective_size,
   return iterative_count_max(size, sizeof(struct inode));
 }
 
-void Filesystem::print_sb_usage_info(struct superblock &sb,
-                                     int32_t position) const {
+void Filesystem::print_usage_info(struct superblock &sb) const {
   double ts = sb.disk_size;
+  double position = sb.data_start_addr + cluster_size_ * sb.cluster_count;
   std::cout << "Used space of file: \n"
             << "Total: " << std::to_string(position / ts * 100.) << "%\n"
             << "Superblock: "
@@ -143,7 +143,7 @@ struct superblock Filesystem::sb_from_size(int32_t total_size) const {
 
   if (vocal_) {
     std::cout << sb << std::endl;
-    print_sb_usage_info(sb, position);
+    print_usage_info(sb);
   }
 
   if (position > total_size) {
