@@ -328,31 +328,27 @@ Filesystem::file_ensure_size__count_clusters(int32_t size) {
   result.direct = direct;
   data -= direct;
 
-  if (data < 0) {
-    throw jkfilesystem_error("I cannot count to ten.");
-  }
   if (data == 0) {
     return result; // fits inside direct clusters
   }
 
   // indirect 1
   size_t indirect1 = 1; // if we are still here, it is needed
-  // floor of how many dir_items fit inside one cluster
-  const size_t data_in_cluster = cluster_size_ / sizeof(dir_item);
+  // floor of how many pointer to clusters fit inside one cluster
+  const size_t clusters_in_cluster = cluster_size_ / sizeof(int32_t);
   result.indirect1 = indirect1;
-  data -= data_in_cluster;
 
   // in indirect1 can be some space left, therefore also <
-  if (data <= 0) {
+  if (data <= clusters_in_cluster) {
     return result;
   }
+  data -= clusters_in_cluster;
 
   // indirect 2
   size_t indirect2 = 1; // the same logic - we are here, so its needed
-  // floor of how many indirect1 pointers fit inside one indirect2
-  const size_t clusters_in_cluster = cluster_size_ / sizeof(int32_t);
   // ceil of how many indirect1s are needed inside indirect2
-  size_t in1_inside_in2 = (data + data_in_cluster - 1) / data_in_cluster;
+  size_t in1_inside_in2 =
+      (data + clusters_in_cluster - 1) / clusters_in_cluster;
 
   // the number of indirect1s is too big to fit inside indirect2
   if (in1_inside_in2 > clusters_in_cluster) {
@@ -362,7 +358,6 @@ Filesystem::file_ensure_size__count_clusters(int32_t size) {
 
   result.indirect1 += in1_inside_in2;
   result.indirect2 = indirect2;
-  data -= data_in_cluster * in1_inside_in2;
 
   return result;
 }
@@ -514,8 +509,8 @@ void Filesystem::file_ensure_size__write_clusters_data(
       // overwrite indirect 1
       amount_to_ind1 = std::min(max_data_in_ind1, data.size() - idx);
       backup_indirect_1s.push_back({ind1, cluster_read(ind1)});
-      cluster_write(overhead[overhead_idx],
-                    reinterpret_cast<const char *>(&data[idx]),
+
+      cluster_write(ind1, reinterpret_cast<const char *>(&data[idx]),
                     amount_to_ind1 * sizeof(data[idx]));
 
       // go to next
