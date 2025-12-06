@@ -1,0 +1,14 @@
+format 10mb
+exec mkdir -p tmp
+
+# Creates 60000 'x' characters (about 60KB)
+exec python3 -c 'print("x"*60000)' > tmp/large.txt
+
+incp tmp/large.txt large_file
+info large_file
+cat large_file
+
+outcp large_file tmp/large_out.txt
+statfs
+
+exec diff tmp/large.txt tmp/large_out.txt
