@@ -1,0 +1,9 @@
+format 10mb
+exec mkdir -p tmp
+exec echo -n 'AAAAA' > tmp/a.txt
+exec echo 'BBBBB' > tmp/b.txt
+incp tmp/a.txt a
+incp tmp/b.txt b
+xcp a b c
+cat c
+info c
