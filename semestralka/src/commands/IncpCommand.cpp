@@ -57,8 +57,7 @@ void IncpCommand::write_unreal_file(const std::string &string_path,
 
   auto path_inodes = fs_.path_lookup(string_path);
   if (!path_inodes.empty()) {
-    // misleading message, but was in assignment...
-    failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
+    failure_message_ = "PATH NOT FOUND (obsazena)";
     throw command_error("the file with that name already exist");
   }
 
@@ -69,9 +68,13 @@ void IncpCommand::write_unreal_file(const std::string &string_path,
   }
 
   auto parent_inode = parent_path.back();
+  if (!fs_.dir_is(parent_inode)) {
+    failure_message_ = "PATH NOT FOUND (neexistuje cilova cesta)";
+    throw command_error("trying to use file as parent directory");
+  }
+
   auto file_inode = fs_.file_create_sized(parent_inode, fs_.path_filename(path),
                                           input.size());
-
   fs_.file_write(file_inode, 0, reinterpret_cast<const char *>(input.data()),
                  input.size());
 }
