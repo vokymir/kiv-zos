@@ -435,13 +435,13 @@ void Filesystem::file_ensure_size__write_overhead_clusters(
 
   try {
     // indirect 1
-    if (!(clusters.size() > idx)) {
+    if (idx >= clusters.size()) {
       return;
     }
     inode.indirect1 = clusters[idx++];
 
     // indirect 2
-    if (!(clusters.size() > idx)) {
+    if (idx >= clusters.size()) {
       return;
     }
     inode.indirect2 = clusters[idx++];
@@ -449,7 +449,7 @@ void Filesystem::file_ensure_size__write_overhead_clusters(
     // can fit inside ind2 ?
     auto overhead_left = clusters.size() - idx;
     auto max_ind1_in_ind2 = cluster_size_ / sizeof(clusters[0]);
-    if (overhead_left > max_ind1_in_ind2) {
+    if (overhead_left < 0 || overhead_left > max_ind1_in_ind2) {
       throw jkfilesystem_error(
           "Cannot fit indirect1s inside indirect2 - file too big");
     }
@@ -500,24 +500,21 @@ void Filesystem::file_ensure_size__write_clusters_data(
 
     backup_indirect_1s.push_back(
         {overhead[overhead_idx], cluster_read(overhead[overhead_idx])});
-    cluster_write(overhead[overhead_idx++],
+    cluster_write(overhead[overhead_idx],
                   reinterpret_cast<const char *>(&data[idx]),
                   amount_to_ind1 * sizeof(data[idx]));
+    overhead_idx++;
     idx += amount_to_ind1;
 
     // indirect 2
     overhead_idx++; // skip indirect2
-    for (auto i = overhead_idx; i < overhead.size(); i++) {
+    while (idx < data.size() && overhead_idx < overhead.size()) {
       auto ind1 = overhead[overhead_idx];
-
-      if (idx >= data.size()) {
-        return; // work already done
-      }
 
       // overwrite indirect 1
       amount_to_ind1 = std::min(max_data_in_ind1, data.size() - idx);
       backup_indirect_1s.push_back({ind1, cluster_read(ind1)});
-      cluster_write(overhead[overhead_idx++],
+      cluster_write(overhead[overhead_idx],
                     reinterpret_cast<const char *>(&data[idx]),
                     amount_to_ind1 * sizeof(data[idx]));
 
