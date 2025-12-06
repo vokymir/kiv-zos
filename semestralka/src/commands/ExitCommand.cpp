@@ -10,7 +10,10 @@ ExitCommand::ExitCommand() {
   id_ = "exit";
   name_ = "Exit";
   desc_ = "Leave the filesystem terminal.";
-  how_ = "exit // just write this";
+  how_ = "exit";
+
+  success_message_ = "";
+  failure_message_ = "";
 }
 
 void ExitCommand::execute_inner(
