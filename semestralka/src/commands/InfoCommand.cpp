@@ -40,8 +40,6 @@ void InfoCommand::execute_inner(const std::vector<std::string> &args) {
   this_clusters = std::get<1>(clusters);
   std::cout << " 2.overhead(" << this_clusters.size() << "): ";
   print_cluster_ranges(this_clusters);
-
-  std::cout << std::endl;
 }
 
 void InfoCommand::print_cluster_ranges(const std::vector<int32_t> &clusters) {
