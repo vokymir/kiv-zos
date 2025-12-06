@@ -28,11 +28,7 @@ LsCommand::LsCommand() {
 }
 
 void LsCommand::execute_inner(const std::vector<std::string> &args) {
-  std::string path;
-  if (args.size() > 0) {
-    path = args[0];
-  }
-
+  std::string path = get_path(args);
   auto flags = get_flags(args);
 
   auto cwd_path = fs_.path_lookup(path);
@@ -72,7 +68,9 @@ void LsCommand::execute_inner(const std::vector<std::string> &args) {
     std::cout << str.str();
   }
 
-  std::cout << std::endl;
+  if (!flags.list) {
+    std::cout << std::endl;
+  }
 }
 
 Ls_Flags LsCommand::get_flags(const std::vector<std::string> &args) {
@@ -80,7 +78,7 @@ Ls_Flags LsCommand::get_flags(const std::vector<std::string> &args) {
 
   // for every argument
   for (const auto &arg : args) {
-    if (arg.empty() || arg[0] != '-' || arg == args[0]) {
+    if (arg.empty() || arg[0] != '-') {
       continue;
     }
     // for every char
