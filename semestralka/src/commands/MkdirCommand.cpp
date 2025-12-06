@@ -10,6 +10,8 @@ MkdirCommand::MkdirCommand() {
   name_ = "Make directory";
   desc_ = "Make new direcory if possible.";
   how_ = "mkdir new-directory";
+
+  failure_message_ = "PATH NOT FOUND (neexistuje zadana cesta)";
 }
 
 void MkdirCommand::execute_inner(const std::vector<std::string> &args) {
@@ -17,7 +19,7 @@ void MkdirCommand::execute_inner(const std::vector<std::string> &args) {
     throw command_error("The mkdir command requires one argument.");
   }
 
-  fs_.dir_create(fs_.current_directory().back(), args[0]);
+  fs_.dir_create_recursive(args[0]);
 }
 
 } // namespace jkfs
