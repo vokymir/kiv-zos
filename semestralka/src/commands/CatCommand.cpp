@@ -43,7 +43,11 @@ void CatCommand::execute_inner(const std::vector<std::string> &args) {
   // write bytes to stdout
   std::cout.write(reinterpret_cast<const char *>(bytes.data()),
                   static_cast<std::streamsize>(bytes.size()));
-  std::cout << std::endl;
+
+  // only add a newline if the last byte isn't already '\n'
+  if (bytes.empty() || bytes.back() != '\n') {
+    std::cout << std::endl;
+  }
 }
 
 } // namespace jkfs
