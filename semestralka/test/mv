@@ -1,0 +1,36 @@
+format 10mb
+exec mkdir -p tmp
+exec echo 'File 1 content' > tmp/file1_host.txt
+exec echo 'File 2 content' > tmp/file2_host.txt
+
+incp tmp/file1_host.txt f1
+incp tmp/file2_host.txt f2
+
+# Store initial info
+info f1
+info f2
+statfs
+
+# 1. Overwrite f1 with f2 (should free f2's old directory entry, but data clusters remain same)
+# this fails
+mv f2 f1
+# this not
+mv f2 f1 -f
+ls
+cat f1
+
+# Verify the old data is gone (f2 should no longer exist)
+rm f2
+ls
+
+# 2. Move file to a different directory
+mkdir target_dir
+mv f1 target_dir/new_f1
+ls target_dir
+
+# 3. Move/Rename non-existent file (FILE NOT FOUND)
+mv non_existent f_fail
+
+# 4. Check diff
+outcp target_dir/new_f1 tmp/f2
+exec diff tmp/file2_host.txt tmp/f2
