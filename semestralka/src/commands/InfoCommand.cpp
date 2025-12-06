@@ -33,10 +33,14 @@ void InfoCommand::execute_inner(const std::vector<std::string> &args) {
 
   std::cout << inode << std::endl;
 
-  std::cout << "used clusters:\n 1.data: ";
-  print_cluster_ranges(std::get<0>(clusters));
-  std::cout << " 2.overhead: ";
-  print_cluster_ranges(std::get<1>(clusters));
+  auto this_clusters = std::get<0>(clusters);
+  std::cout << "used clusters:\n 1.data(" << this_clusters.size() << "): ";
+  print_cluster_ranges(this_clusters);
+
+  this_clusters = std::get<1>(clusters);
+  std::cout << " 2.overhead(" << this_clusters.size() << "): ";
+  print_cluster_ranges(this_clusters);
+
   std::cout << std::endl;
 }
 
