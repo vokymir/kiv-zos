@@ -24,21 +24,28 @@ void PwdCommand::execute_inner(
 
   std::cout << "/"; // root
 
+  // look for children
   for (auto i = 0; i < cwd.size() - 1; i++) {
     auto parent_id = cwd[i];
     auto child_id = cwd[i + 1];
 
+    // find correct child
     auto dir_items = fs_.dir_list(parent_id);
     auto it = std::ranges::find_if(
         dir_items.begin(), dir_items.end(),
         [child_id](const dir_item &item) { return item.inode == child_id; });
 
+    // didn't find = unthinkable error
     if (it == dir_items.end()) {
       throw command_error("Should've found path, but alas, it's unreachable.");
     }
+
+    // print child
     std::cout << std::string(it->item_name.data());
+
+    // if not last item print separator
     if (i + 1 != cwd.size() - 1) {
-      std::cout << "/"; // separator
+      std::cout << "/";
     }
   }
 
