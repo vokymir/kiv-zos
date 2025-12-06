@@ -91,6 +91,7 @@ std::vector<std::string> Filesystem::path_split(std::string path) {
   // starting with root '/'
   while ((end = path.find('/', start)) != std::string::npos) {
     if (start == 0 && end == 0) { // if we are on root
+      parts.pop_back();           // remove the relative "."
       parts.push_back("/");
     } else {
       // skip double-slashes "...//..." as linux also does it
