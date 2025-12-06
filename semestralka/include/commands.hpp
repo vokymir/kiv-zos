@@ -54,9 +54,19 @@ public:
   RmdirCommand();
 };
 
+// store which flags are used
+struct Ls_Flags {
+  bool list = false;
+  bool all = false;
+};
+
 class LsCommand : public ICommand { // 6
 protected:
   void execute_inner(const std::vector<std::string> &args) override;
+
+private:
+  // get all flags from arguments
+  Ls_Flags get_flags(const std::vector<std::string> &args);
 
 public:
   LsCommand();

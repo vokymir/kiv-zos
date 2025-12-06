@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include "commands.hpp"
@@ -12,8 +13,13 @@ LsCommand::LsCommand() {
   name_ = "List directory";
   desc_ = "List all items in directory.";
   how_ = "ls // lists all items in current directory";
-  exmp_ = {"ls // cwd", "ls . // cwd", "ls subdir // subdir", "ls / // root",
-           "ls filename // will just print filename"};
+  exmp_ = {"ls // cwd",
+           "ls . // cwd",
+           "ls subdir // subdir",
+           "ls / // root",
+           "ls filename // will just print filename",
+           "ls -l // will list with more info and in list",
+           "ls -a // will show even hidden files"};
 }
 
 void LsCommand::execute_inner(const std::vector<std::string> &args) {
@@ -21,6 +27,8 @@ void LsCommand::execute_inner(const std::vector<std::string> &args) {
   if (args.size() > 0) {
     path = args[0];
   }
+
+  auto flags = get_flags(args);
 
   auto cwd_path = fs_.path_lookup(path);
   if (cwd_path.empty()) {
@@ -39,9 +47,51 @@ void LsCommand::execute_inner(const std::vector<std::string> &args) {
   std::sort(items.begin(), items.end());
 
   for (const auto &item : items) {
-    std::cout << item.item_name.data() << " ";
+    if (!flags.all) { // show all
+      if (item.item_name[0] == '.') {
+        continue;
+      }
+    }
+
+    std::ostringstream str;
+    auto inode = fs_.inode_read(item.inode);
+
+    str << item.item_name.data();
+    if (flags.list) {
+      str << (inode.is_dir ? " DIR " : " FILE ") << inode.file_size << "b "
+          << inode.node_id << std::endl;
+    } else {
+      str << " ";
+    }
+
+    std::cout << str.str();
   }
+
   std::cout << std::endl;
+}
+
+Ls_Flags LsCommand::get_flags(const std::vector<std::string> &args) {
+  Ls_Flags flags;
+
+  // for every argument
+  for (const auto &arg : args) {
+    if (arg.empty() || arg[0] != '-' || arg == args[0]) {
+      continue;
+    }
+    // for every char
+    for (const auto ch : arg) {
+      switch (ch) {
+      case 'l':
+        flags.list = true;
+        break;
+      case 'a':
+        flags.all = true;
+        break;
+      }
+    }
+  }
+
+  return flags;
 }
 
 } // namespace jkfs
