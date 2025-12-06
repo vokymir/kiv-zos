@@ -133,7 +133,12 @@ std::vector<dir_item> Filesystem::dir_list(int32_t id) {
 
   // prepare space for items
   std::vector<dir_item> items;
-  items.reserve(raw_file.size() / sizeof(dir_item));
+  { // only reserve if its safe
+    auto size = raw_file.size() / sizeof(dir_item);
+    if (size > 0) {
+      items.reserve(size);
+    }
+  }
 
   // copy all valid items from raw_file to items
   const dir_item *data = reinterpret_cast<const dir_item *>(raw_file.data());

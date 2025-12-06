@@ -182,7 +182,9 @@ std::vector<uint8_t> Filesystem::file_read(int32_t inode_id) {
   auto data_clusters = std::get<0>(clusters);
 
   std::vector<uint8_t> output;
-  output.reserve(file_size);
+  if (file_size > 0) {
+    output.reserve(file_size);
+  }
 
   size_t remaining = file_size;
 
@@ -371,8 +373,16 @@ Filesystem::file_ensure_size__fill(const struct Needed_Clusters &need,
   std::vector<int32_t> new_data;
   std::vector<int32_t> new_overhead;
 
-  new_data.reserve(need.data - have_data_size);
-  new_overhead.reserve(need_overhead - have_overhead_size);
+  { // only reserve if it isn't invalid
+    int data_count = need.data - have_data_size;
+    if (data_count > 0) {
+      new_data.reserve(need.data - have_data_size);
+    }
+    int overhead_count = need_overhead - have_overhead_size;
+    if (overhead_count > 0) {
+      new_overhead.reserve(overhead_count);
+    }
+  }
 
   try {
     // data
@@ -412,7 +422,12 @@ std::vector<int32_t>
 Filesystem::file_ensure_size__join(std::vector<int32_t> &first,
                                    std::vector<int32_t> &second) {
   std::vector<int32_t> result;
-  result.reserve(first.size() + second.size());
+  {
+    auto size = first.size() + second.size();
+    if (size > 0) {
+      result.reserve(size);
+    }
+  }
 
   result.insert(result.end(), first.begin(), first.end());
   result.insert(result.end(), second.begin(), second.end());
