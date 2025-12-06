@@ -188,6 +188,10 @@ class StatfsCommand : public ICommand { // 16
 protected:
   void execute_inner(const std::vector<std::string> &args) override;
 
+private:
+  // helper for showing used inodes/clusters in compact way
+  std::string compress_ranges(const std::vector<int32_t> &v);
+
 public:
   StatfsCommand();
 };

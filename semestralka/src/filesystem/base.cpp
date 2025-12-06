@@ -116,6 +116,23 @@ void Filesystem::current_directory(const std::string &path) {
 
 // ===== methods =====
 
+std::vector<int32_t> Filesystem::get_bitmap_idxs(int32_t start_addr,
+                                                 size_t bytes_count) {
+  auto bytes = read_bytes(bytes_count, start_addr);
+  std::vector<int32_t> idxs;
+
+  for (int i = 0; i < bytes.size(); i++) {
+    auto byte = bytes[i];
+    for (int j = 0; j < 8; j++) {
+      if (bit_get(byte, j)) {
+        idxs.push_back(i * 8 + j);
+      }
+    }
+  }
+
+  return idxs;
+}
+
 // ===== private methods =====
 
 void Filesystem::write_bytes(const char *data, size_t count,

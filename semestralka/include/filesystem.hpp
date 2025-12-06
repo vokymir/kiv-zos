@@ -114,6 +114,12 @@ public:
 
   // methods
 public:
+  // print info about superblock usage based on sb and position after counting
+  // all really used bytes in fs
+  void print_usage_info(struct superblock &sb) const;
+  // get indexes of 1s in bitmap
+  std::vector<int32_t> get_bitmap_idxs(int32_t start_addr, size_t bytes_count);
+
   // == format ==
 
   // create file if it doesn't exist
@@ -122,9 +128,6 @@ public:
   // superblock - its existence is guaranteed. size must fulfil: fs_min_size <=
   // size <= fs_max_size
   void filesystem_resize(size_t size);
-  // print info about superblock usage based on sb and position after counting
-  // all really used bytes in fs
-  void print_usage_info(struct superblock &sb) const;
 
   // == inodes ==
 
