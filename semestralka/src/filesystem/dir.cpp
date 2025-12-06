@@ -64,6 +64,9 @@ void Filesystem::dir_create_recursive(const std::string &path) {
         created.push_back({current_inode, next_name});
         lookup = new_dir;
       }
+      if (!dir_is(lookup)) {
+        throw jkfilesystem_error("Isn't a directory: " + next_name);
+      }
 
       // move on
       current_inode = lookup;

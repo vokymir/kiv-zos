@@ -19,6 +19,12 @@ void MkdirCommand::execute_inner(const std::vector<std::string> &args) {
     throw command_error("The mkdir command requires one argument.");
   }
 
+  auto p = fs_.path_lookup(args[0]);
+  if (!p.empty()) {
+    failure_message_ = "EXIST (nelze založit, již existuje)";
+    throw command_error("The target path is already occupied");
+  }
+
   fs_.dir_create_recursive(args[0]);
 }
 
