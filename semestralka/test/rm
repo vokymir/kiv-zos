@@ -1,0 +1,27 @@
+format 10mb
+exec mkdir -p tmp
+exec echo 'test' > tmp/file.txt
+
+mkdir parent_dir
+mkdir parent_dir/child_dir
+incp tmp/file.txt parent_dir/file.txt
+
+# 1. Try deleting a file that doesn't exist (FILE NOT FOUND)
+rm non_exist.txt
+
+# 2. Try deleting a non-empty directory (NOT EMPTY)
+rmdir parent_dir
+
+# 3. Try deleting a directory using 'rm' (Should fail if 'rm' only handles files)
+rm parent_dir
+
+# 4. Success: Deleting empty child directory
+rmdir parent_dir/child_dir
+ls parent_dir
+
+# 5. Success: Deleting file
+rm parent_dir/file.txt
+ls parent_dir
+
+# 6. Success: Deleting now-empty parent directory
+rmdir parent_dir
