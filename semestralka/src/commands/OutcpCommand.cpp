@@ -13,6 +13,8 @@ OutcpCommand::OutcpCommand() {
   name_ = "Copy out of the filesystem";
   desc_ = "Copy the file from inside the filesystem to outside.";
   how_ = "outcp inside_path.txt outside_path.txt";
+
+  failure_message_ = "FILE NOT FOUND (není zdroj)";
 }
 
 void OutcpCommand::execute_inner(const std::vector<std::string> &args) {
@@ -36,6 +38,7 @@ std::vector<uint8_t> OutcpCommand::read_unreal_file(const std::string &path) {
 
 void OutcpCommand::write_real_file(const std::string &path,
                                    std::vector<uint8_t> &input) {
+  failure_message_ = "PATH NOT FOUND (neexistuje cílová cesta)";
   std::ofstream file(path, std::ios::binary);
   if (!file) {
     throw command_error("Cannot write into output file.");
