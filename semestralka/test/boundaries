@@ -1,0 +1,37 @@
+format 10mb
+exec mkdir -p tmp
+
+# 1. Zero byte file
+exec touch tmp/zero.txt
+incp tmp/zero.txt zero.txt
+info zero.txt
+cat zero.txt
+
+# 2. One byte file
+exec echo -n 'A' > tmp/one.txt
+incp tmp/one.txt one.txt
+info one.txt
+cat one.txt
+
+# 3. Exactly 4KB (cluster_size_ is 4096)
+exec dd if=/dev/zero of=tmp/full.bin bs=4096 count=1
+incp tmp/full.bin full
+info full
+
+# 4. Just over 4KB (Should require 2 data clusters)
+exec dd if=/dev/zero of=tmp/over.bin bs=4096 count=1 seek=1
+exec echo -n 'B' >> tmp/over.bin
+incp tmp/over.bin over
+info over
+
+# 5. Check with diff
+outcp zero.txt tmp/zero.out
+outcp one.txt tmp/one.out
+outcp full tmp/full.out
+outcp over tmp/over.out
+
+exec diff tmp/zero.txt tmp/zero.out
+exec diff tmp/one.txt tmp/one.out
+exec diff tmp/full.bin tmp/full.out
+exec diff tmp/over.bin tmp/over.out
+
