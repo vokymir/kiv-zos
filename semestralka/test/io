@@ -1,0 +1,11 @@
+format 10mb
+exec mkdir -p tmp
+exec echo "Hello_File_System_World" > tmp/hello.txt
+statfs
+incp tmp/hello.txt hello.txt
+ls
+info hello.txt
+cat hello.txt
+outcp hello.txt tmp/hello_out.txt
+statfs
+exec diff tmp/hello_out.txt tmp/hello.txt

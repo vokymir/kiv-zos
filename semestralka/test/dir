@@ -1,0 +1,18 @@
+format 10mb
+mkdir home
+cd home
+mkdir user1
+mkdir user2
+ls
+cd user1
+pwd
+mkdir documents
+cd documents
+rmdir .
+pwd
+cd ..
+cd ..
+pwd
+rmdir home
+rmdir home/user2
+ls home
