@@ -18,8 +18,7 @@ LoadCommand::LoadCommand(CommandManager &manager) : manager_(manager) {
           "written in it.";
   how_ = "load ./cmds // where cmds is file with instructions";
 
-  success_message_ = "OK";
-  failure_message_ = "FILE NOT FOUND";
+  failure_message_ = "FILE NOT FOUND (není zdroj)";
 }
 
 void LoadCommand::execute_inner(const std::vector<std::string> &args) {
