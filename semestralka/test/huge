@@ -1,0 +1,12 @@
+format 50mb
+exec mkdir -p tmp
+
+# Creates a 5MB file using /dev/zero
+exec dd if=/dev/zero of=tmp/huge.bin bs=1M count=5
+
+incp tmp/huge.bin huge
+info huge
+
+outcp huge tmp/huge.out
+
+exec diff tmp/huge.bin tmp/huge.out
