@@ -13,8 +13,8 @@
 \tableofcontents
 
 \chapter{Zadání}
-Vytvořte zjednodušený souborový systém založený na i-uzlech.
-Implementujte jednoduché TUI pro práci se souborovým systémem
+Vytvořte zjednodušený \term{souborový systém} založený na \term{i-uzlech}.
+Implementujte jednoduché \term{TUI} pro práci se souborovým systémem
 které umožní uživateli používat konkrétní příkazy s definovaným chováním.
 Bonusový úkol pro studenta s orion loginem začínajícím na písmeno *j*.
 
@@ -22,13 +22,45 @@ Kompletní znění zadání včetně popisu všech příkazů na straně: \pager
 
 
 \chapter{Analýza úlohy}
+Souborový systém má být uložen jako jeden soubor v jeho binární reprezentaci.
+Běžné rozdělení takového souboru pro souborové systémy založené na i-uzlech:
+
+\begin{itemize}
+    \item \verb{Super blok} obsahuje informace o struktuře souboru
+
+    \item \verb{Bitmapa i-uzlů} informace o obsazenosti i-uzlů
+    \item \verb{Bitmapa klastrů} informace o obsazenosti datových bloků, klastrů
+    \item \verb{I-uzly}
+    \item \verb{Klustry}
+\end{itemize}
+
+Pro implementaci bude třeba následujících struktur,
+které se budou binárně ukládat přímo do souborového systému:
+
+\begin{itemize}
+    \item \command{superblock} bude obsahovat kritické informace o souborovém systému.
+    Protože bude obsahovat adresy všech ostatních bloků
+\end{itemize}
+
+
 \chapter{Popis implementace}
+
+    \section{Souborový systém}
+    Kompletní implementace souborového systému se nachází ve třídě \command{Filesystem}.
+
+
+
+    \section{TUI}
+
+
 \chapter{Uživatelská příručka}
+
+
 \chapter{Závěr}
 
 \appendix
 
-\chapter{Zadání}\label{app:assignment}
+\chapter{Kompletní zadání}\label{app:assignment}
 Následující strany obasahují kompletní a nezkrácené zadání semestrální práce.
 
 \includepdf[pages=-, scale=0.75, pagecommand={}, frame=true]{../ZOS2025_SP_01.pdf}
