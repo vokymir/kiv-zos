@@ -1,0 +1,5 @@
+format 10mb
+incp compile_commands.json c
+cp c a
+add c a
+add c c
