@@ -29,6 +29,17 @@ Tato třída nabízí metody pro práci se systémem, jak elementární funkčno
 které vhodně spojují funkčnost elementárních funkcí do uceleného celku
 metody vyšší úrovně abstrakce.
 
+Při změně velikosti souboru (zvětšování, jelikož zmenšování podle zadaných
+příkazů není třeba, kromě zmenšení na 0, tedy mazání souboru) je zajištěna atomicita
+všech operací, jelikož se jedná o častou operaci, která má velkou šanci neúspěchu.
+Využívá se rozdělení klastrů na režijní a datové. Datové jsou ty, které přímo obsahují
+data souboru, zatímco režijní jsou nepřímé prvního a druhého řádu, obsahující odkazy na
+datové respektive režijní klastry. Nejprve se předalokuje dostatek klastrů jak pro
+data tak režii - tím se eliminuje většina problémů pramenících z nedostatku
+volného místa. Následuje zápis režijních klastrů prvního řádu do klastrů druhého řádu,
+po čemž se zapíší datové klastry do režijních prvního řádu. Až po provedení těchto
+operací se zapíše nová velikost do i-uzlu. Konzistence dat je zajištěna dopředným načtením všech existujících klastrů a jejich zápis ve stejném pořadí.
+
 Všechny příkazy které se dají v TUI použít mají vlastní třídu, které je oddědena
 od třídy \command{ICommand} s virtuální metodou \command{execute_inner} a
 společnou metodou \command{execute}, která volá virtuální, odchytává jakékoliv
@@ -63,7 +74,7 @@ rozšiřováním funkcionality by bylo záhodno se zaměřit na fungování tř�
 \command{Filesystem}, konkrétně na:
 
 \begin{itemize}
-    \item použití návrhového vzoru \term|jedináček|.
+    \item použití návrhového vzoru \term{jedináček}.
     Toto rozhodnutí výrazně urychlilo vývoj, ale zhodnotit užitečnost tohoto rozhodnutí
     je zcela na místě.
     \item dekompozici třídy. Ta jako taková zastává více povinností, než by
@@ -71,7 +82,12 @@ rozšiřováním funkcionality by bylo záhodno se zaměřit na fungování tř�
     pouze na práci s i-uzly, klastry,...) anebo vertikálně (rozdělit na nízkourovňovou
     funkcionalitu, tj. práci s i-uzly, klastry, a vysokoúrovňovou, tj. práci se soubory
     a adresáři).
+    \item práci s režijními klastry - unifikovat logiku tak, aby bylo jednoduché
+    přidávat nepřímé režijní klastry vyššího řádu, bez nutné úpravy kódu.
 \end{itemize}
+
+Kromě této hlavní třídy by měl být zrevidován způsob emulování terminálu, přesunutí
+funkcionality do třídy ze souboru \command{main.cpp}.
 
 \appendix
 
