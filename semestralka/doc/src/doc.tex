@@ -16,44 +16,30 @@
 Vytvořte zjednodušený \term{souborový systém} založený na \term{i-uzlech}.
 Implementujte jednoduché \term{TUI} pro práci se souborovým systémem
 které umožní uživateli používat konkrétní příkazy s definovaným chováním.
-Bonusový úkol pro studenta s orion loginem začínajícím na písmeno *j*.
+Bonusový úkol pro studenta s orion loginem začínajícím na písmeno \textbf{j}.
 
-Kompletní znění zadání včetně popisu všech příkazů na straně: \pageref{app:assignment}.
-
-
-\chapter{Analýza úlohy}
-Souborový systém má být uložen jako jeden soubor v jeho binární reprezentaci.
-Běžné rozdělení takového souboru pro souborové systémy založené na i-uzlech:
-
-\begin{itemize}
-    \item \verb{Super blok} obsahuje informace o struktuře souboru
-
-    \item \verb{Bitmapa i-uzlů} informace o obsazenosti i-uzlů
-    \item \verb{Bitmapa klastrů} informace o obsazenosti datových bloků, klastrů
-    \item \verb{I-uzly}
-    \item \verb{Klustry}
-\end{itemize}
-
-Pro implementaci bude třeba následujících struktur,
-které se budou binárně ukládat přímo do souborového systému:
-
-\begin{itemize}
-    \item \command{superblock} bude obsahovat kritické informace o souborovém systému.
-    Protože bude obsahovat adresy všech ostatních bloků
-\end{itemize}
-
+Kompletní znění zadání včetně popisu všech příkazů je na straně: \pageref{app:assignment}.
 
 \chapter{Popis implementace}
+Program je napsán v \term{c++ 23} s využitím standardní knihovny a knihovny
+\command{readline} která slouží k uchování historie příkazů za běhu programu.
 
-    \section{Souborový systém}
-    Kompletní implementace souborového systému se nachází ve třídě \command{Filesystem}.
+Kompletní implementace souborového systému se nachází ve třídě \command{Filesystem}.
+Tato třída nabízí metody pro práci se systémem, jak elementární funkčnost (například \command{inode_create}) tak komplexnější (například \command{file_create}),
+které vhodně spojují funkčnost elementárních funkcí do uceleného celku
+metody vyšší úrovně abstrakce.
 
-
-
-    \section{TUI}
+Všechny příkazy které se dají v TUI použít mají vlastní třídu, které je oddědena
+od třídy \command{ICommand} s virtuální metodou \command{execute_inner} a
+společnou metodou \command{execute}, která volá virtuální, odchytává jakékoliv
+\term{výjimky} a vypisuje standardní zprávy definované v zadání,
+popisující úspěch nebo chybu při běhu příkazu.
 
 
 \chapter{Uživatelská příručka}
+Program je třeba zkompilovat a to buď pomocí standardních \command{cmake} příkazů,
+anebo přiloženého \term{bash skriptu} \command{auto/build.bash}, který vhodně
+aplikuje standardní cmake na zvolenou adresářovou strukturu.
 
 
 \chapter{Závěr}
