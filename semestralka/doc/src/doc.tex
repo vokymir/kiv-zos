@@ -58,6 +58,20 @@ příkazu zobrazí nápověda k jeho používání.
 
 
 \chapter{Závěr}
+Souborový systém je ve funkčním stavu s uspokojivou úrovní funčnosti. Před
+rozšiřováním funkcionality by bylo záhodno se zaměřit na fungování třídy
+\command{Filesystem}, konkrétně na:
+
+\begin{itemize}
+    \item použití návrhového vzoru \term|jedináček|.
+    Toto rozhodnutí výrazně urychlilo vývoj, ale zhodnotit užitečnost tohoto rozhodnutí
+    je zcela na místě.
+    \item dekompozici třídy. Ta jako taková zastává více povinností, než by
+    bylo moudré. Dekomponovat by šlo horizontálně (rozdělit na třídy, které se zaměřují
+    pouze na práci s i-uzly, klastry,...) anebo vertikálně (rozdělit na nízkourovňovou
+    funkcionalitu, tj. práci s i-uzly, klastry, a vysokoúrovňovou, tj. práci se soubory
+    a adresáři).
+\end{itemize}
 
 \appendix
 
