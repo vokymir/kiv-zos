@@ -41,6 +41,21 @@ Program je třeba zkompilovat a to buď pomocí standardních \command{cmake} p�
 anebo přiloženého \term{bash skriptu} \command{auto/build.bash}, který vhodně
 aplikuje standardní cmake na zvolenou adresářovou strukturu.
 
+Spustitelný soubor lze spusit standardně, bude se ale nacházet v adresáři
+\command{bin}. Pro jednoduchost lze použít přiložený skript \command{auto/run.bash},
+který se zároveň postará o zadání jména souboru, ve kterém se souborový systém nachází.
+
+Při spuštění lze specifikovat příznak \command{-v} nebo \command{--vocal},
+které při běhu programu vypisují další diagnostické informace.
+
+Po spuštění programu lze zadávat všechny příkazy specifikované zadáním.
+Navíc byly přidány dva další: \command{help}, který vypisuje seznam všech
+použitelných příkazů a \command{exec}, který umožňuje spouštět \term{shell}
+příkazy. Tento příkaz byl přidán z důvodu snadného testování.
+
+Každý příkaz lze zavolat s příznakem \command{-h} po kterém se místo provedení
+příkazu zobrazí nápověda k jeho používání.
+
 
 \chapter{Závěr}
 
