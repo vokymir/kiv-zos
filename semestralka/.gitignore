@@ -10,10 +10,8 @@ compile_commands.json
 *.vy
 *.v
 
-# archives
-archive*
-*.tar.gz
-*.zip
-
 # temporary folder
 tmp/
+
+# archive
+archive/
