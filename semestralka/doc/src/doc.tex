@@ -25,7 +25,8 @@ Program je napsán v \term{c++ 23} s využitím standardní knihovny a knihovny
 \command{readline} která slouží k uchování historie příkazů za běhu programu.
 
 Kompletní implementace souborového systému se nachází ve třídě \command{Filesystem}.
-Tato třída nabízí metody pro práci se systémem, jak elementární funkčnost (například \command{inode_create}) tak komplexnější (například \command{file_create}),
+Tato třída nabízí metody pro práci se systémem, jak elementární funkčnost (například
+\command{inode_create}) tak komplexnější (například \command{file_create}),
 které vhodně spojují funkčnost elementárních funkcí do uceleného celku
 metody vyšší úrovně abstrakce.
 
@@ -38,7 +39,8 @@ datové respektive režijní klastry. Nejprve se předalokuje dostatek klastrů 
 data tak režii - tím se eliminuje většina problémů pramenících z nedostatku
 volného místa. Následuje zápis režijních klastrů prvního řádu do klastrů druhého řádu,
 po čemž se zapíší datové klastry do režijních prvního řádu. Až po provedení těchto
-operací se zapíše nová velikost do i-uzlu. Konzistence dat je zajištěna dopředným načtením všech existujících klastrů a jejich zápis ve stejném pořadí.
+operací se zapíše nová velikost do i-uzlu. Konzistence dat je zajištěna dopředným
+načtením všech existujících klastrů a jejich zápis ve stejném pořadí.
 
 Všechny příkazy které se dají v TUI použít mají vlastní třídu, které je oddědena
 od třídy \command{ICommand} s virtuální metodou \command{execute_inner} a
@@ -51,6 +53,7 @@ popisující úspěch nebo chybu při běhu příkazu.
 Program je třeba zkompilovat a to buď pomocí standardních \command{cmake} příkazů,
 anebo přiloženého \term{bash skriptu} \command{auto/build.bash}, který vhodně
 aplikuje standardní cmake na zvolenou adresářovou strukturu.
+Pro kompilaci nejspíš lze použít gcc, autorem byl použit \command{clang 20.1.8}.
 
 Spustitelný soubor lze spusit standardně, bude se ale nacházet v adresáři
 \command{bin}. Pro jednoduchost lze použít přiložený skript \command{auto/run.bash},
